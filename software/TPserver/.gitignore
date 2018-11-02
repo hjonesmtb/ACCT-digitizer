@@ -1,0 +1,4 @@
+targetProtectClient
+*.o
+*.swp
+*_TEST
