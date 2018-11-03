@@ -71,7 +71,7 @@ module adc_interface
     wire spi_clk_cnt_done;
     timer 
         #( 
-            .MATCH_VALUE(ADC_DATA_WIDTH - 1), // Starts at zero, 16 cycles
+            .MATCH_VALUE(ADC_DATA_WIDTH - 2), // Starts at zero, 16 cycles
             .COUNTER_BITS(6)
         ) 
         spi_clk_cnt ( 
@@ -133,7 +133,7 @@ module adc_interface
                     ADC_SS_LATCH <= 1;
                     ADC_SCLK_LATCH <= 0;
                     DRDY_LATCH <= 0;
-                    DOUT_LATCH <= DOUT_LATCH; //Latch data
+                    //DOUT_LATCH <= DOUT_LATCH; //Latch data
                 end
             CONVD_STATE: //Conversion is done, select device and wait one clock cycle
                 begin
@@ -141,8 +141,8 @@ module adc_interface
                     spi_clk_cnt_rst <= 1;
                     ADC_SS_LATCH <= 0; // Select the device
                     ADC_SCLK_LATCH <= 0; // Done start clocking yet
-                    DRDY_LATCH <= 0;
-                    DOUT_LATCH <= DOUT_LATCH; //Latch data
+                    //DRDY_LATCH <= 0;
+                    //DOUT_LATCH <= DOUT_LATCH; //Latch data
                 end
             RECV_STATE: // We wait to shift in 16 bits of adc data
                 begin
@@ -150,8 +150,8 @@ module adc_interface
                     spi_clk_cnt_rst <= 0; //Count 16 cycles
                     ADC_SS_LATCH <= 0; // Start transmission
                     ADC_SCLK_LATCH <= 1; //Ungate the clock
-                    DRDY_LATCH <= 0;
-                    DOUT_LATCH <= DOUT_LATCH; //Latch data
+                   // DRDY_LATCH <= 0;
+                   // DOUT_LATCH <= DOUT_LATCH; //Latch data
                 end
             OUTPUT_STATE: //Signal that the iytoyt data us good
                 begin

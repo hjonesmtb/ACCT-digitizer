@@ -137,7 +137,7 @@ assign stm_hw_events = {{15{1'b0}}, SW, fpga_led_internal, fpga_debounced_button
 /************************* Target Protect Logic *************************/
 /************************************************************************/
 
-parameter FPGA_VERSION_NO = 32'd20181016; //Oct 16, 2018
+parameter FPGA_VERSION_NO = 32'd20181101; //Nov 1, 2018
 
 
 //Wires from ADC modules
@@ -230,12 +230,12 @@ wire [ADC_DATA_WIDTH-1:0] ADC_INTERFACE_DOUT [7:0];
 wire ADC_INTERFACE_DRDY[7:0];
 adc_interface adc_interface_0
 	(
-		.ADC_MISO(ADC_MISO[0]),
-		.ADC_MOSI(ADC_MOSI[0]),
-		.ADC_SCLK(ADC_SCLK[0]),
-		.ADC_SS(ADC_SS[0]),
-		.SPI_CLK(ADC_clk),
-		.SYS_RST(SYS_RST),
+		.miso(ADC_MISO[0]),
+		.mosi(ADC_MOSI[0]),
+		.sclk(ADC_SCLK[0]),
+		.ss(ADC_SS[0]),
+		.clk(ADC_clk),
+		.rst(SYS_RST),
 		.DOUT(ADC_INTERFACE_DOUT[0]), //syn to ADC_clk
 		.DRDY(ADC_INTERFACE_DRDY[0]) //one valid for ADC_clk period
 	);
