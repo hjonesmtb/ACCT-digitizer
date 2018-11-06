@@ -228,7 +228,7 @@ assign ADC_clk = SPI_CLK;
 //////////////////////////////////////////////////////////////////////	
 wire [ADC_DATA_WIDTH-1:0] ADC_INTERFACE_DOUT [7:0];
 wire ADC_INTERFACE_DRDY[7:0];
-adc_interface adc_interface_0
+ADS8689 adc_interface_0
 	(
 		.miso(ADC_MISO[0]),
 		.mosi(ADC_MOSI[0]),
@@ -374,8 +374,8 @@ soc_system u0(
 
 					//Interlock stuff, the following 3 lines could be deleted? SL, Oct.11.2018
 					
-					.sys_clk_clk(SYS_CLK),													 // System clock 
-					.sys_rst_reset(SYS_RST),									 			 // System reset 
+					//.sys_clk_clk(SYS_CLK),													 // System clock 
+					//.sys_rst_reset(SYS_RST),									 			 // System reset 
 					
 										                      
 					.myavalonbus32_0_conduit_end_addr       (avalon_addr),       //myavalonbus32_0_avalon_slave.address
