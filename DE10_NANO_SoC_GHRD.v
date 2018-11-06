@@ -137,7 +137,7 @@ assign stm_hw_events = {{15{1'b0}}, SW, fpga_led_internal, fpga_debounced_button
 /************************* Target Protect Logic *************************/
 /************************************************************************/
 
-parameter FPGA_VERSION_NO = 32'd20181101; //Nov 1, 2018
+parameter FPGA_VERSION_NO = 32'd20181105; //Nov 5, 2018
 
 
 //Wires from ADC modules
@@ -154,6 +154,8 @@ wire [7:0] ADC_SCLK;
 wire [7:0] ADC_ALARM;
 wire [7:0] ADC_SS;
 wire [1:0] ADC_MUX [7:0];
+
+wire [1:0] ch_gain [7:0]; 
 
 
 reg [15:0] my_reg1;
@@ -174,16 +176,15 @@ assign ADC_RST = ~ SYS_RST;
 	assign GPIO_0_4  = ADC_SCLK[0];
 	assign GPIO_0_0  = ADC_SS[0];
 	
-	assign GPIO_0_6 = 1;
-	assign GPIO_0_8 = 1;
+//	assign GPIO_0_6 = 1;
+//	assign GPIO_0_8 = 1;
 	
-	assign GPIO_0_10 = 1;
-	assign GPIO_0_3 = 1;	
+//	assign GPIO_0_10 = 1;
+//	assign GPIO_0_3 = 1;	
 	assign GPIO_0_21 = 1;
 	
-//	assign {GPIO_0_3, GPIO_0_10} = ADC_MUX[0];
-		
-//	assign ADC_MUX[0] = ch_gain[0];
+	assign {GPIO_0_3, GPIO_0_10} = ADC_MUX[0];
+	assign ADC_MUX[0] = ch_gain[0];
 
 	
 
@@ -394,7 +395,7 @@ soc_system u0(
 //Avalon Bus interface 	
 reg [15:0] control_reg, status_reg;	
 reg [15:0] pca_gain_reg;  //{ch7,ch6,...ch0}, each ch use two bits for mux1,mux0
-wire [1:0] ch_gain [7:0]; 
+
 assign ch_gain[0] = pca_gain_reg[1:0];
 assign ch_gain[1] = pca_gain_reg[3:2];
 assign ch_gain[2] = pca_gain_reg[5:4];

@@ -22,6 +22,8 @@
 #define FPGA_CONTROL_REG_ADDR 4*1
 #define FPGA_MASK_REG_ADDR 4*2
 #define FPGA_VER_ADDR 4*3
+#define PCA_GAIN_ADDR 4*5
+
 
 #define FIFO_CLR_ADDR 4*9
 #define FIFO_WD_ADDR 4*10
@@ -33,6 +35,8 @@
 #define SR  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + FPGA_STATUS_REG_ADDR ) & (unsigned long) (HW_REGS_MASK))
 #define MR  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + FPGA_MASK_REG_ADDR ) & (unsigned long) (HW_REGS_MASK))
 #define FPGA_VER  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + FPGA_VER_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define PCA_GAIN  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + PCA_GAIN_ADDR ) & (unsigned long) (HW_REGS_MASK))
+
 #define FIFO_WD  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + FIFO_WD_ADDR ) & (unsigned long) (HW_REGS_MASK))
 #define FIFO  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + FIFO_ADDR ) & (unsigned long) (HW_REGS_MASK))
 #define FIFO_CLR  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + FIFO_CLR_ADDR ) & (unsigned long) (HW_REGS_MASK))
