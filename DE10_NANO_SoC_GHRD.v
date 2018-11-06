@@ -167,55 +167,27 @@ always @(posedge SYS_CLK or posedge SYS_RST) begin
     else fp_led_count = fp_led_count + 1;
 end
 
-assign ADC_RST = ~ SYS_RST;
 
 // GPIO pin mapping :
+   assign GPIO_0_21 = 1; //ADC_RST
+   
+	//Ch0
 	assign ADC_MISO[0]  =  GPIO_0_2;
-
 	assign GPIO_0_12 = ADC_MOSI[0];
 	assign GPIO_0_4  = ADC_SCLK[0];
 	assign GPIO_0_0  = ADC_SS[0];
-	
-//	assign GPIO_0_6 = 1;
-//	assign GPIO_0_8 = 1;
-	
-//	assign GPIO_0_10 = 1;
-//	assign GPIO_0_3 = 1;	
-	assign GPIO_0_21 = 1;
-	
 	assign {GPIO_0_3, GPIO_0_10} = ADC_MUX[0];
+
 	assign ADC_MUX[0] = ch_gain[0];
-
 	
-
-	
-/*
-pin_mux mux
-    (
-        .GPIO_0(GPIO_0),
-        .GPIO_1(GPIO_1),
-        .ADC_RST(ADC_RST),
-        .SELF_TEST(SELF_TEST),
-        .CPU_RESET(CPU_RESET),
-        .EEPROM_SCL(EEPROM_SCL),
-        .EEPROM_SDA(EEPROM_SDA),
-        .FP_LED(FP_LED),
-        .OUTPUT_RELAY(OUTPUT_RELAY),
-        .ADC_MISO(ADC_MISO),
-        .ADC_MOSI(ADC_MOSI),
-        .ADC_SCLK(ADC_SCLK),
-        .ADC_ALARM(ADC_ALARM),
-        .ADC_SS(ADC_SS),
-        .ADC_MUX0(ADC_MUX0),
-        .ADC_MUX1(ADC_MUX1)
-    );
-*/
 
 // System PLL
 wire SYS_CLK;
 wire SYS_RST;
 wire SPI_CLK, ADC_clk /*synthesis keep*/;
+
 assign SYS_RST = ~hps_fpga_reset_n;
+
 SYS_PLL syspll 
 	(
 		.refclk(FPGA_CLK1_50),
@@ -241,10 +213,6 @@ ADS8689 adc_interface_0
 		.DRDY(ADC_INTERFACE_DRDY[0]) //one valid for ADC_clk period
 	);
 
-
-	
-
-
 //================ Defining CPU to FPGA interface ===============
 //Avalon Memory Mapped Slave Bus declariation	
 
@@ -254,14 +222,12 @@ wire [31:0] avalon_addr,avalon_readdata,avalon_writedata/*synthesis keep*/;
 reg [31:0] dout;
 assign avalon_readdata = dout;
 
-// note Addr = 4*(SDK addr);
-
 parameter integer 	SR_ADDR = 0;
 parameter integer 	CR_ADDR = 1;
 parameter integer 	MR_ADDR = 2;
 
 parameter integer    FPGA_VER_ADDR = 3;  //FPGA version # 
-parameter integer 	CH_SELECT = 4;
+parameter integer 	CH_SELECT_ADDR = 4; //select channel for FIFO transfer to host 
 parameter integer 	PCA_GAIN_ADDR = 5;
 
 parameter integer 	CHC_POWER_ADDR = 6;
@@ -270,10 +236,6 @@ parameter integer 	CHD_POWER_ADDR = 7;
 parameter integer 	FIFO_CLR_ADDR = 9;
 parameter integer 	FIFO_WD_ADDR = 10;
 parameter integer 	FIFO_ADDR = 11;
-
-
-
-
 
 	
 /************************************************************************/
@@ -372,13 +334,7 @@ soc_system u0(
                .hps_0_f2h_debug_reset_req_reset_n(~hps_debug_reset),        //      hps_0_f2h_debug_reset_req.reset_n
                .hps_0_f2h_stm_hw_events_stm_hwevents(stm_hw_events),        //        hps_0_f2h_stm_hw_events.stm_hwevents
                .hps_0_f2h_warm_reset_req_reset_n(~hps_warm_reset),          //       hps_0_f2h_warm_reset_req.reset_n
-
-					//Interlock stuff, the following 3 lines could be deleted? SL, Oct.11.2018
-					
-					//.sys_clk_clk(SYS_CLK),													 // System clock 
-					//.sys_rst_reset(SYS_RST),									 			 // System reset 
-					
-										                      
+									                      
 					.myavalonbus32_0_conduit_end_addr       (avalon_addr),       //myavalonbus32_0_avalon_slave.address
 					.myavalonbus32_0_conduit_end_read       (avalon_read),      // .read
 					.myavalonbus32_0_conduit_end_write      (avalon_write),     // .write
@@ -386,11 +342,9 @@ soc_system u0(
 					.myavalonbus32_0_conduit_end_writedata  (avalon_writedata), // .writedata
 					.myavalonbus32_0_conduit_end_cs 			 (avalon_cs),        // .chipselect
 					.myavalonbus32_0_conduit_end_bus_clk    ()           //  myavalonbus32_0_clk.clk
-					
-					
-           );
 		
-
+				
+           );
 
 //Avalon Bus interface 	
 reg [15:0] control_reg, status_reg;	
@@ -409,9 +363,6 @@ assign ch_gain[7] = pca_gain_reg[15:14];
 			
 reg fifo_clr_reg; //needs to reset by itself after one SYS_CLK
 
-
-//01052018SL, rd signal might need delay
-
 wire avalon_write_i = avalon_write & avalon_cs;
 wire avalon_read_i = avalon_read & avalon_cs;
 
@@ -425,9 +376,6 @@ always @ (posedge SYS_CLK)
 always @ (posedge SYS_CLK)
      avalon_read_o <= avalon_read_i;	  
 	  
-
-
-
 always@(posedge SYS_CLK)
 begin
 /*   Write to Control Register   */
@@ -438,6 +386,10 @@ begin
 	if ((avalon_addr == CR_ADDR) & (avalon_read_o == 1) ) 
 			dout <= {16'b0,control_reg}; 
 	
+	/*   Read from Status Register   */		
+	if ((avalon_addr == SR_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,status_reg}; 
+			
    /*   Read FPGA version   */		
 	if ((avalon_addr == FPGA_VER_ADDR) & (avalon_read_o == 1)) 
 			dout <= FPGA_VERSION_NO; 
@@ -457,7 +409,11 @@ begin
 	
    /*   Write to Mini-PCA Gain Register   */
 	if ((avalon_addr == PCA_GAIN_ADDR) & (avalon_write_o == 1) ) 
-			pca_gain_reg <= avalon_writedata[15:0]; 	
+			pca_gain_reg <= avalon_writedata[15:0]; 
+		
+	/*   Read from Mini-PCA Gain Register   */
+	if ((avalon_addr == PCA_GAIN_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,pca_gain_reg};  	
 	
 	
 end
