@@ -95,6 +95,9 @@ module DE10_NANO_SoC_GHRD(
 	 output GPIO_0_10,
 	 output GPIO_0_3,
 	 
+	 //Output relay
+	 output GPIO_1_23,  //relay_8
+	 
 	 output GPIO_0_21,
 	 
     //////////// KEY //////////
@@ -147,7 +150,7 @@ wire CPU_RESET;
 wire EEPROM_SCL;
 wire EEPROM_SDA;
 wire [2:0] FP_LED;
-wire [7:0] OUTPUT_RELAY;
+
 wire [7:0] ADC_MISO;
 wire [7:0] ADC_MOSI;
 wire [7:0] ADC_SCLK;
@@ -156,10 +159,7 @@ wire [7:0] ADC_SS;
 wire [1:0] ADC_MUX [7:0];
 
 wire [1:0] ch_gain [7:0]; 
-
-
-reg [15:0] my_reg1;
-wire [15:0] my_reg2;
+reg [7:0] relay_reg;
 
 reg [25:0] fp_led_count;
 always @(posedge SYS_CLK or posedge SYS_RST) begin
@@ -170,6 +170,7 @@ end
 
 // GPIO pin mapping :
    assign GPIO_0_21 = 1; //ADC_RST
+	assign GPIO_1_23 = relay_reg[7]; 
    
 	//Ch0
 	assign ADC_MISO[0]  =  GPIO_0_2;
@@ -236,6 +237,8 @@ parameter integer 	CHD_POWER_ADDR = 7;
 parameter integer 	FIFO_CLR_ADDR = 9;
 parameter integer 	FIFO_WD_ADDR = 10;
 parameter integer 	FIFO_ADDR = 11;
+
+parameter integer 	RELAY_ADDR = 12;
 
 	
 /************************************************************************/
@@ -415,7 +418,14 @@ begin
 	if ((avalon_addr == PCA_GAIN_ADDR) & (avalon_read_o == 1) ) 
 			dout <= {16'b0,pca_gain_reg};  	
 	
-	
+
+	/*   Write to Relay Register   */
+	if ((avalon_addr == RELAY_ADDR) & (avalon_write_o == 1) ) 
+			relay_reg <= avalon_writedata[7:0]; 
+		
+	/*   Read from Relay Register   */
+	if ((avalon_addr == RELAY_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,8'b0,relay_reg};  	
 end
 		
 		
