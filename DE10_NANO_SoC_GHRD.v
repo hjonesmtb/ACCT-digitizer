@@ -96,7 +96,7 @@ module DE10_NANO_SoC_GHRD(
 	 output GPIO_0_3,
 	 
 	 //Output relay
-	 output GPIO_1_23,  //relay_8
+	 output GPIO_1_23,  
 	 
 	 output GPIO_0_21,
 	 

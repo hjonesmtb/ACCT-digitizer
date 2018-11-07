@@ -29,6 +29,9 @@
 #define FIFO_WD_ADDR 4*10
 #define FIFO_ADDR 4*11
 
+#define RELAY_ADDR 4*12
+
+
 
 
 #define CR  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + FPGA_CONTROL_REG_ADDR ) & (unsigned long) (HW_REGS_MASK))
@@ -40,6 +43,7 @@
 #define FIFO_WD  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + FIFO_WD_ADDR ) & (unsigned long) (HW_REGS_MASK))
 #define FIFO  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + FIFO_ADDR ) & (unsigned long) (HW_REGS_MASK))
 #define FIFO_CLR  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + FIFO_CLR_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define RELAY  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + RELAY_ADDR ) & (unsigned long) (HW_REGS_MASK))
 
 
 extern sem_t       buffer_1_sem;
