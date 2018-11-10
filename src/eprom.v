@@ -3,67 +3,42 @@
 // usage:
 // write : write entire 128 bytes to eeprom from configuration buffer;
 // read:  read entire 128 bytes from eeprom to configuration buffer;
-// busy:  check status of EEPROM, busy = 1
+// busy:  check status of EEPROM;
 
-//total 10 addresses used in this module:
-//          8 to 13 W - write to AD7417 register, 
-//          14 W - write to AD7417 pointer register
-//          15 R - 16 bit status reg for Slow_ADC module
-//               - 16'h0001 data reg valid,
-//                 indicates that the previous read command is finished
-//               - 16'h0002 busy
-//               - 16'h0004 error
-//          16 R = 16 bit data reg for Slow_ADC module
-//          17 W - read command for AD7417, FD contains AD7417 pointer address
-//          18 W - AD7417 address
-
-//To read a register in the AD7417, take the register address from the data 
-//sheet and write it to addr 14, then write it to register 17 in the FPGA.  Monitor 
-//the status register at address 15 until the least significant bit goes high to 
-//indicate that the FPGA has finished reading the AD7417 register.  
-//Then read the value from the data register at address 16.
-
-//To write to a register in the AD7417, write to addresses 8 to 13.  
-//These address are the register address from the data sheet + 8.  To 
-//write to the pointer register in the AD7417, write to address 14.
 
 `timescale 1 ns / 1 ps
 
 module I2C_eeprom(
           clk,   
-          reset_n,
-          data,
+          rst,
+          conf_data,
           read,
           write,
+			 
+			 buffer,
 			 busy,
+			 valid,
 
           SDA,
           SCL 
                    
                      );
 
-	parameter CONF_BUF_SIZE = 128; //max for 24AA025E48T 128 bytes
-	parameter PAGE_SIZE = 16; // page size of above EEPROM
+	parameter CONF_BUF_SIZE = 16; //max 128 bytes for 24AA025E48T 
+	parameter PAGE_SIZE = 16; // page size in bytes of above EEPROM
+	parameter PAGE_NUM = CONF_BUF_SIZE/PAGE_SIZE; //max 8
+	
 	parameter CHIP_ADDR = 7'b1010000; //I2C chip select Bits, Defined on PCB
 	
-   parameter USB_WORD_SIZE = 16;
-   parameter ID_WORD_SIZE = 3;
-   parameter USB_ADDR_SIZE = 5;
-
-   parameter register_base_addr = 8;
-   parameter pointer_addr = 14;
-   parameter status_addr = 15;
-   parameter data_addr = 16;
-   parameter command_addr = 17;
-   parameter device_addr = 18;
-
-
+  
    input clk;
-   input reset_n;               
+   input rst;               
 
-   input [CONF_BUF_SIZE-1 :0] data[7:0];
+   input [CONF_BUF_SIZE-1:0][7:0] conf_data;
 	input read, write;
-	output reg busy;
+	
+	output reg [CONF_BUF_SIZE-1:0][7:0] buffer;
+	output reg busy,valid;
 
    output SCL;
    inout SDA;
@@ -76,8 +51,10 @@ module I2C_eeprom(
    reg        i2c_rd;
    reg        i2c_wr;
 
-   reg [CONF_BUF_SIZE-1:0] buffer[7:0];
+   
 	reg [7:0] buf_cnt;
+	reg [4:0] page_cnt,byte_cnt;
+	
 	
 i2c_master i2c_master_inst(
    .addr(i2c_addr), 
@@ -90,130 +67,28 @@ i2c_master i2c_master_inst(
    .wr(i2c_wr), 
    .clk(clk));
 
-      
-/*
-   reg [15:0] data;
-   reg [15:0] status;
-   reg [7:0] addr;
-
-   reg [1:0] bytes;
-   reg [7:0] pointer;
-   reg [6:0] AD7417_ADDR;
-   reg [15:0] buffer;
-   
-   parameter temperature_value = 0;
-   parameter config_register = 1;
-   parameter thyst_register = 2;
-   parameter toti_register = 3;
-   parameter adc_value = 4;
-   parameter config2_register = 5;
-   parameter pointer_register = 6;
- */
+     
  
-   parameter state_idle =        0,
-            state_read_start1 =  2,
-            state_read_start2 =  3,
-            state_read_query0 =  4,
-             state_read_addr1 =  5,
-            state_read_addr2 =   6,
-            state_read_query1 =  7,
-
-            state_read_data1 =   8,
-            state_read_data2 =   9,
-            state_read_query2 =  10,
-            
-            state_read_buffer1 = 11,
-            state_read_buffer2 = 12,
-            
-            state_read_data3 =   13,
-            state_read_data4 =   14,
-             
-            state_read_query3 =  15,
-            
-            state_read_buffer3 = 16,
-            state_read_buffer4 = 17,
-                        
-            state_write_start1 = 18,
-            state_write_start2 = 19,
-            state_write_query0 = 20,
-            
-            state_write_addr1 =  21,
-            state_write_addr2 =  22,
-            state_write_query1 = 23,
-
-            state_write_pointer1 = 24,
-            state_write_pointer2 = 25,
-            state_write_query2 =   26,
-            
-            state_write_data1 =   27,
-            state_write_data2 =   28,
-            state_write_query3 =  29,
-                      
-            state_stop1 =         30,
-            state_stop2 =         31,
-            state_stop_query =    32;   
-            
-   reg [5:0] state;
-   reg [5:0] next_state;
-   reg clear_next_state;
+   parameter state_idle = 0;
    
-    
-   parameter state2_idle = 2'd0,
-            state2_read_data_reg = 2'd1;
+            
+   reg [7:0] state/*synthesis keep*/;
+      
    
-   reg [1:0] state2;
-   
-   always @( posedge clk or negedge reset_n )
-   begin
-       if( reset_n == 0 )
-       begin
-          next_state <= state_idle;
-          state2 <= state2_idle;
-       end
-       else
-       begin
-           case( state2 )
-               state2_idle:
-                  begin
-                     if( clear_next_state )
-                     begin
-                         next_state <= state_idle;
-                     end
-                     else if( read )  
-									begin
-										device_byte <= ;
-										next_state <= state_read_start1;
-									end
-                     else if( write  )   
-									begin
-										device_byte <= {CHIP_ADDR,1'b0};
-										next_state <= state_write_start1;
-									end
-                  end
-                  
-						default:
-                  begin
-                      state2 <= state2_idle;
-                  end
-            endcase
-      end
-   end
-   
-	
-	
    ////////////////////////////////////////////////////////////////////////
        
-   always @( posedge clk or negedge reset_n )
+   always @( posedge clk  )
    begin
-       if( reset_n == 0 )
+       if( rst )
        begin
            i2c_addr <= 0;
            in_data <= 0;
            i2c_cs <= 0;
            i2c_rd <= 0;
            i2c_wr <= 0;
+			  busy <= 0;
+			  valid <= 0;
            
-           clear_next_state <= 0;
            state <= state_idle;
        end
        else
@@ -221,185 +96,180 @@ i2c_master i2c_master_inst(
               state_idle:
               begin
                   i2c_addr <= 0; in_data <= 0; i2c_cs <= 0; i2c_wr <= 0; i2c_rd <= 0;
-                  status <= status & 16'hFFFD;   // clear busy
-                  if( next_state != state_idle )
-                    begin
-                      state <= next_state;
-                      clear_next_state <= 1;
-                    end
+                  busy <= 0; valid <= 0; // clear busy, valid
+						  
+                  if( read ) state <= 1;
+						else if( write ) state <= 39;
               end
               
-              state_0:
+              1:
                 begin
-                 status <= (status | 16'h0002) & 16'hFFFA;  // set busy, clear data valid & error
+                 busy <= 1;  // set busy
                  i2c_addr <= 0; i2c_cs <= 1; i2c_wr <= 1;   // START on I2C
-                 state <= state_1;
+                 state <= 2;
                 end
               
-              state_1:
+              2:
                 begin
-                  i2c_cs <= 0; i2c_wr <= 0;
-                  state <= state_2;
+                  i2c_wr <= 0; i2c_rd <= 1; i2c_addr <= 4;
+                  state <= 3;
                 end
               
-              state_2:
+              3:
                 begin
-                  i2c_addr <= 4; i2c_cs <= 1; i2c_rd <= 1;
+                  
                   if (out_data[0] == 0)
                      begin 
                        i2c_cs <= 0; i2c_rd <= 0;
-                       state <= state_3;
+                       state <= 4;
                      end
                 end
                           
-              state_3: //write device control byte: {1010,000,W}
+              4: //write device control byte: {1010,000,W}
                 begin
                   i2c_addr <= 3; in_data <= {CHIP_ADDR,1'b0}; i2c_cs <= 1; i2c_wr <= 1;
-                  state <= state_4;
+                  state <= 5;
                 end
                 
-              state_4:
+              5:
                 begin
-                  i2c_cs <= 0; i2c_wr <= 0;
-                  state <= state_5;
+                  i2c_wr <= 0; i2c_rd <= 1; i2c_addr <= 4;
+                  state <= 6;
                 end    
                           
-              state_5:
+              6:
                 begin
-                  i2c_addr <= 4; i2c_cs <= 1; i2c_rd <= 1;
+                  
                   if (out_data[0] == 0)
                      begin 
                        i2c_cs <= 0; i2c_rd <= 0;
-                       state <= state_6;
+                       state <= 7;
                      end
                 end
              
-				 state_6: //write starting address (starting from addr = 0)
+				 7: //write starting address (starting from addr = 0)
                 begin
                   i2c_addr <= 3; in_data <= 0; i2c_cs <= 1; i2c_wr <= 1;
-                  state <= state_7;
+                  state <= 8;
                 end
               
-              state_7:
+              8:
                 begin
-                  i2c_cs <= 0; i2c_wr <= 0;
-                  state <= state_8;
+                  i2c_wr <= 0; i2c_rd <= 1; i2c_addr <= 4;
+                  state <= 9;
                 end  
               
-              state_8:
+              9:
                 begin
-                  i2c_addr <= 4; i2c_cs <= 1; i2c_rd <= 1;
+                  
                   if (out_data[0] == 0)
                      begin 
                        i2c_cs <= 0; i2c_rd <= 0;
-                       state <= state_9;
+                       state <= 10;
                      end
                 end   
 				 
-				 state_9: //start again on I2C
+				 10: //start again on I2C
                 begin
                  i2c_addr <= 0; i2c_cs <= 1; i2c_wr <= 1;   
-                 state <= state_10;
+                 state <= 11;
                 end
               
-              state_10:
+              11:
                 begin
-                  i2c_cs <= 0; i2c_wr <= 0;
-                  state <= state_11;
+                  i2c_wr <= 0; i2c_rd <= 1; i2c_addr <= 4;
+                  state <= 12;
                 end
               
-              state_11:
+              12:
                 begin
-                  i2c_addr <= 4; i2c_cs <= 1; i2c_rd <= 1;
+                  
                   if (out_data[0] == 0)
                      begin 
                        i2c_cs <= 0; i2c_rd <= 0;
-                       state <= state_12;
+                       state <= 13;
                      end
                 end		 
 				 
-				 state_12: //write device control byte: {1010,000,R}
+				 13: //write device control byte: {1010,000,R}
                 begin
                   i2c_addr <= 3; in_data <= {CHIP_ADDR,1'b1}; i2c_cs <= 1; i2c_wr <= 1;
-                  state <= state_13;
+                  state <= 14;
                 end
                 
-              state_13:
+              14:
                 begin
-                  i2c_cs <= 0; i2c_wr <= 0;
-                  state <= state_14;
+                  i2c_wr <= 0; i2c_rd <= 1; i2c_addr <= 4;
+                  state <= 15;
                 end    
                           
-              state_14:
+              15:
                 begin
-                  i2c_addr <= 4; i2c_cs <= 1; i2c_rd <= 1;
                   if (out_data[0] == 0)
                      begin 
                        i2c_cs <= 0; i2c_rd <= 0; buf_cnt <= 0;
-                       state <= state_15;
+                       state <= 16;
                      end
                 end
 				 
-              state_15: //read one byte from I2C
+              16: //read one byte from I2C
                 begin
                   i2c_addr <= 2; in_data <= 1; i2c_cs <= 1; i2c_wr <= 1;
-                  state <= state_16;
+                  state <= 17;
                 end
               
-              state_16:
+              17:
                 begin
-                  i2c_cs <= 0; i2c_wr <= 0;
-                  state <= state_17;
+                  i2c_wr <= 0; i2c_rd <= 1; i2c_addr <= 4;
+                  state <= 18;
                 end  
               
-              state_17:
+              18:
                 begin
-                  i2c_addr <= 4; i2c_cs <= 1; i2c_rd <= 1;
                   if (out_data[0] == 0)
                      begin 
                        i2c_cs <= 0; i2c_rd <= 0;
-                       state <= state_18;
+                       state <= 19;
                      end
                 end   
                 
-               state_18:
+               19:
                  begin
                   i2c_addr <= 3; i2c_cs <= 1; i2c_rd <= 1; 
-                  state <= state_19;
+                  state <= 20;
                  end    
              
-              state_19:
+              20:
                  begin
                   buffer[buf_cnt] <= out_data; 
                   i2c_cs <= 0; i2c_rd <= 0;
 						if (buf_cnt < CONF_BUF_SIZE - 1) 
 							begin 
 								buf_cnt <= buf_cnt + 1;
-								state <= state_15;
+								state <= 16;
 							end	
-                  else state <= state_20;
+                  else state <= 21;
                  end  
               
-			     state_20:  //STOP on I2C bus
+			     21:  //STOP on I2C bus
                 begin
                  i2c_addr <= 1; i2c_cs <= 1; i2c_wr <= 1;
-                 state <=  state_21;
-                 clear_next_state <= 0;
+                 state <=  22;
+                 
                 end
                 
-              state_21:
+              22:
                 begin
-                  i2c_cs <= 0; i2c_wr <= 0;
-                  state <= state_22;
+                  i2c_wr <= 0; i2c_rd <= 1; i2c_addr <= 4;
+                  state <= 23;
                 end
                 
-              state_22: //Set data Valid flag
+              23: //Set data Valid flag
                 begin
-                 i2c_addr <= 4; i2c_cs <= 1; i2c_rd <= 1;
-                  if (out_data[0] == 0)
+                 if (out_data[0] == 0)
                      begin 
                        i2c_cs <= 0; i2c_rd <= 0;
-							  status <= status | 16'h0001;   // set data valid flag
+							  busy <= 0;  valid <= 1; // clear busy, set data_valid
                        state <= state_idle;
                      end
                 end
@@ -408,127 +278,142 @@ i2c_master i2c_master_inst(
                  
               /////////////////////////////////////////////////////////////////
                      
-              
-              state_40: //set Status bit and START on I2C bus
+              39: //pregare to write 
+				    begin
+					   busy <= 1;  // set busy
+						page_cnt <= 0; buf_cnt <= 0; byte_cnt <= 0;
+						state <= 40;
+					 end
+				  
+              40: //set busy bit and START on I2C bus
+                begin
+                  i2c_addr <= 0; i2c_cs <= 1; i2c_wr <= 1;
+                  state <= 41;
+                end
+                
+              41:
+                begin
+                  i2c_wr <= 0; i2c_rd <= 1; i2c_addr <= 4;
+                  state <= 42;
+                end
+                
+              42:
                 begin
                   
-                  status <= (status | 16'h0002) & 16'hFFFA;  // set busy, clear data valid & error
-                 
-                  i2c_addr <= 0; i2c_cs <= 1; i2c_wr <= 1;
-                 
-                  state <= state_41;
-                end
-                
-              state_41:
-                begin
-                  i2c_cs <= 0; i2c_wr <= 0;
-                  state <= state_42;
-                end
-                
-              state_42:
-                begin
-                  i2c_addr <= 4; i2c_cs <= 1; i2c_rd <= 1;
                   if (out_data[0] == 0)
                      begin 
                        i2c_cs <= 0; i2c_rd <= 0;
-                       state <= state_43;
+                       state <= 43;
                      end
                 end
                 
-              state_43: //write device control byte: {1010,000,W}
+              43: //write device control byte: {1010,000,W}
                 begin
                   i2c_addr <= 3; in_data <= {CHIP_ADDR,1'b0}; i2c_cs <= 1; i2c_wr <= 1;
-                  state <= state_44;
+                  state <= 44;
                 end
                 
-              state_44:
+              44:
                 begin
-                  i2c_cs <= 0; i2c_wr <= 0;
-                  state <= state_45;
+                  i2c_wr <= 0; i2c_rd <= 1; i2c_addr <= 4;
+                  state <= 45;
                 end    
                           
-              state_45:
+              45:
                 begin
-                  i2c_addr <= 4; i2c_cs <= 1; i2c_rd <= 1;
+                  
                   if (out_data[0] == 0)
                      begin 
                        i2c_cs <= 0; i2c_rd <= 0;
-                       state <= state_46;
+                       state <= 46;
                      end
                 end
                 
-              state_46: //write starting address = 0
+              46: //write starting address = 0
                 begin
-                  i2c_addr <= 3; in_data <= 0; i2c_cs <= 1; i2c_wr <= 1;
-                  state <= state_47;
+                  i2c_addr <= 3; in_data <= buf_cnt; i2c_cs <= 1; i2c_wr <= 1;
+                  state <= 47;
                 end
                 
-              state_47:
+              47:
                 begin
-                  i2c_cs <= 0; i2c_wr <= 0;
-                  state <= state_48;
+                  i2c_wr <= 0; i2c_rd <= 1; i2c_addr <= 4;
+                  state <= 48;
                 end   
                 
-              state_48:
+              48:
                 begin
-                  i2c_addr <= 4; i2c_cs <= 1; i2c_rd <= 1;
+                  
                   if (out_data[0] == 0)
                      begin 
-                       i2c_cs <= 0; i2c_rd <= 0; page_cnt <= 0; buf_cnt <= 0;
-                       state <= state_49;
+                       i2c_cs <= 0; i2c_rd <= 0; 
+                       state <= 49;
                      end
                 end   
              
-              state_49: //Write 1 byte to I2C
+              49: //Write 1 byte to I2C
                 begin
-                  i2c_addr <= 3; in_data <= buffer[page_cnt << 4 + buf_cnt]; i2c_cs <= 1; i2c_wr <= 1;
-                  state <= state_50;
+                  i2c_addr <= 3; in_data <= conf_data[buf_cnt+byte_cnt]; i2c_cs <= 1; i2c_wr <= 1;
+                  state <= 50;
                 end
               
-              state_50:
+              50:
                 begin
-                  i2c_cs <= 0; i2c_wr <= 0;
-                  state <= state_51;
+                  i2c_wr <= 0; i2c_rd <= 1; i2c_addr <= 4;
+                  state <= 51;
                 end  
               
-              state_51:
+              51:
                 begin
-                  i2c_addr <= 4; i2c_cs <= 1; i2c_rd <= 1;
+                  
                   if (out_data[0] == 0)
                      begin 
                        i2c_cs <= 0; i2c_rd <= 0;
-							  if (buf_cnt < PAGE_SIZE) 
+							  if (byte_cnt < PAGE_SIZE-1) 
 									begin
-								     	buf_cnt <= buf_cnt + 1;
-										state <= state_49;
+								     	byte_cnt <= byte_cnt + 1;
+										state <= 49;
 									end	
-                       else state <= state_stop1;
+                       else state <= 52;
+									 
                      end
                 end   
-                
-              state_stop1:
+              				  		
+              52:  //STOP on I2C bus
                 begin
                  i2c_addr <= 1; i2c_cs <= 1; i2c_wr <= 1;
-                 state <=  state_stop2;
-                 clear_next_state <= 0;
+                 state <=  53;
+                 
                 end
                 
-              state_stop2:
+              53:
                 begin
-                  i2c_cs <= 0; i2c_wr <= 0;
-                  state <= state_stop_query;
+                  i2c_wr <= 0; i2c_rd <= 1; i2c_addr <= 4;
+                  state <= 54;
                 end
                 
-              state_stop_query:
+              54: //query I2C busy, wait for complete of eeprom programming
                 begin
-                 i2c_addr <= 4; i2c_cs <= 1; i2c_rd <= 1;
+                 
                   if (out_data[0] == 0)
                      begin 
                        i2c_cs <= 0; i2c_rd <= 0;
-                       state <= state_idle;
+                       state <= 55;
                      end
                 end
-                
+               
+				  55: 
+				    begin
+                  if (page_cnt < PAGE_NUM-1 ) 
+									begin
+									  byte_cnt <= 0;
+									  page_cnt <= page_cnt + 1; 
+									  buf_cnt <= buf_cnt + 16;
+								     state <= 40;
+									end	
+                  else state <= state_idle;
+					 end
+					 
               default:
                 begin
                   state <= state_idle;

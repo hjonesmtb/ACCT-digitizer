@@ -31,6 +31,14 @@
 
 #define RELAY_ADDR 4*12
 
+#define CONF_RD_ADDR 4*13
+#define CONF_WR_ADDR 4*14
+
+#define EEPROM_RD_ADDR 4*15
+#define EEPROM_WR_ADDR 4*16
+
+
+
 
 
 
@@ -45,6 +53,11 @@
 #define FIFO_CLR  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + FIFO_CLR_ADDR ) & (unsigned long) (HW_REGS_MASK))
 #define RELAY  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + RELAY_ADDR ) & (unsigned long) (HW_REGS_MASK))
 
+#define CONF_RD  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + CONF_RD_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define CONF_WR  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + CONF_WR_ADDR ) & (unsigned long) (HW_REGS_MASK))
+
+#define EEPROM_RD  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + EEPROM_RD_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define EEPROM_WR  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + EEPROM_WR_ADDR ) & (unsigned long) (HW_REGS_MASK))
 
 extern sem_t       buffer_1_sem;
 extern uint8_t*    buffer_1;

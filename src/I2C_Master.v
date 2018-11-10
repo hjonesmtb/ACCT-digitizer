@@ -52,7 +52,7 @@ addr = 4, R: query status out_data[0] == busy, every command needs followed by "
 module i2c_master(addr, in_data, out_data, sda, scl, cs, rd, wr, clk);
 input wire [2:0] addr;
 input wire [7:0] in_data;
-output reg [7:0] out_data;
+output reg [7:0] out_data/*synthesis keep*/;
 inout            sda;
 inout            scl;
 input wire       cs;

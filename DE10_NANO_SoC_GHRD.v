@@ -100,6 +100,10 @@ module DE10_NANO_SoC_GHRD(
 	 
 	 output GPIO_0_21,
 	 
+	 //i2c eeprom
+	 output GPIO_0_14,
+	 inout GPIO_0_15,
+	 
     //////////// KEY //////////
     input    [ 1: 0]    KEY,
 
@@ -127,10 +131,7 @@ wire                hps_debug_reset;
 wire     [27: 0]    stm_hw_events;
 wire                fpga_clk_50;
 
-
-
 // connection of internal logics
-
 
 assign LED[7: 1] = fpga_led_internal;
 assign fpga_clk_50 = FPGA_CLK1_50;
@@ -141,7 +142,6 @@ assign stm_hw_events = {{15{1'b0}}, SW, fpga_led_internal, fpga_debounced_button
 /************************************************************************/
 
 parameter FPGA_VERSION_NO = 32'd20181105; //Nov 5, 2018
-
 
 //Wires from ADC modules
 wire ADC_RST;
@@ -158,6 +158,9 @@ wire [7:0] ADC_ALARM;
 wire [7:0] ADC_SS;
 wire [1:0] ADC_MUX [7:0];
 
+//I2C signal for eeprom for configuration data
+wire eeprom_scl,eeprom_sda;
+
 wire [1:0] ch_gain [7:0]; 
 reg [7:0] relay_reg;
 
@@ -170,6 +173,9 @@ end
 
 // GPIO pin mapping :
    assign GPIO_0_21 = 1; //ADC_RST
+	assign GPIO_0_14 = eeprom_scl;
+	assign GPIO_0_15 = eeprom_sda;
+	
 	assign GPIO_1_23 = relay_reg[7]; 
    
 	//Ch0
@@ -214,6 +220,53 @@ ADS8689 adc_interface_0
 		.DRDY(ADC_INTERFACE_DRDY[0]) //one valid for ADC_clk period
 	);
 
+//I2C eeprom interface ////////////////////////////////////
+parameter CONF_BUF_SIZE = 16; //max = 128 bytes for 24AA025E48T
+
+reg  [CONF_BUF_SIZE-1:0][7:0] configuration/*synthesis keep*/; //configuration buffer 
+wire [CONF_BUF_SIZE-1:0][7:0] eeprom_buffer;
+
+wire eeprom_busy,eeprom_data_valid;
+wire rd_eeprom,wr_eeprom,wr_conf/*synthesis keep*/;
+
+reg [2:0] state/*synthesis keep*/;
+
+always@(posedge SYS_CLK)
+   if (SYS_RST) state <= 0;
+	else 
+		case (state)
+				0:	if(rd_eeprom) state <= 1;
+				   else if (wr_conf) state <= 2;
+				1: if (~eeprom_busy && eeprom_data_valid) 
+						begin /*configuration <= eeprom_buffer;*/ state <= 0; end 
+				2: begin
+						configuration[0] <= 1; //pca_gain_reg[7:0];
+						configuration[1] <= 1;  //pca_gain_reg[15:8];
+						configuration[14] <= 1;
+						configuration[15] <= 1;
+						state <= 0;
+						
+				   end
+				default:
+				  state <= 0;
+      endcase
+		
+		
+	I2C_eeprom eeprom_inst(
+          .clk(SYS_CLK),   
+          .rst(SYS_RST),
+          .conf_data(configuration),
+          .read(rd_eeprom),
+          .write(wr_eeprom),
+			 
+			 .buffer(eeprom_buffer),
+			 .busy(eeprom_busy),
+			 .valid(eeprom_data_valid),
+
+          .SDA(eeprom_sda),
+          .SCL(eeprom_scl)               
+                     );
+							
 //================ Defining CPU to FPGA interface ===============
 //Avalon Memory Mapped Slave Bus declariation	
 
@@ -239,6 +292,12 @@ parameter integer 	FIFO_WD_ADDR = 10;
 parameter integer 	FIFO_ADDR = 11;
 
 parameter integer 	RELAY_ADDR = 12;
+
+parameter integer 	CONF_RD_ADDR = 13;
+parameter integer 	CONF_WR_ADDR = 14;
+
+parameter integer 	EEPROM_RD_ADDR = 15;
+parameter integer 	EEPROM_WR_ADDR = 16;
 
 	
 /************************************************************************/
@@ -363,7 +422,6 @@ assign ch_gain[6] = pca_gain_reg[13:12];
 assign ch_gain[7] = pca_gain_reg[15:14];
 
 
-			
 reg fifo_clr_reg; //needs to reset by itself after one SYS_CLK
 
 wire avalon_write_i = avalon_write & avalon_cs;
@@ -372,6 +430,11 @@ wire avalon_read_i = avalon_read & avalon_cs;
 reg avalon_write_o,avalon_read_o /*synthesis keep*/;
 wire fifo_rd /*synthesis keep*/;
 assign fifo_rd = (avalon_addr == FIFO_ADDR & (avalon_read_o == 1));
+
+assign rd_eeprom = (avalon_addr == EEPROM_RD_ADDR & (avalon_write_o == 1)); //load eeprom -> buffer
+assign wr_eeprom = (avalon_addr == EEPROM_WR_ADDR & (avalon_write_o == 1));//write buffer -> eeprom
+assign wr_conf = (avalon_addr == CONF_WR_ADDR & (avalon_write_o == 1));//load reg -> buffer 
+assign rd_conf = (avalon_addr == CONF_RD_ADDR & (avalon_write_o == 1));//load buffer -> reg 
 
 always @ (posedge SYS_CLK)
      avalon_write_o <= avalon_write_i;
@@ -423,9 +486,15 @@ begin
 	if ((avalon_addr == RELAY_ADDR) & (avalon_write_o == 1) ) 
 			relay_reg <= avalon_writedata[7:0]; 
 		
-	/*   Read from Relay Register   */
-	if ((avalon_addr == RELAY_ADDR) & (avalon_read_o == 1) ) 
-			dout <= {16'b0,8'b0,relay_reg};  	
+	/*   Load configuration buffer to registers   */
+	if ((avalon_addr == CONF_RD_ADDR) & (avalon_write_o == 1) ) 
+		begin
+			pca_gain_reg <= {configuration[1],configuration[0]};  
+		end	
+	
+   
+		
+	
 end
 		
 		
