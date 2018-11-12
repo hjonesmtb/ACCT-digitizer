@@ -1,0 +1,94 @@
+m255
+K3
+13
+cModel Technology
+Z0 dC:\altera\13.1
+vconf
+Z1 DXx6 sv_std 3 std 0 22 F[19LRNL:5;XmIFh[XOPn1
+Z2 !s100 B4TzdU09iG_lfS08f4_3`3
+Z3 IVXYJFYJ<m]ShjOn3efY2n0
+Z4 V=BkP<KXTRgc=hE6Icaez?3
+Z5 !s105 conf_v_unit
+S1
+Z6 dC:\Myprojects\Target Protect 1039\FPGA\Target-Protect-Firmware\src
+Z7 w1541841073
+Z8 8C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/conf.v
+Z9 FC:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/conf.v
+L0 6
+Z10 OV;L;10.1d;51
+r1
+31
+Z11 !s90 -reportprogress|300|-work|work|-sv|C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/conf.v|
+Z12 o-work work -sv -O0
+!i10b 1
+!s85 0
+Z13 !s108 1541843013.435000
+Z14 !s107 C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/conf.v|
+!s101 -O0
+vconf_tb
+R1
+!i10b 1
+!s100 jQlFoK:a396_1==jI^zGn3
+IR`WfVV8M_k]IG36k<1i0<1
+Z15 VZ6?<2@d002kT7RE7V4UOI2
+Z16 !s105 conf_tb_v_unit
+S1
+R6
+w1541843009
+Z17 8C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/conf_tb.v
+Z18 FC:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/conf_tb.v
+L0 9
+R10
+r1
+!s85 0
+31
+!s108 1541843013.632000
+!s107 C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/conf_tb.v|
+Z19 !s90 -reportprogress|300|-work|work|-sv|C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/conf_tb.v|
+!s101 -O0
+R12
+vI2C_eeprom
+R1
+Z20 !s100 Z<^WIH@O;Re8E:iQRmCOV2
+Z21 I>7_gbIcMo:7mc2[K5X?o<3
+Z22 Vj?M;bPcO0m]GPSUDZ<k[;0
+Z23 !s105 eprom_v_unit
+S1
+R6
+Z24 w1541814550
+Z25 8C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/eprom.v
+Z26 FC:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/eprom.v
+L0 11
+R10
+r1
+31
+Z27 !s90 -reportprogress|300|-work|work|-sv|C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/eprom.v|
+R12
+Z28 n@i2@c_eeprom
+Z29 !s108 1541843013.252000
+Z30 !s107 C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/eprom.v|
+!i10b 1
+!s85 0
+!s101 -O0
+vi2c_master
+R1
+Z31 !s100 DJ5el`6ckK8AKhZizIAJR1
+Z32 IhD4UdAXcM87:C[G?KQja=0
+Z33 VD`PioI1][==O@l@e4SPYz1
+Z34 !s105 I2C_Master_v_unit
+S1
+R6
+Z35 w1541750184
+Z36 8C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/I2C_Master.v
+Z37 FC:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/I2C_Master.v
+L0 52
+R10
+r1
+31
+Z38 !s90 -reportprogress|300|-work|work|-sv|C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/I2C_Master.v|
+R12
+Z39 !s108 1541843013.088000
+Z40 !s107 C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/I2C_Master.v|
+!i10b 1
+!s85 0
+!s101 -O0

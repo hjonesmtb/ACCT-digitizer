@@ -147,8 +147,7 @@ parameter FPGA_VERSION_NO = 32'd20181105; //Nov 5, 2018
 wire ADC_RST;
 wire SELF_TEST;
 wire CPU_RESET;
-wire EEPROM_SCL;
-wire EEPROM_SDA;
+
 wire [2:0] FP_LED;
 
 wire [7:0] ADC_MISO;
@@ -163,6 +162,10 @@ wire eeprom_scl,eeprom_sda;
 
 wire [1:0] ch_gain [7:0]; 
 reg [7:0] relay_reg;
+reg [7:0] ch0_thresh_reg,ch1_thresh_reg,ch2_thresh_reg,ch3_thresh_reg;
+reg [7:0] ch4_thresh_reg,ch5_thresh_reg,ch6_thresh_reg,ch7_thresh_reg;
+
+
 
 reg [25:0] fp_led_count;
 always @(posedge SYS_CLK or posedge SYS_RST) begin
@@ -173,8 +176,8 @@ end
 
 // GPIO pin mapping :
    assign GPIO_0_21 = 1; //ADC_RST
-	assign GPIO_0_14 = eeprom_scl;
-	assign GPIO_0_15 = eeprom_sda;
+	//assign GPIO_0_14 = eeprom_scl;
+	//assign GPIO_0_15 = eeprom_sda;
 	
 	assign GPIO_1_23 = relay_reg[7]; 
    
@@ -221,37 +224,39 @@ ADS8689 adc_interface_0
 	);
 
 //I2C eeprom interface ////////////////////////////////////
-parameter CONF_BUF_SIZE = 16; //max = 128 bytes for 24AA025E48T
+parameter CONF_BUF_SIZE = 128; //max = 128 bytes for 24AA025E48T
 
-reg  [CONF_BUF_SIZE-1:0][7:0] configuration/*synthesis keep*/; //configuration buffer 
-wire [CONF_BUF_SIZE-1:0][7:0] eeprom_buffer;
+reg  [7:0] configuration [CONF_BUF_SIZE-1:0]; //configuration buffer 
+wire [7:0] eeprom_buffer [CONF_BUF_SIZE-1:0];
+
 
 wire eeprom_busy,eeprom_data_valid;
 wire rd_eeprom,wr_eeprom,wr_conf/*synthesis keep*/;
 
-reg [2:0] state/*synthesis keep*/;
-
-always@(posedge SYS_CLK)
-   if (SYS_RST) state <= 0;
-	else 
-		case (state)
-				0:	if(rd_eeprom) state <= 1;
-				   else if (wr_conf) state <= 2;
-				1: if (~eeprom_busy && eeprom_data_valid) 
-						begin /*configuration <= eeprom_buffer;*/ state <= 0; end 
-				2: begin
-						configuration[0] <= 1; //pca_gain_reg[7:0];
-						configuration[1] <= 1;  //pca_gain_reg[15:8];
-						configuration[14] <= 1;
-						configuration[15] <= 1;
-						state <= 0;
+always @ (posedge SYS_CLK)
+	begin 
+		if (~eeprom_busy && eeprom_data_valid) 
+				configuration <= eeprom_buffer;  
+		else if (wr_conf) 		
+				begin
+						//gain settings for each channel
+						configuration[0] <= pca_gain_reg[7:0];
+						configuration[1] <= pca_gain_reg[15:8];
 						
-				   end
-				default:
-				  state <= 0;
-      endcase
-		
-		
+						//signal thresholds for each channel
+						configuration[10] <= ch0_thresh_reg[7:0];
+						configuration[11] <= ch1_thresh_reg[7:0];
+						configuration[12] <= ch2_thresh_reg[7:0];
+						configuration[13] <= ch3_thresh_reg[7:0];
+						configuration[14] <= ch4_thresh_reg[7:0];
+						configuration[15] <= ch5_thresh_reg[7:0];
+						configuration[16] <= ch6_thresh_reg[7:0];
+						configuration[17] <= ch7_thresh_reg[7:0];
+						
+					   
+				end
+	end			
+
 	I2C_eeprom eeprom_inst(
           .clk(SYS_CLK),   
           .rst(SYS_RST),
@@ -263,11 +268,12 @@ always@(posedge SYS_CLK)
 			 .busy(eeprom_busy),
 			 .valid(eeprom_data_valid),
 
-          .SDA(eeprom_sda),
-          .SCL(eeprom_scl)               
+          .SDA(GPIO_0_15),
+          .SCL(GPIO_0_14)               
                      );
 							
-//================ Defining CPU to FPGA interface ===============
+
+							//================ Defining CPU to FPGA interface ===============
 //Avalon Memory Mapped Slave Bus declariation	
 
 wire avalon_read, avalon_write,avalon_cs/*synthesis keep*/;
@@ -454,7 +460,8 @@ begin
 	
 	/*   Read from Status Register   */		
 	if ((avalon_addr == SR_ADDR) & (avalon_read_o == 1) ) 
-			dout <= {16'b0,status_reg}; 
+			dout <= {test_reg,status_reg};
+			
 			
    /*   Read FPGA version   */		
 	if ((avalon_addr == FPGA_VER_ADDR) & (avalon_read_o == 1)) 

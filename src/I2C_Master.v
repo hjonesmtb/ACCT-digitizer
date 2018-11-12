@@ -34,14 +34,14 @@ addr = 1, w: stop
 addr = 2, W: read 1 byte from I2C bus, store the data into "buffer", in_data[0] define ACK/NACK bit.
 addr = 3, W: write 1 byte contained in "in_data" to I2C bus
 addr = 3, R: read the byte in "buffer" to out_data, no "query" needed.
-addr = 4, W: speed selection
+addr = 4, W: speed selection, change BAUD100K to 100 if want 100K baud
 addr = 4, R: query status out_data[0] == busy, every command needs followed by "query", except
         "addr=3,R".
 
 */
 
 `define BAUD400K  25
-`define BAUD100K  100
+`define BAUD100K  25 //100 if need 100k baud 
 
 `define IDLE      0
 `define START     1

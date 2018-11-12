@@ -24,7 +24,7 @@ module I2C_eeprom(
                    
                      );
 
-	parameter CONF_BUF_SIZE = 16; //max 128 bytes for 24AA025E48T 
+	parameter CONF_BUF_SIZE = 128; //max 128 bytes for 24AA025E48T 
 	parameter PAGE_SIZE = 16; // page size in bytes of above EEPROM
 	parameter PAGE_NUM = CONF_BUF_SIZE/PAGE_SIZE; //max 8
 	
@@ -34,10 +34,10 @@ module I2C_eeprom(
    input clk;
    input rst;               
 
-   input [CONF_BUF_SIZE-1:0][7:0] conf_data;
+   input [7:0] conf_data [CONF_BUF_SIZE-1:0];
 	input read, write;
 	
-	output reg [CONF_BUF_SIZE-1:0][7:0] buffer;
+	output reg [7:0] buffer [CONF_BUF_SIZE-1:0];
 	output reg busy,valid;
 
    output SCL;
