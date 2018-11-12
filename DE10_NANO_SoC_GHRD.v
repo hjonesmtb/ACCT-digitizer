@@ -116,8 +116,33 @@ module DE10_NANO_SoC_GHRD(
 
 
 `include "src/param.v"
-										
 
+`define 	PCA_GAIN_BIT_L8 configuration[0]
+`define 	PCA_GAIN_BIT_H8 configuration[1]
+`define 	CH0_TH_BYTE  configuration[10]
+`define 	CH1_TH_BYTE  configuration[11]
+`define 	CH2_TH_BYTE  configuration[12]
+`define 	CH3_TH_BYTE  configuration[13]
+`define 	CH4_TH_BYTE  configuration[14]
+`define 	CH5_TH_BYTE  configuration[15]
+`define 	CH6_TH_BYTE  configuration[16]
+`define 	CH7_TH_BYTE  configuration[17]
+
+/*							
+configuration[0] <= pca_gain_reg[7:0];
+						configuration[1] <= pca_gain_reg[15:8];
+						
+						//signal thresholds for each channel
+						configuration[10] <= ch0_thresh_reg[7:0];
+						configuration[11] <= ch1_thresh_reg[7:0];
+						configuration[12] <= ch2_thresh_reg[7:0];
+						configuration[13] <= ch3_thresh_reg[7:0];
+						configuration[14] <= ch4_thresh_reg[7:0];
+						configuration[15] <= ch5_thresh_reg[7:0];
+						configuration[16] <= ch6_thresh_reg[7:0];
+						configuration[17] <= ch7_thresh_reg[7:0];
+*/						
+						
 //=======================================================
 //  REG/WIRE declarations
 //=======================================================
@@ -162,8 +187,6 @@ wire eeprom_scl,eeprom_sda;
 
 wire [1:0] ch_gain [7:0]; 
 reg [7:0] relay_reg;
-reg [7:0] ch0_thresh_reg,ch1_thresh_reg,ch2_thresh_reg,ch3_thresh_reg;
-reg [7:0] ch4_thresh_reg,ch5_thresh_reg,ch6_thresh_reg,ch7_thresh_reg;
 
 
 
@@ -226,36 +249,14 @@ ADS8689 adc_interface_0
 //I2C eeprom interface ////////////////////////////////////
 parameter CONF_BUF_SIZE = 128; //max = 128 bytes for 24AA025E48T
 
-reg  [7:0] configuration [CONF_BUF_SIZE-1:0]; //configuration buffer 
+reg  [7:0] configuration [CONF_BUF_SIZE-1:0]; //configuration data 
 wire [7:0] eeprom_buffer [CONF_BUF_SIZE-1:0];
 
 
 wire eeprom_busy,eeprom_data_valid;
-wire rd_eeprom,wr_eeprom,wr_conf/*synthesis keep*/;
+wire rd_eeprom,wr_eeprom /*synthesis keep*/;
 
-always @ (posedge SYS_CLK)
-	begin 
-		if (~eeprom_busy && eeprom_data_valid) 
-				configuration <= eeprom_buffer;  
-		else if (wr_conf) 		
-				begin
-						//gain settings for each channel
-						configuration[0] <= pca_gain_reg[7:0];
-						configuration[1] <= pca_gain_reg[15:8];
-						
-						//signal thresholds for each channel
-						configuration[10] <= ch0_thresh_reg[7:0];
-						configuration[11] <= ch1_thresh_reg[7:0];
-						configuration[12] <= ch2_thresh_reg[7:0];
-						configuration[13] <= ch3_thresh_reg[7:0];
-						configuration[14] <= ch4_thresh_reg[7:0];
-						configuration[15] <= ch5_thresh_reg[7:0];
-						configuration[16] <= ch6_thresh_reg[7:0];
-						configuration[17] <= ch7_thresh_reg[7:0];
-						
-					   
-				end
-	end			
+		
 
 	I2C_eeprom eeprom_inst(
           .clk(SYS_CLK),   
@@ -416,16 +417,16 @@ soc_system u0(
 
 //Avalon Bus interface 	
 reg [15:0] control_reg, status_reg;	
-reg [15:0] pca_gain_reg;  //{ch7,ch6,...ch0}, each ch use two bits for mux1,mux0
+//reg [15:0] pca_gain_reg;  //{ch7,ch6,...ch0}, each ch use two bits for mux1,mux0
 
-assign ch_gain[0] = pca_gain_reg[1:0];
-assign ch_gain[1] = pca_gain_reg[3:2];
-assign ch_gain[2] = pca_gain_reg[5:4];
-assign ch_gain[3] = pca_gain_reg[7:6];
-assign ch_gain[4] = pca_gain_reg[9:8];
-assign ch_gain[5] = pca_gain_reg[11:10];
-assign ch_gain[6] = pca_gain_reg[13:12];
-assign ch_gain[7] = pca_gain_reg[15:14];
+assign ch_gain[0] = `PCA_GAIN_BIT_L8[1:0];
+assign ch_gain[1] = `PCA_GAIN_BIT_L8[3:2];
+assign ch_gain[2] = `PCA_GAIN_BIT_L8[5:4];
+assign ch_gain[3] = `PCA_GAIN_BIT_L8[7:6];
+assign ch_gain[4] = `PCA_GAIN_BIT_H8[1:0];
+assign ch_gain[5] = `PCA_GAIN_BIT_H8[3:2];
+assign ch_gain[6] = `PCA_GAIN_BIT_H8[5:4];
+assign ch_gain[7] = `PCA_GAIN_BIT_H8[7:6];
 
 
 reg fifo_clr_reg; //needs to reset by itself after one SYS_CLK
@@ -439,8 +440,6 @@ assign fifo_rd = (avalon_addr == FIFO_ADDR & (avalon_read_o == 1));
 
 assign rd_eeprom = (avalon_addr == EEPROM_RD_ADDR & (avalon_write_o == 1)); //load eeprom -> buffer
 assign wr_eeprom = (avalon_addr == EEPROM_WR_ADDR & (avalon_write_o == 1));//write buffer -> eeprom
-assign wr_conf = (avalon_addr == CONF_WR_ADDR & (avalon_write_o == 1));//load reg -> buffer 
-assign rd_conf = (avalon_addr == CONF_RD_ADDR & (avalon_write_o == 1));//load buffer -> reg 
 
 always @ (posedge SYS_CLK)
      avalon_write_o <= avalon_write_i;
@@ -448,8 +447,12 @@ always @ (posedge SYS_CLK)
 always @ (posedge SYS_CLK)
      avalon_read_o <= avalon_read_i;	  
 	  
+  
+	  
 always@(posedge SYS_CLK)
-begin
+	if (~eeprom_busy && eeprom_data_valid) 
+				configuration <= eeprom_buffer; 
+	else begin
 /*   Write to Control Register   */
 	if ((avalon_addr == CR_ADDR) & (avalon_write_o == 1) ) 
 			control_reg <= avalon_writedata[15:0]; 	
@@ -460,7 +463,7 @@ begin
 	
 	/*   Read from Status Register   */		
 	if ((avalon_addr == SR_ADDR) & (avalon_read_o == 1) ) 
-			dout <= {test_reg,status_reg};
+			dout <= {16'b0,status_reg};
 			
 			
    /*   Read FPGA version   */		
@@ -480,27 +483,18 @@ begin
 	if (fifo_rd) 
 			dout <= {16'b0,fast_fifo_dout}; 	
 	
-   /*   Write to Mini-PCA Gain Register   */
+   /*   Write to Mini-PCA Gain bits   */
 	if ((avalon_addr == PCA_GAIN_ADDR) & (avalon_write_o == 1) ) 
-			pca_gain_reg <= avalon_writedata[15:0]; 
+			{`PCA_GAIN_BIT_H8,`PCA_GAIN_BIT_L8} <= avalon_writedata[15:0]; 
 		
 	/*   Read from Mini-PCA Gain Register   */
 	if ((avalon_addr == PCA_GAIN_ADDR) & (avalon_read_o == 1) ) 
-			dout <= {16'b0,pca_gain_reg};  	
-	
+			dout <= {16'b0,`PCA_GAIN_BIT_H8,`PCA_GAIN_BIT_L8};  	
 
 	/*   Write to Relay Register   */
 	if ((avalon_addr == RELAY_ADDR) & (avalon_write_o == 1) ) 
 			relay_reg <= avalon_writedata[7:0]; 
-		
-	/*   Load configuration buffer to registers   */
-	if ((avalon_addr == CONF_RD_ADDR) & (avalon_write_o == 1) ) 
-		begin
-			pca_gain_reg <= {configuration[1],configuration[0]};  
-		end	
 	
-   
-		
 	
 end
 		
