@@ -1,0 +1,8 @@
+work/*
+std_ovl/*
+*.bak
+*.do
+*.wlf
+*.txt
+*.mpf
+*.mti

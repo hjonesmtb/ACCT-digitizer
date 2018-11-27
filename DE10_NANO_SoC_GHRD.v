@@ -80,27 +80,69 @@ module DE10_NANO_SoC_GHRD(
     output              HPS_USB_STP,
 
 	 //////////// GPIO //////////
-    //inout   [35: 0]     GPIO_0,
-    //inout   [35: 0]     GPIO_1,
-	 input GPIO_0_2,
-
-	 output GPIO_0_12,
-	 output GPIO_0_4,
-	 output GPIO_0_0,
-	 
-	 output GPIO_0_6,
-	 output GPIO_0_8,
-	 output GPIO_0_10,
-	 output GPIO_0_3,
-	 
-	 //Output relay
-	 output GPIO_1_23,  
-	 
-	 output GPIO_0_21,
-	 
+	output GPIO_1_27,  //ADC_RST
+	output GPIO_1_29,  //ADC SCLK
+	output GPIO_1_26,  //ADC nSS
+	output GPIO_1_28,  //ADC MOSI
+	
+	output GPIO_1_20,  //SqureWave
+	output GPIO_1_24,  //self check
+	
+		 
 	 //i2c eeprom
-	 output GPIO_0_14,
-	 inout GPIO_0_15,
+	 output GPIO_1_6, //SCL
+	 inout  GPIO_1_8, //SDA
+	
+   //Relay output 1 ~ 8
+	output GPIO_1_35,  
+	output GPIO_0_3, 
+	output GPIO_0_9, 
+	output GPIO_0_13, 
+	output GPIO_0_19, 
+	output GPIO_0_25, 
+	output GPIO_0_29, 
+	output GPIO_0_35, 
+   
+	//Ch0--A1 of sch channel
+	input  GPIO_1_34,
+	output GPIO_1_33,
+   output GPIO_1_32,
+	
+	//Ch1--A2 of sch channel
+	input  GPIO_0_2,
+	output GPIO_0_1,
+	output GPIO_0_0,
+	
+	//Ch2--A3 of sch channel
+	input  GPIO_0_8,
+	output GPIO_0_7,
+   output GPIO_0_6,
+	
+	//Ch3--A4 of sch channel
+	input  GPIO_0_12,
+	output GPIO_0_11,
+	output GPIO_0_10,
+	
+	//Ch4--A5 of sch channel
+	input  GPIO_0_18,
+	output GPIO_0_17,
+	output GPIO_0_16,
+	
+	//Ch5--A6 of sch channel
+	input  GPIO_0_24,
+	output GPIO_0_23,
+	output GPIO_0_22,
+	
+	//Ch6--A7 of sch channel
+	input  GPIO_0_28,
+	output GPIO_0_27,
+	output GPIO_0_26,
+	
+	//Ch7--A8 of sch channel
+	input  GPIO_0_34,
+	output GPIO_0_33,
+	output GPIO_0_32,
+
 	 
     //////////// KEY //////////
     input    [ 1: 0]    KEY,
@@ -149,7 +191,10 @@ assign stm_hw_events = {{15{1'b0}}, SW, fpga_led_internal, fpga_debounced_button
 /************************* Target Protect Logic *************************/
 /************************************************************************/
 
-parameter FPGA_VERSION_NO = 32'd20181105; //Nov 5, 2018
+parameter FPGA_VERSION_NO = 32'd20181126; //Nov 26, 2018
+
+
+wire self_chk, test_pulse;
 
 //Wires from ADC modules
 wire ADC_RST;
@@ -159,10 +204,9 @@ wire CPU_RESET;
 wire [2:0] FP_LED;
 
 wire [7:0] ADC_MISO;
-wire [7:0] ADC_MOSI;
-wire [7:0] ADC_SCLK;
-wire [7:0] ADC_ALARM;
-wire [7:0] ADC_SS;
+wire  ADC_MOSI;
+wire  ADC_SCLK;
+wire  ADC_SS;
 wire [1:0] ADC_MUX [7:0];
 
 //I2C signal for eeprom for configuration data
@@ -179,20 +223,59 @@ end
 
 
 // GPIO pin mapping :
-   assign GPIO_0_21 = 1; //ADC_RST
+   assign GPIO_1_27 = 1; //ADC_RST
+	assign GPIO_1_29  = ADC_SCLK;
+	assign GPIO_1_26  = ADC_SS;
+	assign GPIO_1_28 = ADC_MOSI;
+	
+	assign GPIO_1_20 = test_pulse;  //test pulse: squre wave
+	assign GPIO_1_24 = self_chk; //Turn-on Analog Switch for Sigma-Delta signal
+	
 	//assign GPIO_0_14 = eeprom_scl;
 	//assign GPIO_0_15 = eeprom_sda;
 	
-	assign GPIO_1_23 = relay_reg[7]; 
+	assign GPIO_1_35 = relay_reg[0]; 
+	assign GPIO_0_3  = relay_reg[1]; 
+	assign GPIO_0_9  = relay_reg[2]; 
+	assign GPIO_0_13 = relay_reg[3]; 
+	assign GPIO_0_19 = relay_reg[4]; 
+	assign GPIO_0_25 = relay_reg[5]; 
+	assign GPIO_0_29 = relay_reg[6]; 
+	assign GPIO_0_35 = relay_reg[7]; 
    
-	//Ch0
-	assign ADC_MISO[0]  =  GPIO_0_2;
-	assign GPIO_0_12 = ADC_MOSI[0];
-	assign GPIO_0_4  = ADC_SCLK[0];
-	assign GPIO_0_0  = ADC_SS[0];
-	assign {GPIO_0_3, GPIO_0_10} = ADC_MUX[0];
+	//Ch0--A1 of sch channel
+	assign ADC_MISO[0]  =  GPIO_1_34;
+	assign {GPIO_1_33, GPIO_1_32} = ADC_MUX[0];
+	//Ch1--A2 of sch channel
+	assign ADC_MISO[1]  =  GPIO_0_2;
+	assign {GPIO_0_1, GPIO_0_0} = ADC_MUX[1];
+	//Ch2--A3 of sch channel
+	assign ADC_MISO[2]  =  GPIO_0_8;
+	assign {GPIO_0_7, GPIO_0_6} = ADC_MUX[2];
+	//Ch3--A4 of sch channel
+	assign ADC_MISO[3]  =  GPIO_0_12;
+	assign {GPIO_0_11, GPIO_0_10} = ADC_MUX[3];
+	//Ch4--A5 of sch channel
+	assign ADC_MISO[4]  =  GPIO_0_18;
+	assign {GPIO_0_17, GPIO_0_16} = ADC_MUX[4];
+	//Ch5--A6 of sch channel
+	assign ADC_MISO[5]  =  GPIO_0_24;
+	assign {GPIO_0_23, GPIO_0_22} = ADC_MUX[5];
+	//Ch6--A7 of sch channel
+	assign ADC_MISO[6]  =  GPIO_0_28;
+	assign {GPIO_0_27, GPIO_0_26} = ADC_MUX[6];
+	//Ch7--A8 of sch channel
+	assign ADC_MISO[7]  =  GPIO_0_34;
+	assign {GPIO_0_33, GPIO_0_32} = ADC_MUX[7];
 
 	assign ADC_MUX[0] = ch_gain[0];
+	assign ADC_MUX[1] = ch_gain[1];
+	assign ADC_MUX[2] = ch_gain[2];
+	assign ADC_MUX[3] = ch_gain[3];
+	assign ADC_MUX[4] = ch_gain[4];
+	assign ADC_MUX[5] = ch_gain[5];
+	assign ADC_MUX[6] = ch_gain[6];
+	assign ADC_MUX[7] = ch_gain[7];
 	
 // System PLL
 wire SYS_CLK;
@@ -217,15 +300,98 @@ wire ADC_INTERFACE_DRDY[7:0];
 ADS8689 adc_interface_0
 	(
 		.miso(ADC_MISO[0]),
-		.mosi(ADC_MOSI[0]),
-		.sclk(ADC_SCLK[0]),
-		.ss(ADC_SS[0]),
+		.mosi(ADC_MOSI),
+		.sclk(ADC_SCLK),
+		.ss(ADC_SS),
 		.clk(ADC_clk),
 		.rst(SYS_RST),
 		.DOUT(ADC_INTERFACE_DOUT[0]), //syn to ADC_clk
 		.DRDY(ADC_INTERFACE_DRDY[0]) //one valid for ADC_clk period
 	);
 
+ADS8689 adc_interface_1
+	(
+		.miso(ADC_MISO[1]),
+		.mosi(),
+		.sclk(),
+		.ss(),
+		.clk(ADC_clk),
+		.rst(SYS_RST),
+		.DOUT(ADC_INTERFACE_DOUT[1]), //syn to ADC_clk
+		.DRDY(ADC_INTERFACE_DRDY[1]) //one valid for ADC_clk period
+	);	
+
+ADS8689 adc_interface_2
+	(
+		.miso(ADC_MISO[2]),
+		.mosi(),
+		.sclk(),
+		.ss(),
+		.clk(ADC_clk),
+		.rst(SYS_RST),
+		.DOUT(ADC_INTERFACE_DOUT[2]), //syn to ADC_clk
+		.DRDY(ADC_INTERFACE_DRDY[2]) //one valid for ADC_clk period
+	);
+
+ADS8689 adc_interface_3
+	(
+		.miso(ADC_MISO[3]),
+		.mosi(),
+		.sclk(),
+		.ss(),
+		.clk(ADC_clk),
+		.rst(SYS_RST),
+		.DOUT(ADC_INTERFACE_DOUT[3]), //syn to ADC_clk
+		.DRDY(ADC_INTERFACE_DRDY[3]) //one valid for ADC_clk period
+	);
+
+ADS8689 adc_interface_4
+	(
+		.miso(ADC_MISO[4]),
+		.mosi(),
+		.sclk(),
+		.ss(),
+		.clk(ADC_clk),
+		.rst(SYS_RST),
+		.DOUT(ADC_INTERFACE_DOUT[4]), //syn to ADC_clk
+		.DRDY(ADC_INTERFACE_DRDY[4]) //one valid for ADC_clk period
+	);
+
+ADS8689 adc_interface_5
+	(
+		.miso(ADC_MISO[5]),
+		.mosi(),
+		.sclk(),
+		.ss(),
+		.clk(ADC_clk),
+		.rst(SYS_RST),
+		.DOUT(ADC_INTERFACE_DOUT[5]), //syn to ADC_clk
+		.DRDY(ADC_INTERFACE_DRDY[5]) //one valid for ADC_clk period
+	);
+
+ADS8689 adc_interface_6
+	(
+		.miso(ADC_MISO[6]),
+		.mosi(),
+		.sclk(),
+		.ss(),
+		.clk(ADC_clk),
+		.rst(SYS_RST),
+		.DOUT(ADC_INTERFACE_DOUT[6]), //syn to ADC_clk
+		.DRDY(ADC_INTERFACE_DRDY[6]) //one valid for ADC_clk period
+	);
+
+ADS8689 adc_interface_7
+	(
+		.miso(ADC_MISO[7]),
+		.mosi(),
+		.sclk(),
+		.ss(),
+		.clk(ADC_clk),
+		.rst(SYS_RST),
+		.DOUT(ADC_INTERFACE_DOUT[7]), //syn to ADC_clk
+		.DRDY(ADC_INTERFACE_DRDY[7]) //one valid for ADC_clk period
+	);	
 //I2C eeprom interface ////////////////////////////////////
 parameter CONF_BUF_SIZE = 128; //max = 128 bytes for 24AA025E48T
 
@@ -246,8 +412,8 @@ wire rd_eeprom,wr_eeprom /*synthesis keep*/;
 			 .busy(eeprom_busy),
 			 .valid(eeprom_data_valid),
 
-          .SDA(GPIO_0_15),
-          .SCL(GPIO_0_14)               
+          .SDA(GPIO_1_8),
+          .SCL(GPIO_1_6)               
                      );
 							
 
@@ -405,7 +571,14 @@ soc_system u0(
 //Avalon Bus interface 	
 reg [15:0] control_reg;	
 wire [15:0] status_net;
+reg [15:0] ch_reg;	
 
+
+wire [2:0] ch_select = ch_reg[2:0];
+assign self_chk = control_reg[3];
+
+assign status_net[15:0] = {8'b0,4'b0,self_chk,ch_select};
+	
 //{ch7,ch6,...ch0}, each channel use two bits for mux1,mux0
 
 assign ch_gain[0] = `PCA_GAIN_BIT_L8[1:0];
@@ -442,10 +615,13 @@ always@(posedge SYS_CLK)
 	if (~eeprom_busy && eeprom_data_valid) 
 				configuration <= eeprom_buffer; 
 	else begin
-/*   Write to Control Register   */
+   /*   Write to Control Register   */
 	if ((avalon_addr == CR_ADDR) & (avalon_write_o == 1) ) 
 			control_reg <= avalon_writedata[15:0]; 	
-				   	
+	/*   Write to ch_select Register   */
+	if ((avalon_addr == CH_SELECT_ADDR) & (avalon_write_o == 1) ) 
+			ch_reg <= avalon_writedata[15:0]; 	
+			
 	/*   Read from Control Register   */		
 	if ((avalon_addr == CR_ADDR) & (avalon_read_o == 1) ) 
 			dout <= {16'b0,control_reg}; 
@@ -542,9 +718,6 @@ end
 	wire fast_fifo_full, fast_fifo_empty;
 	wire ADC_data_valid = ADC_INTERFACE_DRDY[0];
 	
-	wire [2:0] ch_select = control_reg[2:0];
-	assign status_net[15:0] = {8'b0,5'b0,ch_select};
-
 	wire [ADC_DATA_WIDTH-1:0] din;
    assign din	= (ch_select == 3'b000)? ADC_INTERFACE_DOUT[0]
 					: (ch_select == 3'b001)? ADC_INTERFACE_DOUT[1]
@@ -658,5 +831,14 @@ end
 
 //assign LED[0] = led_level;
 assign LED[0] = 0;
+
+clockdiv squrewave(
+	.clk(SYS_CLK),
+	.enable(self_chk),
+   .oclk(test_pulse) 
+);
+  defparam squrewave.CLK_PERIOD = 20;      // ns, clk period default 50 MHz
+  defparam squrewave.CLK_OUT_PERIOD = 1000000; //ns, outptu clock period, default 1000 Hz
+  defparam squrewave.CNT_WIDTH = 24;   // 
 
 endmodule
