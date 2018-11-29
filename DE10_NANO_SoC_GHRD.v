@@ -838,7 +838,7 @@ clockdiv squrewave(
    .oclk(test_pulse) 
 );
   defparam squrewave.CLK_PERIOD = 20;      // ns, clk period default 50 MHz
-  defparam squrewave.CLK_OUT_PERIOD = 1000000; //ns, outptu clock period, default 1000 Hz
-  defparam squrewave.CNT_WIDTH = 24;   // 
+  defparam squrewave.CLK_OUT_PERIOD = 100000000; //ns, outptu clock period, default 10 Hz
+  defparam squrewave.CNT_WIDTH = 32;   // 
 
 endmodule
