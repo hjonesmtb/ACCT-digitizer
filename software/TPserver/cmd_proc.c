@@ -10,7 +10,8 @@
 
 #include "main.h"
 
-#define BLOCK_SIZE 1024 //block transfer size
+#define BLOCK_SIZE 1024 //block transfer size for FAST FIFO
+#define PACKET_SIZE 16 //block transfer size for PACKET
 
 static inline void writeReg(void* addr, uint32_t value)
 {
@@ -74,7 +75,8 @@ char cmd[50],*sdp,*chp;
 		if ( strcmp(cmd,"SR?")== 0 ) {*value_back = readReg(VR_BASE+SR);return 1;}
 		if ( strcmp(cmd,"MR")== 0 ) {writeReg(VR_BASE+MR,invalue);return 0;}
 		if ( strcmp(cmd,"MR?")== 0 ) {*value_back = readReg(VR_BASE+MR);return 1;}
-		
+		if ( strcmp(cmd,"FPGA_VER?")== 0 ) {*value_back = readReg(VR_BASE+FPGA_VER);return 1;}
+				
 		if ( strcmp(cmd,"CH:SEL")== 0 ) {writeReg(VR_BASE+CH_SEL,invalue);return 0;}
 		
 		if ( strcmp(cmd,"PCA:GAIN")== 0 ) {writeReg(VR_BASE+PCA_GAIN,invalue);return 0;}
@@ -89,10 +91,14 @@ char cmd[50],*sdp,*chp;
 		if ( strcmp(cmd,"REG2CONF")== 0 ) {writeReg(VR_BASE+CONF_WR,invalue);return 0;}
 		if ( strcmp(cmd,"CONF2REG")== 0 ) {writeReg(VR_BASE+CONF_RD,invalue);return 0;;}
 		
-		if ( strcmp(cmd,"FIFO:CLR")== 0 ) {writeReg(VR_BASE+FIFO_CLR,invalue);return 0;}
-		if ( strcmp(cmd,"FPGA_VER?")== 0 ) {*value_back = readReg(VR_BASE+FPGA_VER);return 1;}
-		if ( strcmp(cmd,"FIFO:WD?")== 0 ) {*value_back = readReg(VR_BASE+FIFO_WD);return 1;}
+		if ( strcmp(cmd,"SFIFO:WD?")== 0 ) {*value_back = readReg(VR_BASE+SFIFO_WD);return 1;}
+		if ( strcmp(cmd,"SFIFO?")== 0 ) {
+    		for(cntr=0;cntr<PACKET_SIZE;cntr++)  dataArray[cntr]= readReg(VR_BASE+SFIFO);
+			*array_Ptr = &dataArray[0]; *array_Dim = PACKET_SIZE;
+    		return 3;}
 		
+		if ( strcmp(cmd,"FIFO:CLR")== 0 ) {writeReg(VR_BASE+FIFO_CLR,invalue);return 0;}
+		if ( strcmp(cmd,"FIFO:WD?")== 0 ) {*value_back = readReg(VR_BASE+FIFO_WD);return 1;}	
 		if ( strcmp(cmd,"FIFO?")== 0 ) {
     		for(cntr=0;cntr<BLOCK_SIZE;cntr++)  dataArray[cntr]= readReg(VR_BASE+FIFO);
 			*array_Ptr = &dataArray[0]; *array_Dim = BLOCK_SIZE;

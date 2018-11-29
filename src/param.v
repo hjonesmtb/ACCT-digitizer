@@ -15,3 +15,6 @@ parameter ADC_CYCLE_TIME = 0.00001; //ADC cycle time (10 uS). Time between cycle
 parameter ADC_SPI_TIMER_WAIT = 100; //How many cycles of SPI_CLK between adc cycles
                                     // $floor(SPI_CLOCK_FREQ*ADC_CYCLE_TIME); 
                                     // Not supported for synthesis
+parameter SFIFO_WIDTH = 32; //Slow fifo data width
+parameter SF_WIDTH = 32; //Single floating datat width
+												

@@ -280,7 +280,7 @@ end
 // System PLL
 wire SYS_CLK;
 wire SYS_RST;
-wire SPI_CLK, ADC_clk /*synthesis keep*/;
+wire SPI_CLK, ADC_CLK /*synthesis keep*/;
 
 assign SYS_RST = ~hps_fpga_reset_n;
 
@@ -292,21 +292,24 @@ SYS_PLL syspll
 		.outclk_1(SPI_CLK)  // 10 MHz spi clock
 	);
 
-assign ADC_clk = SPI_CLK;
+assign ADC_CLK = SPI_CLK;
+wire clk = SYS_CLK;
 
 //////////////////////////////////////////////////////////////////////	
 wire [ADC_DATA_WIDTH-1:0] ADC_INTERFACE_DOUT [7:0];
 wire ADC_INTERFACE_DRDY[7:0];
+reg [ADC_DATA_WIDTH-1:0] Ch_ADC_Reg[7:0];
+
 ADS8689 adc_interface_0
 	(
 		.miso(ADC_MISO[0]),
 		.mosi(ADC_MOSI),
 		.sclk(ADC_SCLK),
 		.ss(ADC_SS),
-		.clk(ADC_clk),
+		.clk(ADC_CLK),
 		.rst(SYS_RST),
-		.DOUT(ADC_INTERFACE_DOUT[0]), //syn to ADC_clk
-		.DRDY(ADC_INTERFACE_DRDY[0]) //one valid for ADC_clk period
+		.DOUT(ADC_INTERFACE_DOUT[0]), //syn to ADC_CLK
+		.DRDY(ADC_INTERFACE_DRDY[0]) //one valid for ADC_CLK period
 	);
 
 ADS8689 adc_interface_1
@@ -315,10 +318,10 @@ ADS8689 adc_interface_1
 		.mosi(),
 		.sclk(),
 		.ss(),
-		.clk(ADC_clk),
+		.clk(ADC_CLK),
 		.rst(SYS_RST),
-		.DOUT(ADC_INTERFACE_DOUT[1]), //syn to ADC_clk
-		.DRDY(ADC_INTERFACE_DRDY[1]) //one valid for ADC_clk period
+		.DOUT(ADC_INTERFACE_DOUT[1]), //syn to ADC_CLK
+		.DRDY(ADC_INTERFACE_DRDY[1]) //one valid for ADC_CLK period
 	);	
 
 ADS8689 adc_interface_2
@@ -327,10 +330,10 @@ ADS8689 adc_interface_2
 		.mosi(),
 		.sclk(),
 		.ss(),
-		.clk(ADC_clk),
+		.clk(ADC_CLK),
 		.rst(SYS_RST),
-		.DOUT(ADC_INTERFACE_DOUT[2]), //syn to ADC_clk
-		.DRDY(ADC_INTERFACE_DRDY[2]) //one valid for ADC_clk period
+		.DOUT(ADC_INTERFACE_DOUT[2]), //syn to ADC_CLK
+		.DRDY(ADC_INTERFACE_DRDY[2]) //one valid for ADC_CLK period
 	);
 
 ADS8689 adc_interface_3
@@ -339,10 +342,10 @@ ADS8689 adc_interface_3
 		.mosi(),
 		.sclk(),
 		.ss(),
-		.clk(ADC_clk),
+		.clk(ADC_CLK),
 		.rst(SYS_RST),
-		.DOUT(ADC_INTERFACE_DOUT[3]), //syn to ADC_clk
-		.DRDY(ADC_INTERFACE_DRDY[3]) //one valid for ADC_clk period
+		.DOUT(ADC_INTERFACE_DOUT[3]), //syn to ADC_CLK
+		.DRDY(ADC_INTERFACE_DRDY[3]) //one valid for ADC_CLK period
 	);
 
 ADS8689 adc_interface_4
@@ -351,10 +354,10 @@ ADS8689 adc_interface_4
 		.mosi(),
 		.sclk(),
 		.ss(),
-		.clk(ADC_clk),
+		.clk(ADC_CLK),
 		.rst(SYS_RST),
-		.DOUT(ADC_INTERFACE_DOUT[4]), //syn to ADC_clk
-		.DRDY(ADC_INTERFACE_DRDY[4]) //one valid for ADC_clk period
+		.DOUT(ADC_INTERFACE_DOUT[4]), //syn to ADC_CLK
+		.DRDY(ADC_INTERFACE_DRDY[4]) //one valid for ADC_CLK period
 	);
 
 ADS8689 adc_interface_5
@@ -363,10 +366,10 @@ ADS8689 adc_interface_5
 		.mosi(),
 		.sclk(),
 		.ss(),
-		.clk(ADC_clk),
+		.clk(ADC_CLK),
 		.rst(SYS_RST),
-		.DOUT(ADC_INTERFACE_DOUT[5]), //syn to ADC_clk
-		.DRDY(ADC_INTERFACE_DRDY[5]) //one valid for ADC_clk period
+		.DOUT(ADC_INTERFACE_DOUT[5]), //syn to ADC_CLK
+		.DRDY(ADC_INTERFACE_DRDY[5]) //one valid for ADC_CLK period
 	);
 
 ADS8689 adc_interface_6
@@ -375,10 +378,10 @@ ADS8689 adc_interface_6
 		.mosi(),
 		.sclk(),
 		.ss(),
-		.clk(ADC_clk),
+		.clk(ADC_CLK),
 		.rst(SYS_RST),
-		.DOUT(ADC_INTERFACE_DOUT[6]), //syn to ADC_clk
-		.DRDY(ADC_INTERFACE_DRDY[6]) //one valid for ADC_clk period
+		.DOUT(ADC_INTERFACE_DOUT[6]), //syn to ADC_CLK
+		.DRDY(ADC_INTERFACE_DRDY[6]) //one valid for ADC_CLK period
 	);
 
 ADS8689 adc_interface_7
@@ -387,11 +390,15 @@ ADS8689 adc_interface_7
 		.mosi(),
 		.sclk(),
 		.ss(),
-		.clk(ADC_clk),
+		.clk(ADC_CLK),
 		.rst(SYS_RST),
-		.DOUT(ADC_INTERFACE_DOUT[7]), //syn to ADC_clk
-		.DRDY(ADC_INTERFACE_DRDY[7]) //one valid for ADC_clk period
+		.DOUT(ADC_INTERFACE_DOUT[7]), //syn to ADC_CLK
+		.DRDY(ADC_INTERFACE_DRDY[7]) //one valid for ADC_CLK period
 	);	
+	
+wire ADC_data_valid = ADC_INTERFACE_DRDY[0];	
+always @ (posedge ADC_CLK) if (ADC_data_valid) Ch_ADC_Reg <= ADC_INTERFACE_DOUT;
+
 //I2C eeprom interface ////////////////////////////////////
 parameter CONF_BUF_SIZE = 128; //max = 128 bytes for 24AA025E48T
 
@@ -435,7 +442,8 @@ parameter integer 	CH_SELECT_ADDR = 4; //select channel for FIFO transfer to hos
 parameter integer 	PCA_GAIN_ADDR = 5;
 
 //parameter integer 	CHC_POWER_ADDR = 6;
-//parameter integer 	CHD_POWER_ADDR = 7;
+parameter integer 	SFIFO_WD_ADDR = 7;
+parameter integer 	SFIFO_ADDR = 8;
 
 parameter integer 	FIFO_CLR_ADDR = 9;
 parameter integer 	FIFO_WD_ADDR = 10;
@@ -573,7 +581,6 @@ reg [15:0] control_reg;
 wire [15:0] status_net;
 reg [15:0] ch_reg;	
 
-
 wire [2:0] ch_select = ch_reg[2:0];
 assign self_chk = control_reg[3];
 
@@ -597,7 +604,12 @@ wire avalon_read_i = avalon_read & avalon_cs;
 
 reg avalon_write_o,avalon_read_o /*synthesis keep*/;
 wire fifo_rd /*synthesis keep*/;
-assign fifo_rd = (avalon_addr == FIFO_ADDR & (avalon_read_o == 1));
+assign fifo_rd = (avalon_addr == FIFO_ADDR & (avalon_read_i == 1));
+
+wire [SFIFO_WIDTH-1:0] slow_fifo_dout;
+wire sfifo_rd /*synthesis keep*/;
+assign sfifo_rd = (avalon_addr == SFIFO_ADDR & (avalon_read_i == 1)); 
+
 
 assign rd_eeprom = (avalon_addr == EEPROM_RD_ADDR & (avalon_write_o == 1)); //load eeprom -> buffer
 assign wr_eeprom = (avalon_addr == EEPROM_WR_ADDR & (avalon_write_o == 1));//write buffer -> eeprom
@@ -633,6 +645,18 @@ always@(posedge SYS_CLK)
    /*   Read FPGA version   */		
 	if ((avalon_addr == FPGA_VER_ADDR) & (avalon_read_o == 1)) 
 			dout <= FPGA_VERSION_NO; 
+
+		
+	
+	/*   slow fifo occupancy     */		
+	if ((avalon_addr == SFIFO_WD_ADDR) & (avalon_read_o == 1)) 
+			dout <= {16'b0,8'b0,sfifo_rd_wd};
+	
+
+	/*   Read slow fifo     */		
+	if ((avalon_addr == SFIFO_ADDR) & (avalon_read_o == 1)) 
+			dout <= slow_fifo_dout; 	
+	
 	
 	/*   Reset fast fifo     */		
 	if ((avalon_addr == FIFO_CLR_ADDR) & (avalon_read_o == 1)) 
@@ -644,7 +668,7 @@ always@(posedge SYS_CLK)
 			dout <= {16'b0,3'b0,fifo_word}; 
 			
 	/*   Read fast fifo   */		
-	if (fifo_rd) 
+	if ((avalon_addr == FIFO_ADDR) & (avalon_read_o == 1)) 
 			dout <= {16'b0,fast_fifo_dout}; 	
 	
    /*   Write to Mini-PCA Gain bits   */
@@ -716,8 +740,7 @@ end
    wire fifo_wr /*synthesis keep*/;
 	
 	wire fast_fifo_full, fast_fifo_empty;
-	wire ADC_data_valid = ADC_INTERFACE_DRDY[0];
-	
+		
 	wire [ADC_DATA_WIDTH-1:0] din;
    assign din	= (ch_select == 3'b000)? ADC_INTERFACE_DOUT[0]
 					: (ch_select == 3'b001)? ADC_INTERFACE_DOUT[1]
@@ -734,7 +757,7 @@ end
 		
 	fifo4096 Fast_FIFO (
 		.aclr(fast_FIFO_rst), //
-		.wrclk(ADC_clk), //
+		.wrclk(ADC_CLK), //
 		.rdclk(SYS_CLK), //
 		.data(din), // input [15 : 0] din
 		.wrreq(fifo_wr), //
@@ -748,7 +771,7 @@ end
 	fifo_control fifo_control_inst(
 		.RUN(1'b1),
 		.rst(SYS_RST),
-		.clk(ADC_clk),
+		.clk(ADC_CLK),
 
       .fifo_full(fast_fifo_full),
 		.fifo_empty(fast_fifo_empty),
@@ -759,7 +782,90 @@ end
 		.busy(busy) // output, not in use
 	);
 	
+//================ processing ==============
 	
+wire processing_done = ADC_data_valid;
+
+///================ Slow FIFO ===================
+
+	reg sFIFO_wr;
+	reg [SFIFO_WIDTH-1:0] sfifo_data_in;
+	wire [7:0] sfifo_rd_wd,sfifo_wr_wd;
+	wire sfifo_half_full = sfifo_wr_wd[6]; // 64   
+	
+	slfifo Slow_FIFO (
+		.aclr(rst),
+		.data(sfifo_data_in),
+		.wrclk(ADC_CLK),
+		.rdclk(SYS_CLK),
+		.wrreq(sFIFO_wr),
+		.rdreq(sfifo_rd),
+		.q(slow_fifo_dout),
+		.rdusedw(sfifo_rd_wd), 
+		.wrusedw(sfifo_wr_wd)
+	);  
+//	output [7:0]  rdusedw;
+//	output [7:0]  wrusedw;
+// slfifo is 128 words(32bit) deep, Nov.29,2018
+	
+//============Packing=================================
+	parameter PID = 32'h4142504d; // "ABPM"
+
+	reg [7:0] p_state;
+
+//data packet size is 16 words (32bit)
+	always @(posedge ADC_CLK)
+	begin
+		if(rst)
+			begin
+				p_state <= 0;
+				sFIFO_wr<= 0;
+			end
+
+		else
+			begin
+				case(p_state)
+					0:if(processing_done && !sfifo_half_full) begin  sFIFO_wr<= 1; sfifo_data_in <= PID; p_state <= 1; end
+
+					1: begin sfifo_data_in <= {16'b0,status_net}; p_state <= 2; end
+
+					2: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[0]}; p_state <= 3; end
+					3: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[1]}; p_state <= 4; end
+					4: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[2]}; p_state <= 5; end
+					5: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[3]}; p_state <= 6; end
+					6: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[4]}; p_state <= 7; end
+					7: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[5]}; p_state <= 8; end
+					8: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[6]}; p_state <= 9; end
+					9: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[7]}; p_state <= 10; end
+
+					10: begin sfifo_data_in <= 0; p_state <= 11; end
+					11: begin sfifo_data_in <= 0; p_state <= 12; end
+					12: begin sfifo_data_in <= 0; p_state <= 13; end
+					13: begin sfifo_data_in <= 0; p_state <= 14; end
+					14: begin sfifo_data_in <= 0; p_state <= 15; end
+					15: begin sfifo_data_in <= 0; p_state <= 16; end
+
+					16: begin sFIFO_wr<= 0; p_state <= 0; end
+
+					default:
+					p_state <= 0;
+				endcase
+			end
+
+	end
+
+	
+//============ self test pulse ============
+
+clockdiv squrewave(
+	.clk(SYS_CLK),
+	.enable(self_chk),
+   .oclk(test_pulse) 
+);
+  defparam squrewave.CLK_PERIOD = 20;      // ns, clk period default 50 MHz
+  defparam squrewave.CLK_OUT_PERIOD = 100000000; //ns, outptu clock period, default 10 Hz
+  defparam squrewave.CNT_WIDTH = 32;   // 
+  
 // Debounce logic to clean out glitches within 1ms		
 debounce debounce_inst(
              .clk(fpga_clk_50),
@@ -831,14 +937,5 @@ end
 
 //assign LED[0] = led_level;
 assign LED[0] = 0;
-
-clockdiv squrewave(
-	.clk(SYS_CLK),
-	.enable(self_chk),
-   .oclk(test_pulse) 
-);
-  defparam squrewave.CLK_PERIOD = 20;      // ns, clk period default 50 MHz
-  defparam squrewave.CLK_OUT_PERIOD = 100000000; //ns, outptu clock period, default 10 Hz
-  defparam squrewave.CNT_WIDTH = 32;   // 
-
+	
 endmodule

@@ -34,8 +34,8 @@ module ADS8689
     reg [9:0] timer_cnt;  
     reg [15:0] sr; 
     
-    parameter ADC_PERIOD = 10000; //10KHz
-    parameter CLK_FREQ = 10000000; //10MHZ
+    parameter ADC_PERIOD = 10000; //10KHz, Max 100 KHz for  ADS8689
+    parameter CLK_FREQ = 10000000; //10MHZ, Max 66 MHz for  ADS8689
     parameter TARGET = CLK_FREQ/ADC_PERIOD; //1000 counts
     
     reg start_conv;
