@@ -92,6 +92,9 @@ module DE10_NANO_SoC_GHRD(
 	 //i2c eeprom
 	 output GPIO_1_6, //SCL
 	 inout  GPIO_1_8, //SDA
+	 
+	 inout  GPIO_1_15, //Test 5 = DHT11 Sig
+	 output GPIO_1_17, //Test 7 = DHT11 Vcc
 	
    //Relay output 1 ~ 8
 	output GPIO_1_35,  
@@ -577,12 +580,14 @@ soc_system u0(
            );
 
 //Avalon Bus interface 	
-reg [15:0] control_reg;	
+reg [15:0] control_reg = 0;	
 wire [15:0] status_net;
-reg [15:0] ch_reg;	
+reg [15:0] ch_reg = 0;	
+
+wire ena_dht = control_reg[2];
+assign self_chk = control_reg[3];
 
 wire [2:0] ch_select = ch_reg[2:0];
-assign self_chk = control_reg[3];
 
 assign status_net[15:0] = {8'b0,4'b0,self_chk,ch_select};
 	
@@ -827,7 +832,7 @@ wire processing_done = ADC_data_valid;
 				case(p_state)
 					0:if(processing_done && !sfifo_half_full) begin  sFIFO_wr<= 1; sfifo_data_in <= PID; p_state <= 1; end
 
-					1: begin sfifo_data_in <= {16'b0,status_net}; p_state <= 2; end
+					1: begin sfifo_data_in <= {control_reg,status_net}; p_state <= 2; end
 
 					2: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[0]}; p_state <= 3; end
 					3: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[1]}; p_state <= 4; end
@@ -838,7 +843,7 @@ wire processing_done = ADC_data_valid;
 					8: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[6]}; p_state <= 9; end
 					9: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[7]}; p_state <= 10; end
 
-					10: begin sfifo_data_in <= 0; p_state <= 11; end
+					10: begin sfifo_data_in <= {humi,temp}; p_state <= 11; end
 					11: begin sfifo_data_in <= 0; p_state <= 12; end
 					12: begin sfifo_data_in <= 0; p_state <= 13; end
 					13: begin sfifo_data_in <= 0; p_state <= 14; end
@@ -865,6 +870,21 @@ clockdiv squrewave(
   defparam squrewave.CLK_PERIOD = 20;      // ns, clk period default 50 MHz
   defparam squrewave.CLK_OUT_PERIOD = 100000000; //ns, outptu clock period, default 10 Hz
   defparam squrewave.CNT_WIDTH = 32;   // 
+
+//=========== DHT11 sensor ========================
+//	 inout  GPIO_1_15, //Test 5 = DHT11 Sig
+//  output GPIO_1_17, //Test 7 = DHT11 Vcc
+
+assign GPIO_1_17 = 1'b1; 
+reg [15:0] temp, humi;
+
+dht11 temp_sensor(
+	.i_clk(SYS_CLK),
+	.i_rst_n(ena_dht),
+	.io_data(GPIO_1_15),
+	.o_temp(temp),
+	.o_humi(humi)
+	);
   
 // Debounce logic to clean out glitches within 1ms		
 debounce debounce_inst(
