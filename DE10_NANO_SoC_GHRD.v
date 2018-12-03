@@ -789,8 +789,20 @@ end
 	
 //================ processing ==============
 	
-wire processing_done = ADC_data_valid;
+wire processing_done;
+wire [31:0] Ch_I_value[7:0];
 
+cal_current cal_i_ins(
+	.Data_In(Ch_ADC_Reg),
+	.Data_In_Valid(ADC_data_valid), //one clk wide, freq = ADC sampling freq, 10 KHz ~ 100 KHz
+	.gain(ch_gain),
+	.clk(ADC_CLK),  //10 MHz 
+	.rst(SYS_RST),
+
+	.I_value(Ch_I_value), //signed, in pA
+	.RDY(processing_done)	
+    );
+	 
 ///================ Slow FIFO ===================
 
 	reg sFIFO_wr;
@@ -799,7 +811,7 @@ wire processing_done = ADC_data_valid;
 	wire sfifo_half_full = sfifo_wr_wd[6]; // 64   
 	
 	slfifo Slow_FIFO (
-		.aclr(rst),
+		.aclr(SYS_RST),
 		.data(sfifo_data_in),
 		.wrclk(ADC_CLK),
 		.rdclk(SYS_CLK),
@@ -821,7 +833,7 @@ wire processing_done = ADC_data_valid;
 //data packet size is 16 words (32bit)
 	always @(posedge ADC_CLK)
 	begin
-		if(rst)
+		if(SYS_RST)
 			begin
 				p_state <= 0;
 				sFIFO_wr<= 0;
@@ -833,7 +845,7 @@ wire processing_done = ADC_data_valid;
 					0:if(processing_done && !sfifo_half_full) begin  sFIFO_wr<= 1; sfifo_data_in <= PID; p_state <= 1; end
 
 					1: begin sfifo_data_in <= {control_reg,status_net}; p_state <= 2; end
-
+/*
 					2: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[0]}; p_state <= 3; end
 					3: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[1]}; p_state <= 4; end
 					4: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[2]}; p_state <= 5; end
@@ -842,6 +854,15 @@ wire processing_done = ADC_data_valid;
 					7: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[5]}; p_state <= 8; end
 					8: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[6]}; p_state <= 9; end
 					9: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[7]}; p_state <= 10; end
+*/					
+					2: begin sfifo_data_in <= Ch_I_value[0]; p_state <= 3; end
+					3: begin sfifo_data_in <= Ch_I_value[1]; p_state <= 4; end
+					4: begin sfifo_data_in <= Ch_I_value[2]; p_state <= 5; end
+					5: begin sfifo_data_in <= Ch_I_value[3]; p_state <= 6; end
+					6: begin sfifo_data_in <= Ch_I_value[4]; p_state <= 7; end
+					7: begin sfifo_data_in <= Ch_I_value[5]; p_state <= 8; end
+					8: begin sfifo_data_in <= Ch_I_value[6]; p_state <= 9; end
+					9: begin sfifo_data_in <= Ch_I_value[7]; p_state <= 10; end
 
 					10: begin sfifo_data_in <= {humi,temp}; p_state <= 11; end
 					11: begin sfifo_data_in <= 0; p_state <= 12; end

@@ -749,32 +749,6 @@ set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[25] -
 set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[26] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
 set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[31] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=16384" -section_id auto_signaltap_0
-set_global_assignment -name VERILOG_FILE DE10_NANO_SoC_GHRD.v
-set_global_assignment -name VERILOG_FILE src/param.v
-set_global_assignment -name VERILOG_FILE src/DHT11.v
-set_global_assignment -name VERILOG_FILE src/fifo_control.v
-set_global_assignment -name VERILOG_FILE Avalon_Slave_Interface_32.v
-set_global_assignment -name VERILOG_FILE src/pin_mux/pin_mux.v
-set_global_assignment -name VERILOG_FILE src/shift_reg/shift_reg.v
-set_global_assignment -name VERILOG_FILE src/clockdiv.v
-set_global_assignment -name VERILOG_FILE src/filter/filter.v
-set_global_assignment -name SDC_FILE DE10_NANO_SOC_GHRD.sdc
-set_global_assignment -name VERILOG_FILE ip/intr_capturer/intr_capturer.v
-set_global_assignment -name VERILOG_FILE src/ADS8689.v
-set_global_assignment -name VERILOG_FILE src/eprom.v
-set_global_assignment -name VERILOG_FILE src/I2C_Master.v
-set_global_assignment -name VERILOG_FILE ip/edge_detect/altera_edge_detector.v
-set_global_assignment -name VERILOG_FILE ip/debounce/debounce.v
-set_global_assignment -name QIP_FILE ip/fastFIFO4096/fifo4096.qip
-set_global_assignment -name QIP_FILE ip/altsource_probe/hps_reset.qip
-set_global_assignment -name QIP_FILE soc_system/synthesis/soc_system.qip
-set_global_assignment -name QIP_FILE SYS_PLL.qip
-set_global_assignment -name SIP_FILE SYS_PLL.sip
-set_global_assignment -name SIGNALTAP_FILE debug_setup.stp
-set_global_assignment -name SIGNALTAP_FILE signal_tap_adc.stp
-set_global_assignment -name SIGNALTAP_FILE signal_tap_eeprom.stp
-set_global_assignment -name QIP_FILE ip/slfifo.qip
-set_global_assignment -name SIGNALTAP_FILE signal_tap_sfifo.stp
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[0] -to "dht11:temp_sensor|cnt_1s[0]" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1] -to "dht11:temp_sensor|cnt_1s[10]" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[2] -to "dht11:temp_sensor|cnt_1s[11]" -section_id auto_signaltap_0
@@ -1004,5 +978,33 @@ set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=109" -s
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=109" -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_BITS=109" -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=sld_reserved_DE10_NANO_SoC_GHRD_auto_signaltap_0_1_a6ba," -section_id auto_signaltap_0
+set_global_assignment -name VERILOG_FILE DE10_NANO_SoC_GHRD.v
+set_global_assignment -name VERILOG_FILE src/param.v
+set_global_assignment -name VERILOG_FILE src/DHT11.v
+set_global_assignment -name VERILOG_FILE src/fifo_control.v
+set_global_assignment -name VERILOG_FILE Avalon_Slave_Interface_32.v
+set_global_assignment -name VERILOG_FILE src/pin_mux/pin_mux.v
+set_global_assignment -name VERILOG_FILE src/shift_reg/shift_reg.v
+set_global_assignment -name VERILOG_FILE src/clockdiv.v
+set_global_assignment -name VERILOG_FILE src/filter/filter.v
+set_global_assignment -name SDC_FILE DE10_NANO_SOC_GHRD.sdc
+set_global_assignment -name VERILOG_FILE src/Cal_I.v
+set_global_assignment -name VERILOG_FILE ip/intr_capturer/intr_capturer.v
+set_global_assignment -name VERILOG_FILE src/ADS8689.v
+set_global_assignment -name VERILOG_FILE src/eprom.v
+set_global_assignment -name VERILOG_FILE src/I2C_Master.v
+set_global_assignment -name VERILOG_FILE ip/edge_detect/altera_edge_detector.v
+set_global_assignment -name VERILOG_FILE ip/debounce/debounce.v
+set_global_assignment -name QIP_FILE ip/fastFIFO4096/fifo4096.qip
+set_global_assignment -name QIP_FILE ip/altsource_probe/hps_reset.qip
+set_global_assignment -name QIP_FILE soc_system/synthesis/soc_system.qip
+set_global_assignment -name QIP_FILE SYS_PLL.qip
+set_global_assignment -name SIP_FILE SYS_PLL.sip
+set_global_assignment -name SIGNALTAP_FILE debug_setup.stp
+set_global_assignment -name SIGNALTAP_FILE signal_tap_adc.stp
+set_global_assignment -name SIGNALTAP_FILE signal_tap_eeprom.stp
+set_global_assignment -name QIP_FILE ip/slfifo.qip
+set_global_assignment -name SIGNALTAP_FILE signal_tap_sfifo.stp
+set_global_assignment -name QIP_FILE ip/lpm_mul.qip
 set_global_assignment -name SLD_FILE db/signal_tap_sfifo_auto_stripped.stp
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
