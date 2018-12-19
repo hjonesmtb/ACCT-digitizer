@@ -1,0 +1,13 @@
+//////////////////////////////////////////////////////////////////////////////////
+module flash_LED(
+    input clk,  //10 MHz clock 
+	output led_level     
+
+    );
+//parameter  	FLASH_PERIOD = 200; //ms   
+//parameter  MAX = 1000000*(FLASH_PERIOD/100);
+reg [20: 0] counter;
+assign led_level = counter[20];
+always @(posedge clk)  counter <= counter + 1;
+    
+endmodule

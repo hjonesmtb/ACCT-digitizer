@@ -80,21 +80,35 @@ module DE10_NANO_SoC_GHRD(
     output              HPS_USB_STP,
 
 	 //////////// GPIO //////////
-	output GPIO_1_27,  //ADC_RST
-	output GPIO_1_29,  //ADC SCLK
-	output GPIO_1_26,  //ADC nSS
-	output GPIO_1_28,  //ADC MOSI
+	 output GPIO_1_27,  //ADC_RST
+	 output GPIO_1_29,  //ADC SCLK
+	 output GPIO_1_26,  //ADC nSS
+	 output GPIO_1_28,  //ADC MOSI
 	
-	output GPIO_1_20,  //SqureWave
-	output GPIO_1_24,  //self check
+	 output GPIO_1_20,  //SqureWave
+	 output GPIO_1_24,  //self check
 	
+	 input  GPIO_1_0,  //HPS_Cold_Reset 
+	 output GPIO_1_3,  //LED_OK
+	 output GPIO_1_5,  //LED_CNF_DONE
+	 output GPIO_1_2,  //LED_Fault
 		 
 	 //i2c eeprom
 	 output GPIO_1_6, //SCL
 	 inout  GPIO_1_8, //SDA
-	 
-	 inout  GPIO_1_15, //Test 5 = DHT11 Sig
-	 output GPIO_1_17, //Test 7 = DHT11 Vcc
+	
+ 	 //Temp sensor DHT11
+	 inout  GPIO_1_18, //Test 8 = DHT11 Sig
+ 
+	//Digital Input from P2 connector of MotherBoard
+    input  GPIO_1_10, //Test 0 = Digital In 0
+	 input  GPIO_1_11, //Test 1 = Digital In 1
+	 input  GPIO_1_12, //Test 2 = Digital In 2
+	 input  GPIO_1_13, //Test 3 = Digital In 3
+	 input  GPIO_1_14, //Test 4 = Digital In 4
+	 input  GPIO_1_15, //Test 5 = Digital In 5
+	 input  GPIO_1_16, //Test 6 = Digital In 6
+	 input  GPIO_1_17, //Test 6 = Digital In 7
 	
    //Relay output 1 ~ 8
 	output GPIO_1_35,  
@@ -162,14 +176,35 @@ module DE10_NANO_SoC_GHRD(
 
 `define 	PCA_GAIN_BIT_L8 configuration[0]
 `define 	PCA_GAIN_BIT_H8 configuration[1]
-`define 	CH0_TH_BYTE  configuration[10]
-`define 	CH1_TH_BYTE  configuration[11]
-`define 	CH2_TH_BYTE  configuration[12]
-`define 	CH3_TH_BYTE  configuration[13]
-`define 	CH4_TH_BYTE  configuration[14]
-`define 	CH5_TH_BYTE  configuration[15]
-`define 	CH6_TH_BYTE  configuration[16]
-`define 	CH7_TH_BYTE  configuration[17]
+
+
+`define 	TRIP_TH0  {configuration[11],configuration[10]}
+`define 	TRIP_TH1  {configuration[13],configuration[12]}
+`define 	TRIP_TH2  {configuration[15],configuration[14]}
+`define 	TRIP_TH3  {configuration[17],configuration[16]}
+`define 	TRIP_TH4  {configuration[19],configuration[18]}
+`define 	TRIP_TH5  {configuration[21],configuration[20]}
+`define 	TRIP_TH6  {configuration[23],configuration[22]}
+`define 	TRIP_TH7  {configuration[25],configuration[24]}
+
+`define 	TRIP_TH8  {configuration[27],configuration[26]}
+`define 	TRIP_TH9  {configuration[29],configuration[28]}
+`define 	TRIP_TH10  {configuration[31],configuration[30]}
+`define 	TRIP_TH11  {configuration[33],configuration[32]}
+`define 	TRIP_TH12  {configuration[35],configuration[34]}
+`define 	TRIP_TH13  {configuration[37],configuration[36]}
+`define 	TRIP_TH14  {configuration[39],configuration[38]}
+`define 	TRIP_TH15  {configuration[41],configuration[40]}
+
+wire [ADC_DATA_WIDTH-1:0] trip_thresh[15:0];
+ 
+genvar i;
+generate 
+for (i = 0; i < 31 ; i = i + 2) 
+	begin: thresh_assignment
+		assign trip_thresh[i>>1] = {configuration[i+11],configuration[i+10]};
+  	end
+endgenerate 
 										
 //=======================================================
 //  REG/WIRE declarations
@@ -194,7 +229,7 @@ assign stm_hw_events = {{15{1'b0}}, SW, fpga_led_internal, fpga_debounced_button
 /************************* Target Protect Logic *************************/
 /************************************************************************/
 
-parameter FPGA_VERSION_NO = 32'd20181126; //Nov 26, 2018
+parameter FPGA_VERSION_NO = 32'd20181217; //Dec 17, 2018
 
 
 wire self_chk, test_pulse;
@@ -202,9 +237,6 @@ wire self_chk, test_pulse;
 //Wires from ADC modules
 wire ADC_RST;
 wire SELF_TEST;
-wire CPU_RESET;
-
-wire [2:0] FP_LED;
 
 wire [7:0] ADC_MISO;
 wire  ADC_MOSI;
@@ -212,18 +244,17 @@ wire  ADC_SCLK;
 wire  ADC_SS;
 wire [1:0] ADC_MUX [7:0];
 
+wire [7:0] digi_in; //logic signal input 8 channel
+
 //I2C signal for eeprom for configuration data
 wire eeprom_scl,eeprom_sda;
 
 wire [1:0] ch_gain [7:0]; 
-reg [7:0] relay_reg;
+wire [7:0] relay_contact;
 
-reg [25:0] fp_led_count;
-always @(posedge SYS_CLK or posedge SYS_RST) begin
-    if (SYS_RST) fp_led_count = 0;
-    else fp_led_count = fp_led_count + 1;
-end
-
+wire HPS_Cold_Reset, LED_OK, LED_CNF_DONE, LED_Fault;
+assign LED_Fault = interlock_fault;
+assign LED_CNF_DONE = 1'b1; //I don't know how to use this LED so far.
 
 // GPIO pin mapping :
    assign GPIO_1_27 = 1; //ADC_RST
@@ -234,17 +265,35 @@ end
 	assign GPIO_1_20 = test_pulse;  //test pulse: squre wave
 	assign GPIO_1_24 = self_chk; //Turn-on Analog Switch for Sigma-Delta signal
 	
+	assign HPS_Cold_Reset = GPIO_1_0;  //HPS_Cold_Reset 
+	assign GPIO_1_3 = LED_OK;  //LED_OK
+	assign GPIO_1_5 = LED_CNF_DONE;  //LED_CNF_DONE
+	assign GPIO_1_2 = LED_Fault;  //LED_Fault
+	
+  	
+	 
+	 
 	//assign GPIO_0_14 = eeprom_scl;
 	//assign GPIO_0_15 = eeprom_sda;
 	
-	assign GPIO_1_35 = relay_reg[0]; 
-	assign GPIO_0_3  = relay_reg[1]; 
-	assign GPIO_0_9  = relay_reg[2]; 
-	assign GPIO_0_13 = relay_reg[3]; 
-	assign GPIO_0_19 = relay_reg[4]; 
-	assign GPIO_0_25 = relay_reg[5]; 
-	assign GPIO_0_29 = relay_reg[6]; 
-	assign GPIO_0_35 = relay_reg[7]; 
+	assign digi_in[0] = GPIO_1_10; 
+	assign digi_in[1] = GPIO_1_11; 
+	assign digi_in[2] = GPIO_1_12; 
+	assign digi_in[3] = GPIO_1_13; 
+	assign digi_in[4] = GPIO_1_14; 
+	assign digi_in[5] = GPIO_1_15; 
+	assign digi_in[6] = GPIO_1_16; 
+	assign digi_in[7] = GPIO_1_17; 
+	
+	
+	assign GPIO_1_35 = relay_contact[0]; 
+	assign GPIO_0_3  = relay_contact[1]; 
+	assign GPIO_0_9  = relay_contact[2]; 
+	assign GPIO_0_13 = relay_contact[3]; 
+	assign GPIO_0_19 = relay_contact[4]; 
+	assign GPIO_0_25 = relay_contact[5]; 
+	assign GPIO_0_29 = relay_contact[6]; 
+	assign GPIO_0_35 = relay_contact[7]; 
    
 	//Ch0--A1 of sch channel
 	assign ADC_MISO[0]  =  GPIO_1_34;
@@ -452,13 +501,14 @@ parameter integer 	FIFO_CLR_ADDR = 9;
 parameter integer 	FIFO_WD_ADDR = 10;
 parameter integer 	FIFO_ADDR = 11;
 
-parameter integer 	RELAY_ADDR = 12;
+//parameter integer 	RELAY_ADDR = 12;
 
 parameter integer 	CONF_RD_ADDR = 13;
 parameter integer 	CONF_WR_ADDR = 14;
 
 parameter integer 	EEPROM_RD_ADDR = 15;
 parameter integer 	EEPROM_WR_ADDR = 16;
+
 
 parameter integer 	CH0_ADDR = 20;
 parameter integer 	CH1_ADDR = 21;
@@ -469,14 +519,23 @@ parameter integer 	CH5_ADDR = 25;
 parameter integer 	CH6_ADDR = 26;
 parameter integer 	CH7_ADDR = 27;
 
-parameter integer 	CH0_TH_ADDR = 30;
-parameter integer 	CH1_TH_ADDR = 31;
-parameter integer 	CH2_TH_ADDR = 32;
-parameter integer 	CH3_TH_ADDR = 33;
-parameter integer 	CH4_TH_ADDR = 34;
-parameter integer 	CH5_TH_ADDR = 35;
-parameter integer 	CH6_TH_ADDR = 36;
-parameter integer 	CH7_TH_ADDR = 37;
+parameter integer 	TRIP_TH0_ADDR = 30;
+parameter integer 	TRIP_TH1_ADDR = 31;
+parameter integer 	TRIP_TH2_ADDR = 32;
+parameter integer 	TRIP_TH3_ADDR = 33;
+parameter integer 	TRIP_TH4_ADDR = 34;
+parameter integer 	TRIP_TH5_ADDR = 35;
+parameter integer 	TRIP_TH6_ADDR = 36;
+parameter integer 	TRIP_TH7_ADDR = 37;
+
+parameter integer 	TRIP_TH8_ADDR = 38;
+parameter integer 	TRIP_TH9_ADDR = 39;
+parameter integer 	TRIP_TH10_ADDR = 40;
+parameter integer 	TRIP_TH11_ADDR = 41;
+parameter integer 	TRIP_TH12_ADDR = 42;
+parameter integer 	TRIP_TH13_ADDR = 43;
+parameter integer 	TRIP_TH14_ADDR = 44;
+parameter integer 	TRIP_TH15_ADDR = 45;
 	
 //=======================================================
 //=======================================================
@@ -581,7 +640,6 @@ soc_system u0(
 
 //Avalon Bus interface 	
 reg [15:0] control_reg = 0;	
-wire [15:0] status_net;
 reg [15:0] ch_reg = 0;	
 
 wire ena_dht = control_reg[2];
@@ -589,7 +647,6 @@ assign self_chk = control_reg[3];
 
 wire [2:0] ch_select = ch_reg[2:0];
 
-assign status_net[15:0] = {8'b0,4'b0,self_chk,ch_select};
 	
 //{ch7,ch6,...ch0}, each channel use two bits for mux1,mux0
 
@@ -643,15 +700,21 @@ always@(posedge SYS_CLK)
 	if ((avalon_addr == CR_ADDR) & (avalon_read_o == 1) ) 
 			dout <= {16'b0,control_reg}; 
 	
-	/*   Read from Status Register   */		
+	/*   Read from iStatus Register   */		
 	if ((avalon_addr == SR_ADDR) & (avalon_read_o == 1) ) 
-			dout <= {16'b0,status_net};
+			dout <= interlock_status;
 			
    /*   Read FPGA version   */		
 	if ((avalon_addr == FPGA_VER_ADDR) & (avalon_read_o == 1)) 
 			dout <= FPGA_VERSION_NO; 
 
-		
+	/*   Write to Mask Register   */
+	if ((avalon_addr == MR_ADDR) & (avalon_write_o == 1) ) 
+			mask_reg <= avalon_writedata[15:0]; 	
+
+   /*   Read Mask Register  */		
+	if ((avalon_addr == MR_ADDR) & (avalon_read_o == 1)) 
+			dout <= {16'b0,mask_reg}; 			
 	
 	/*   slow fifo occupancy     */		
 	if ((avalon_addr == SFIFO_WD_ADDR) & (avalon_read_o == 1)) 
@@ -684,57 +747,102 @@ always@(posedge SYS_CLK)
 	if ((avalon_addr == PCA_GAIN_ADDR) & (avalon_read_o == 1) ) 
 			dout <= {16'b0,`PCA_GAIN_BIT_H8,`PCA_GAIN_BIT_L8};  	
 
-	/*   Write to Relay Register   */
-	if ((avalon_addr == RELAY_ADDR) & (avalon_write_o == 1) ) 
-			relay_reg <= avalon_writedata[7:0]; 
 	
-   /*   Write/Read to Ch0 Thresh  */
-	if ((avalon_addr == CH0_TH_ADDR) & (avalon_write_o == 1) ) 
-			`CH0_TH_BYTE <= avalon_writedata[7:0]; 
-	if ((avalon_addr == CH0_TH_ADDR) & (avalon_read_o == 1) ) 
-			dout <= {16'b0,8'b0,`CH0_TH_BYTE};  
+   /*   Write/Read to Thresh 0  */
+	if ((avalon_addr == TRIP_TH0_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH0 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH0_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH0};  
 
-   /*   Write/Read to Ch1 Thresh  */
-	if ((avalon_addr == CH1_TH_ADDR) & (avalon_write_o == 1) ) 
-			`CH1_TH_BYTE <= avalon_writedata[7:0]; 
-	if ((avalon_addr == CH1_TH_ADDR) & (avalon_read_o == 1) ) 
-			dout <= {16'b0,8'b0,`CH1_TH_BYTE};  
-		
-   /*   Write/Read to Ch2 Thresh  */
-	if ((avalon_addr == CH2_TH_ADDR) & (avalon_write_o == 1) ) 
-			`CH2_TH_BYTE <= avalon_writedata[7:0]; 
-	if ((avalon_addr == CH2_TH_ADDR) & (avalon_read_o == 1) ) 
-			dout <= {16'b0,8'b0,`CH2_TH_BYTE};  
+   /*   Write/Read to Thresh 1  */
+	if ((avalon_addr == TRIP_TH1_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH1 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH1_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH1};  
+			
+   /*   Write/Read to Thresh 2  */
+	if ((avalon_addr == TRIP_TH2_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH2 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH2_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH2};  
 
-   /*   Write/Read to Ch3 Thresh  */
-	if ((avalon_addr == CH3_TH_ADDR) & (avalon_write_o == 1) ) 
-			`CH3_TH_BYTE <= avalon_writedata[7:0]; 
-	if ((avalon_addr == CH3_TH_ADDR) & (avalon_read_o == 1) ) 
-			dout <= {16'b0,8'b0,`CH3_TH_BYTE};  
-		
-   /*   Write/Read to Ch4 Thresh  */
-	if ((avalon_addr == CH4_TH_ADDR) & (avalon_write_o == 1) ) 
-			`CH4_TH_BYTE <= avalon_writedata[7:0]; 
-	if ((avalon_addr == CH4_TH_ADDR) & (avalon_read_o == 1) ) 
-			dout <= {16'b0,8'b0,`CH4_TH_BYTE};  	
-	
-   /*   Write/Read to Ch5 Thresh  */
-	if ((avalon_addr == CH5_TH_ADDR) & (avalon_write_o == 1) ) 
-			`CH5_TH_BYTE <= avalon_writedata[7:0]; 
-	if ((avalon_addr == CH5_TH_ADDR) & (avalon_read_o == 1) ) 
-			dout <= {16'b0,8'b0,`CH5_TH_BYTE};  
-		
-   /*   Write/Read to Ch6 Thresh  */
-	if ((avalon_addr == CH6_TH_ADDR) & (avalon_write_o == 1) ) 
-			`CH6_TH_BYTE <= avalon_writedata[7:0]; 
-	if ((avalon_addr == CH6_TH_ADDR) & (avalon_read_o == 1) ) 
-			dout <= {16'b0,8'b0,`CH6_TH_BYTE};  
-		
-   /*   Write/Read to Ch7 Thresh  */
-	if ((avalon_addr == CH7_TH_ADDR) & (avalon_write_o == 1) ) 
-			`CH7_TH_BYTE <= avalon_writedata[7:0]; 
-	if ((avalon_addr == CH7_TH_ADDR) & (avalon_read_o == 1) ) 
-			dout <= {16'b0,8'b0,`CH7_TH_BYTE};  	
+   /*   Write/Read to Thresh 3 */
+	if ((avalon_addr == TRIP_TH3_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH3 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH3_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH3};  
+
+   /*   Write/Read to Thresh 4  */
+	if ((avalon_addr == TRIP_TH4_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH4 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH4_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH4};  
+
+   /*   Write/Read to Thresh 5  */
+	if ((avalon_addr == TRIP_TH5_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH5 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH5_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH5};  
+
+   /*   Write/Read to Thresh 6  */
+	if ((avalon_addr == TRIP_TH6_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH6 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH6_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH6};  
+
+   /*   Write/Read to Thresh 7  */
+	if ((avalon_addr == TRIP_TH7_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH7 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH7_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH7};  
+
+   /*   Write/Read to Thresh 8  */
+	if ((avalon_addr == TRIP_TH8_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH8 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH8_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH8};  
+
+   /*   Write/Read to Thresh 9  */
+	if ((avalon_addr == TRIP_TH9_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH9 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH9_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH9};  
+
+   /*   Write/Read to Thresh 10  */
+	if ((avalon_addr == TRIP_TH10_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH10 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH10_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH10};  
+
+   /*   Write/Read to Thresh 11  */
+	if ((avalon_addr == TRIP_TH11_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH11 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH11_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH11};  
+
+   /*   Write/Read to Thresh 12  */
+	if ((avalon_addr == TRIP_TH12_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH12 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH12_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH12};  
+
+   /*   Write/Read to Thresh 13  */
+	if ((avalon_addr == TRIP_TH13_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH13 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH13_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH13};  
+
+   /*   Write/Read to Thresh 14  */
+	if ((avalon_addr == TRIP_TH14_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH14 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH14_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH14};  
+
+   /*   Write/Read to Thresh 15  */
+	if ((avalon_addr == TRIP_TH15_ADDR) & (avalon_write_o == 1) ) 
+			`TRIP_TH15 <= avalon_writedata[15:0]; 
+	if ((avalon_addr == TRIP_TH15_ADDR) & (avalon_read_o == 1) ) 
+			dout <= {16'b0,`TRIP_TH15};  			
 end
 		
 		
@@ -791,7 +899,8 @@ end
 	
 wire processing_done;
 wire [31:0] Ch_I_value[7:0];
-
+wire [15:0] I_value[7:0];
+ 
 cal_current cal_i_ins(
 	.Data_In(Ch_ADC_Reg),
 	.Data_In_Valid(ADC_data_valid), //one clk wide, freq = ADC sampling freq, 10 KHz ~ 100 KHz
@@ -799,7 +908,8 @@ cal_current cal_i_ins(
 	.clk(ADC_CLK),  //10 MHz 
 	.rst(SYS_RST),
 
-	.I_value(Ch_I_value), //signed, in pA
+	.I_value(Ch_I_value), //signed 32bit, in pA
+	.I_val16(I_value), //signed 16 bit, in 65.5 nA
 	.RDY(processing_done)	
     );
 	 
@@ -830,7 +940,7 @@ cal_current cal_i_ins(
 
 	reg [7:0] p_state;
 
-//data packet size is 16 words (32bit)
+//data packet size is 32 words (32bit)
 	always @(posedge ADC_CLK)
 	begin
 		if(SYS_RST)
@@ -842,43 +952,110 @@ cal_current cal_i_ins(
 		else
 			begin
 				case(p_state)
-					0:if(processing_done && !sfifo_half_full) begin  sFIFO_wr<= 1; sfifo_data_in <= PID; p_state <= 1; end
-
-					1: begin sfifo_data_in <= {control_reg,status_net}; p_state <= 2; end
-/*
-					2: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[0]}; p_state <= 3; end
-					3: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[1]}; p_state <= 4; end
-					4: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[2]}; p_state <= 5; end
-					5: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[3]}; p_state <= 6; end
-					6: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[4]}; p_state <= 7; end
-					7: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[5]}; p_state <= 8; end
-					8: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[6]}; p_state <= 9; end
-					9: begin sfifo_data_in <= {16'b0,Ch_ADC_Reg[7]}; p_state <= 10; end
-*/					
-					2: begin sfifo_data_in <= Ch_I_value[0]; p_state <= 3; end
-					3: begin sfifo_data_in <= Ch_I_value[1]; p_state <= 4; end
-					4: begin sfifo_data_in <= Ch_I_value[2]; p_state <= 5; end
-					5: begin sfifo_data_in <= Ch_I_value[3]; p_state <= 6; end
-					6: begin sfifo_data_in <= Ch_I_value[4]; p_state <= 7; end
-					7: begin sfifo_data_in <= Ch_I_value[5]; p_state <= 8; end
-					8: begin sfifo_data_in <= Ch_I_value[6]; p_state <= 9; end
-					9: begin sfifo_data_in <= Ch_I_value[7]; p_state <= 10; end
-
-					10: begin sfifo_data_in <= {humi,temp}; p_state <= 11; end
-					11: begin sfifo_data_in <= 0; p_state <= 12; end
-					12: begin sfifo_data_in <= 0; p_state <= 13; end
-					13: begin sfifo_data_in <= 0; p_state <= 14; end
-					14: begin sfifo_data_in <= 0; p_state <= 15; end
-					15: begin sfifo_data_in <= 0; p_state <= 16; end
-
-					16: begin sFIFO_wr<= 0; p_state <= 0; end
-
+					0:if(processing_done && !sfifo_half_full)
+						begin  sFIFO_wr<= 1; sfifo_data_in <= PID; p_state <= 1; end
+					1: begin sfifo_data_in <= {control_reg,mask_reg}; p_state <= 2; end
+					2: begin sfifo_data_in <= {humi,temp}; p_state <= 3; end
+					3: begin sfifo_data_in <= interlock_status; p_state <= 4; end			
+					4: begin sfifo_data_in <= {analog_readback[1],analog_readback[0]}; p_state <= 5; end
+					5: begin sfifo_data_in <= {analog_readback[3],analog_readback[2]}; p_state <= 6; end
+					6: begin sfifo_data_in <= {analog_readback[5],analog_readback[4]}; p_state <= 7; end
+					7: begin sfifo_data_in <= {analog_readback[7],analog_readback[6]}; p_state <= 8; end
+					8: begin sfifo_data_in <= {analog_readback[9],analog_readback[8]}; p_state <= 9; end
+					9: begin sfifo_data_in <= {analog_readback[11],analog_readback[10]}; p_state <= 10; end
+					10: begin sfifo_data_in <= {analog_readback[13],analog_readback[12]}; p_state <= 11; end
+					11: begin sfifo_data_in <= {analog_readback[15],analog_readback[14]}; p_state <= 12; end			
+					12: begin sfifo_data_in <= {trip_thresh[1],trip_thresh[0]}; p_state <= 13; end
+					13: begin sfifo_data_in <= {trip_thresh[3],trip_thresh[2]}; p_state <= 14; end
+					14: begin sfifo_data_in <= {trip_thresh[5],trip_thresh[4]}; p_state <= 15; end
+					15: begin sfifo_data_in <= {trip_thresh[7],trip_thresh[6]}; p_state <= 16; end
+					16: begin sfifo_data_in <= {trip_thresh[9],trip_thresh[8]}; p_state <= 17; end
+					17: begin sfifo_data_in <= {trip_thresh[11],trip_thresh[10]}; p_state <= 18; end
+					18: begin sfifo_data_in <= {trip_thresh[13],trip_thresh[12]}; p_state <= 19; end
+					19: begin sfifo_data_in <= {trip_thresh[15],trip_thresh[14]}; p_state <= 20; end
+					20: begin sfifo_data_in <= Ch_I_value[0]; p_state <= 21; end
+					21: begin sfifo_data_in <= Ch_I_value[1]; p_state <= 22; end
+					22: begin sfifo_data_in <= Ch_I_value[2]; p_state <= 23; end
+					23: begin sfifo_data_in <= Ch_I_value[3]; p_state <= 24; end
+					24: begin sfifo_data_in <= Ch_I_value[4]; p_state <= 25; end
+					25: begin sfifo_data_in <= Ch_I_value[5]; p_state <= 26; end
+					26: begin sfifo_data_in <= Ch_I_value[6]; p_state <= 27; end
+					27: begin sfifo_data_in <= Ch_I_value[7]; p_state <= 28; end
+					28: begin sfifo_data_in <= 32'b0; p_state <= 29; end
+					29: begin sfifo_data_in <= 32'b0; p_state <= 30; end
+					30: begin sfifo_data_in <= 32'b0; p_state <= 31; end
+					31: begin sfifo_data_in <= 32'b0; p_state <= 32; end
+					32: begin sFIFO_wr<= 0; p_state <= 0; end
 					default:
-					p_state <= 0;
+						begin sFIFO_wr<= 0; p_state <= 0; end
 				endcase
 			end
 
 	end
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////	
+//Target protect logic
+//Target protect logic : 
+// input: 8 digital, 8 analog, 16 trip threshold;
+// output: 16 analog (8 input + 8 derived value), 8 relay contact.
+
+`define T1_TARGET 1
+//`define T2_TARGET 1
+//`define TNF_TARGET 1
+
+//HV divider input channel has the conversion: 1 uA = 100 V, due to the 100 Mohm divider resistor of 0682-2 module
+
+reg [15:0] mask_reg; //signal mask bit for interlock logic
+wire [15:0] analog_readback[15:0];  //for slow FIFO read back
+wire [31:0] interlock_status; //for slow FIFO read back
+wire interlock_fault; //to drive Fault LED only
+
+
+`ifdef T1_TARGET
+	T1_logic T1_inst(
+ 	      .digi_in(digi_in), //8 channel digital input
+			.mask(mask_reg),
+			.analog_in(I_value), //8 analog value, uppger 16 bit of Ch_I_value, unit 65.5 nA  
+			.thresh(trip_thresh), //16 trip threshold, 16 bit value 
+	
+			.readback(analog_readback), //16 analog read back values 16 bit	
+			.status(interlock_status),  //legacy: 32 bit status 
+			.relay(relay_contact),
+			.fault(interlock_fault)     
+
+    );
+`endif
+
+`ifdef T2_TARGET
+	T2_logic T2_inst(
+ 	      .digi_in(digi_in), //8 channel digital input
+			.mask(mask_reg),
+			.analog_in(I_value), //8 analog value, uppger 16 bit of Ch_I_value, unit 65.5 nA  
+			.thresh(trip_thresh), //16 trip threshold, 16 bit value 
+	
+			.readback(analog_readback) //16 analog read back values 16 bit	
+			.status(interlock_status),  //legacy: 32 bit status 
+			.relay(relay_contact),
+			.fault(interlock_fault)     
+
+    );
+`endif
+
+`ifdef TNF_TARGET
+	TNF_logic TNF_inst(
+ 	      .digi_in(digi_in), //8 channel digital input
+			.mask(mask_reg),
+			.analog_in(I_value), //8 analog value, uppger 16 bit of Ch_I_value, unit 65.5 nA  
+			.thresh(trip_thresh), //16 trip threshold, 16 bit value 
+	
+			.readback(analog_readback) //16 analog read back values 16 bit	
+			.status(interlock_status),  //legacy: 32 bit status 
+			.relay(relay_contact),
+			.fault(interlock_fault)     
+
+    );
+`endif
 
 	
 //============ self test pulse ============
@@ -893,20 +1070,28 @@ clockdiv squrewave(
   defparam squrewave.CNT_WIDTH = 32;   // 
 
 //=========== DHT11 sensor ========================
-//	 inout  GPIO_1_15, //Test 5 = DHT11 Sig
-//  output GPIO_1_17, //Test 7 = DHT11 Vcc
+//	 inout  GPIO_1_18, //Test 8 = DHT11 Sig
 
-assign GPIO_1_17 = 1'b1; 
+
+
 reg [15:0] temp, humi;
 
 dht11 temp_sensor(
 	.i_clk(SYS_CLK),
 	.i_rst_n(ena_dht),
-	.io_data(GPIO_1_15),
+	.io_data(GPIO_1_18),
 	.o_temp(temp),
 	.o_humi(humi)
 	);
-  
+
+
+//========LED ============================
+flash_LED(
+    .clk(SPI_CLK),  //10 MHz clock 
+	 .led_level(LED_OK)     
+    );
+	
+	
 // Debounce logic to clean out glitches within 1ms		
 debounce debounce_inst(
              .clk(fpga_clk_50),
@@ -955,28 +1140,6 @@ defparam pulse_debug_reset.PULSE_EXT = 32;
 defparam pulse_debug_reset.EDGE_TYPE = 1;
 defparam pulse_debug_reset.IGNORE_RST_WHILE_BUSY = 1;
 
-reg [25: 0] counter;
-reg led_level;
-always @(posedge SYS_CLK or negedge hps_fpga_reset_n) begin
-    if (~hps_fpga_reset_n) begin
-        counter <= 0;
-        led_level <= 0;
-    end
 
-    else if (counter == 20000000) begin
-        led_level <= ~led_level;
-    end
-
-    else if (counter == 25000000) begin
-        counter <= 0;
-        led_level <= ~led_level;
-    end
-    
-    else
-        counter <= counter + 1'b1;
-end
-
-//assign LED[0] = led_level;
-assign LED[0] = 0;
 	
 endmodule

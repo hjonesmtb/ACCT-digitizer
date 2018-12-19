@@ -18,7 +18,8 @@ module cal_current(
 	input clk,  //10 MHz 
 	input rst,
 
-	output [31:0] I_value[7:0], //signed, in pA
+	output [31:0] I_value[7:0], //signed, in unit of pA
+	output [15:0] I_val16[7:0], //signed, 16 bit, in unit of 65.5 nA.
 	output reg RDY	
     );
 
@@ -95,7 +96,7 @@ for (i = 0; i < 8 ; i = i + 1)
 		.datab(k[i]),
 		.result(I_value[i])
 		);	
-  	
+  	 assign I_val16[i] = I_value[i][31:16];
 	end
 endgenerate 
 

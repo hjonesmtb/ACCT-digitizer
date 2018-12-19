@@ -979,8 +979,12 @@ set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=109"
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_BITS=109" -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=sld_reserved_DE10_NANO_SoC_GHRD_auto_signaltap_0_1_a6ba," -section_id auto_signaltap_0
 set_global_assignment -name VERILOG_FILE DE10_NANO_SoC_GHRD.v
+set_global_assignment -name VERILOG_FILE src/TNF_logic.v
+set_global_assignment -name VERILOG_FILE src/T1_logic.v
+set_global_assignment -name VERILOG_FILE src/T2_logic.v
 set_global_assignment -name VERILOG_FILE src/param.v
 set_global_assignment -name VERILOG_FILE src/DHT11.v
+set_global_assignment -name VERILOG_FILE src/flash_LED.v
 set_global_assignment -name VERILOG_FILE src/fifo_control.v
 set_global_assignment -name VERILOG_FILE Avalon_Slave_Interface_32.v
 set_global_assignment -name VERILOG_FILE src/pin_mux/pin_mux.v
