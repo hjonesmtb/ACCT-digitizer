@@ -11,7 +11,7 @@
 #include "main.h"
 
 #define BLOCK_SIZE 1024 //block transfer size for FAST FIFO
-#define PACKET_SIZE 16 //block transfer size for PACKET
+#define PACKET_SIZE 32 //block transfer size for PACKET
 
 static inline void writeReg(void* addr, uint32_t value)
 {
@@ -104,7 +104,56 @@ char cmd[50],*sdp,*chp;
 			*array_Ptr = &dataArray[0]; *array_Dim = BLOCK_SIZE;
     		return 3;}
 		
-        printf("\n\r Error: Bad command %s \n\r", cmd);
+        if ( strcmp(cmd,"TRIP:TH0")== 0 ) {writeReg(VR_BASE+TRIP_TH0,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH0?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH0);return 1;}
+
+        if ( strcmp(cmd,"TRIP:TH1")== 0 ) {writeReg(VR_BASE+TRIP_TH1,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH1?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH1);return 1;}
+		
+        if ( strcmp(cmd,"TRIP:TH2")== 0 ) {writeReg(VR_BASE+TRIP_TH2,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH2?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH2);return 1;}
+		
+        if ( strcmp(cmd,"TRIP:TH3")== 0 ) {writeReg(VR_BASE+TRIP_TH3,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH3?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH3);return 1;}
+		
+        if ( strcmp(cmd,"TRIP:TH4")== 0 ) {writeReg(VR_BASE+TRIP_TH4,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH4?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH4);return 1;}
+		
+        if ( strcmp(cmd,"TRIP:TH5")== 0 ) {writeReg(VR_BASE+TRIP_TH5,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH5?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH5);return 1;}
+		
+        if ( strcmp(cmd,"TRIP:TH6")== 0 ) {writeReg(VR_BASE+TRIP_TH6,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH6?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH6);return 1;}
+		
+        if ( strcmp(cmd,"TRIP:TH7")== 0 ) {writeReg(VR_BASE+TRIP_TH7,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH7?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH7);return 1;}
+		
+        if ( strcmp(cmd,"TRIP:TH8")== 0 ) {writeReg(VR_BASE+TRIP_TH8,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH8?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH8);return 1;}
+		
+        if ( strcmp(cmd,"TRIP:TH9")== 0 ) {writeReg(VR_BASE+TRIP_TH9,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH9?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH9);return 1;}
+		
+        if ( strcmp(cmd,"TRIP:TH10")== 0 ) {writeReg(VR_BASE+TRIP_TH10,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH10?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH10);return 1;}
+		
+        if ( strcmp(cmd,"TRIP:TH11")== 0 ) {writeReg(VR_BASE+TRIP_TH11,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH11?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH11);return 1;}
+		
+        if ( strcmp(cmd,"TRIP:TH12")== 0 ) {writeReg(VR_BASE+TRIP_TH12,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH12?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH12);return 1;}
+		
+        if ( strcmp(cmd,"TRIP:TH13")== 0 ) {writeReg(VR_BASE+TRIP_TH13,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH13?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH13);return 1;}
+		
+        if ( strcmp(cmd,"TRIP:TH14")== 0 ) {writeReg(VR_BASE+TRIP_TH14,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH14?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH14);return 1;}																														
+    		
+        if ( strcmp(cmd,"TRIP:TH15")== 0 ) {writeReg(VR_BASE+TRIP_TH15,invalue);return 0;}
+		if ( strcmp(cmd,"TRIP:TH15?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH15);return 1;}
+				
+		
+    	printf("\n\r Error: Bad command %s \n\r", cmd);
 		
 		}
 

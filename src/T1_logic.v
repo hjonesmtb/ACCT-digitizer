@@ -27,6 +27,7 @@
                          
                      
 //Tabel 2: Input signal to Interlock logic 
+//Note: mask bit "1" means overide, i.e. not involved in the logic result
 //!!! Specific to T1  !!!
 // Mask_Index   Signal    Mask_TNF(default) Digi_channel
 // 0             L_OK       1             
@@ -41,7 +42,26 @@
 // 9             T2SUM_OK   1              2  
 // 10            TNFSUM_OK  1              3
 
-
+//Tabel 3: Mapping Backpanel channel to logic channel, using this table when connect physical signal cables.
+//backpannel lables:
+//Aanalog input: starting from left when facing to the backpanel: ch0, 1,2,to 7
+//Relay output: starting from left, top row: ch0,1,2,3, bottom row: ch4,5,6,7
+//Digi input: save as above Relay output, top row: ch0,1,2,3, bot row: ch4,5,6,7
+//!!! Specific to T1  !!!
+//Note: Analog input channel is already matched. The channels not mapped are not in use for T1 logic.
+//The following table's 1st colomn is the backpanel channel number.
+//Digi-in Logic   Signal
+// 0     	3     TNFSUM_OK
+// 1        2     T2SUM_OK
+// 2        1     T1SUM_OK
+// 3        0     T1VAC_OK
+//Realy   Logic   Signal
+// 0        2     T1_SUMMARY
+// 1        4     HALO_HV_En
+// 2        6     T1_HV_En
+// 4        3     T1SUM_SAFETY
+// 5        5     T2SUM_SAFETY
+// 6        7     TNFSUM_SAFETY
 
 //////////////////////////////////////////////////////////////////////////////////
 module T1_logic(
@@ -49,7 +69,7 @@ module T1_logic(
 	input rst,
 	input [7:0] digi_in, //8 channel digital input
 	input [15:0] mask,
-	input [ADC_BIT_WIDTH-1:0] analog_in[7:0], //8 analog input  
+	input [ADC_BIT_WIDTH-1:0] analog_in[7:0], //8 analog input, in unit of 65.5nA  
 	input [ADC_BIT_WIDTH-1:0] thresh[15:0], //16 trip threshold 
 	
 	output [ADC_BIT_WIDTH-1:0] readback[15:0], //16 analog values for read back	
@@ -71,7 +91,7 @@ wire [ADC_BIT_WIDTH-1:0] R_value = analog_in[3];
 wire [ADC_BIT_WIDTH-1:0] Halo_value = analog_in[4];
 wire [ADC_BIT_WIDTH-1:0] Den_value = analog_in[5];
 wire [ADC_BIT_WIDTH-1:0] Tot_value = analog_in[6];
-wire [ADC_BIT_WIDTH-1:0] HV_value = analog_in[7];
+wire [ADC_BIT_WIDTH-1:0] HV_value = analog_in[7]; 
 
 //Assign threshold according to Table 1 above:
 //!!! common for all T1,T2,TNF !!!
@@ -135,23 +155,37 @@ wire SOT_value = SUM_value/ Tot_value;
 wire SOT_OK = SOT_value < SOT_th;
 wire HALO_OK = Halo_value < Halo_th;
 wire HV_OK = HV_value < HV_th;
+
+wire Lmask = mask[0];
+wire Rmask = mask[1];
+wire Dmask = mask[2];
+wire Umask = mask[3];
+wire SOTmask = mask[4];
+wire HALOmask = mask[5];
+wire HVmask = mask[6];
+wire T1VACmask = mask[7];
+wire T1SUMmask = mask[8];
+wire T2SUMmask = mask[9];
+wire TNFSUMmask = mask[10];
+
  
 //output relay contacts
-wire T1_SUMMARY = WD & L_OK & R_OK & D_OK & U_OK & SOT_OK & HALO_OK & HV_OK & T1VAC_OK; 
-wire HALO_HV_En = T1VAC_OK;
-wire T1_HV_En = T1VAC_OK;
-wire T1SUM_SAFETY = T1SUM_OK;
-wire T2SUM_SAFETY = T2SUM_OK;
-wire TNFSUM_SAFETY = TNFSUM_OK;
+wire T1_SUMMARY = WD & (L_OK|Lmask) & (R_OK|Rmask) & (D_OK|Dmask) & (U_OK|Umask) & (SOT_OK|SOTmask) & (HALO_OK|HALOmask) & (HV_OK|HVmask) & (T1VAC_OK|T1VACmask); 
+wire HALO_HV_En = T1VAC_OK|T1VACmask;
+wire T1_HV_En = T1VAC_OK|T1VACmask;
+wire T1SUM_SAFETY = T1SUM_OK|T1SUMmask;
+wire T2SUM_SAFETY = T2SUM_OK|T2SUMmask;
+wire TNFSUM_SAFETY = TNFSUM_OK|TNFSUMmask;
 
-assign relay[0] = T1_SUMMARY;
-assign relay[1] = HALO_HV_En;
-assign relay[2] = T1_HV_En;
+assign relay[0] = 0'b1; //not in use, set to "0" to save power
+assign relay[1] = 0'b1; //not in use
+assign relay[2] = T1_SUMMARY;
+assign relay[4] = HALO_HV_En;
+assign relay[6] = T1_HV_En;
 assign relay[3] = T1SUM_SAFETY;
-assign relay[4] = T2SUM_SAFETY;
-assign relay[5] = TNFSUM_SAFETY ;
-assign relay[6] = 1'b1; //not in use
-assign relay[7] = 1'b1; //not in use
+assign relay[5] = T2SUM_SAFETY;
+assign relay[7] = TNFSUM_SAFETY ;
+
 
 assign status[0] = WD;  
 assign status[1] = L_OK;

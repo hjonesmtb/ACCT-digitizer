@@ -6,8 +6,8 @@ module flash_LED(
     );
 //parameter  	FLASH_PERIOD = 200; //ms   
 //parameter  MAX = 1000000*(FLASH_PERIOD/100);
-reg [20: 0] counter;
-assign led_level = counter[20];
+reg [22: 0] counter;
+assign led_level = counter[22];
 always @(posedge clk)  counter <= counter + 1;
     
 endmodule

@@ -40,6 +40,23 @@
 #define EEPROM_RD_ADDR 4*15
 #define EEPROM_WR_ADDR 4*16
 
+#define TRIP_TH0_ADDR 4*30
+#define TRIP_TH1_ADDR 4*31
+#define TRIP_TH2_ADDR 4*32
+#define TRIP_TH3_ADDR 4*33
+#define TRIP_TH4_ADDR 4*34
+#define TRIP_TH5_ADDR 4*35
+#define TRIP_TH6_ADDR 4*36
+#define TRIP_TH7_ADDR 4*37
+
+#define TRIP_TH8_ADDR 4*38
+#define TRIP_TH9_ADDR 4*39
+#define TRIP_TH10_ADDR 4*40
+#define TRIP_TH11_ADDR 4*41
+#define TRIP_TH12_ADDR 4*42
+#define TRIP_TH13_ADDR 4*43
+#define TRIP_TH14_ADDR 4*44
+#define TRIP_TH15_ADDR 4*45
 
 #define CR  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + FPGA_CONTROL_REG_ADDR ) & (unsigned long) (HW_REGS_MASK))
 #define SR  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + FPGA_STATUS_REG_ADDR ) & (unsigned long) (HW_REGS_MASK))
@@ -61,6 +78,23 @@
 
 #define EEPROM_RD  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + EEPROM_RD_ADDR ) & (unsigned long) (HW_REGS_MASK))
 #define EEPROM_WR  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + EEPROM_WR_ADDR ) & (unsigned long) (HW_REGS_MASK))
+
+#define TRIP_TH0   (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH0_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define TRIP_TH1   (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH1_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define TRIP_TH2   (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH2_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define TRIP_TH3   (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH3_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define TRIP_TH4   (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH4_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define TRIP_TH5   (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH5_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define TRIP_TH6   (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH6_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define TRIP_TH7   (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH7_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define TRIP_TH8   (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH8_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define TRIP_TH9   (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH9_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define TRIP_TH10  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH10_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define TRIP_TH11  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH11_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define TRIP_TH12  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH12_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define TRIP_TH13  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH13_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define TRIP_TH14  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH14_ADDR ) & (unsigned long) (HW_REGS_MASK))
+#define TRIP_TH15  (( (unsigned long) ALT_LWFPGASLVS_OFST + MYAVALONBUS32_0_BASE + TRIP_TH15_ADDR ) & (unsigned long) (HW_REGS_MASK))
 
 extern sem_t       buffer_1_sem;
 extern uint8_t*    buffer_1;

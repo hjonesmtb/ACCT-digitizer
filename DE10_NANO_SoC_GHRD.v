@@ -229,7 +229,10 @@ assign stm_hw_events = {{15{1'b0}}, SW, fpga_led_internal, fpga_debounced_button
 /************************* Target Protect Logic *************************/
 /************************************************************************/
 
-parameter FPGA_VERSION_NO = 32'd20181217; //Dec 17, 2018
+`define T1_TARGET 1
+//`define T2_TARGET 1
+//`define TNF_TARGET 1
+parameter FPGA_VERSION_NO = 32'd2019010900; //yyyy_mm_dd_nn: T1 nn=00, T2 nn=01, TNF nn=02;
 
 
 wire self_chk, test_pulse;
@@ -276,14 +279,14 @@ assign LED_CNF_DONE = 1'b1; //I don't know how to use this LED so far.
 	//assign GPIO_0_14 = eeprom_scl;
 	//assign GPIO_0_15 = eeprom_sda;
 	
-	assign digi_in[0] = GPIO_1_10; 
-	assign digi_in[1] = GPIO_1_11; 
-	assign digi_in[2] = GPIO_1_12; 
-	assign digi_in[3] = GPIO_1_13; 
-	assign digi_in[4] = GPIO_1_14; 
-	assign digi_in[5] = GPIO_1_15; 
-	assign digi_in[6] = GPIO_1_16; 
-	assign digi_in[7] = GPIO_1_17; 
+	assign digi_in[0] = ~GPIO_1_10; 
+	assign digi_in[1] = ~GPIO_1_11; 
+	assign digi_in[2] = ~GPIO_1_12; 
+	assign digi_in[3] = ~GPIO_1_13; 
+	assign digi_in[4] = ~GPIO_1_14; 
+	assign digi_in[5] = ~GPIO_1_15; 
+	assign digi_in[6] = ~GPIO_1_16; 
+	assign digi_in[7] = ~GPIO_1_17; 
 	
 	
 	assign GPIO_1_35 = relay_contact[0]; 
@@ -294,7 +297,8 @@ assign LED_CNF_DONE = 1'b1; //I don't know how to use this LED so far.
 	assign GPIO_0_25 = relay_contact[5]; 
 	assign GPIO_0_29 = relay_contact[6]; 
 	assign GPIO_0_35 = relay_contact[7]; 
-   
+ 
+ 
 	//Ch0--A1 of sch channel
 	assign ADC_MISO[0]  =  GPIO_1_34;
 	assign {GPIO_1_33, GPIO_1_32} = ADC_MUX[0];
@@ -937,6 +941,7 @@ cal_current cal_i_ins(
 	
 //============Packing=================================
 	parameter PID = 32'h4142504d; // "ABPM"
+	parameter EID = 32'h4242504E; // "BBPN"
 
 	reg [7:0] p_state;
 
@@ -957,22 +962,22 @@ cal_current cal_i_ins(
 					1: begin sfifo_data_in <= {control_reg,mask_reg}; p_state <= 2; end
 					2: begin sfifo_data_in <= {humi,temp}; p_state <= 3; end
 					3: begin sfifo_data_in <= interlock_status; p_state <= 4; end			
-					4: begin sfifo_data_in <= {analog_readback[1],analog_readback[0]}; p_state <= 5; end
-					5: begin sfifo_data_in <= {analog_readback[3],analog_readback[2]}; p_state <= 6; end
-					6: begin sfifo_data_in <= {analog_readback[5],analog_readback[4]}; p_state <= 7; end
-					7: begin sfifo_data_in <= {analog_readback[7],analog_readback[6]}; p_state <= 8; end
-					8: begin sfifo_data_in <= {analog_readback[9],analog_readback[8]}; p_state <= 9; end
-					9: begin sfifo_data_in <= {analog_readback[11],analog_readback[10]}; p_state <= 10; end
-					10: begin sfifo_data_in <= {analog_readback[13],analog_readback[12]}; p_state <= 11; end
-					11: begin sfifo_data_in <= {analog_readback[15],analog_readback[14]}; p_state <= 12; end			
-					12: begin sfifo_data_in <= {trip_thresh[1],trip_thresh[0]}; p_state <= 13; end
-					13: begin sfifo_data_in <= {trip_thresh[3],trip_thresh[2]}; p_state <= 14; end
-					14: begin sfifo_data_in <= {trip_thresh[5],trip_thresh[4]}; p_state <= 15; end
-					15: begin sfifo_data_in <= {trip_thresh[7],trip_thresh[6]}; p_state <= 16; end
-					16: begin sfifo_data_in <= {trip_thresh[9],trip_thresh[8]}; p_state <= 17; end
-					17: begin sfifo_data_in <= {trip_thresh[11],trip_thresh[10]}; p_state <= 18; end
-					18: begin sfifo_data_in <= {trip_thresh[13],trip_thresh[12]}; p_state <= 19; end
-					19: begin sfifo_data_in <= {trip_thresh[15],trip_thresh[14]}; p_state <= 20; end
+					4: begin sfifo_data_in <= {analog_readback[0],analog_readback[1]}; p_state <= 5; end
+					5: begin sfifo_data_in <= {analog_readback[2],analog_readback[3]}; p_state <= 6; end
+					6: begin sfifo_data_in <= {analog_readback[4],analog_readback[5]}; p_state <= 7; end
+					7: begin sfifo_data_in <= {analog_readback[6],analog_readback[7]}; p_state <= 8; end
+					8: begin sfifo_data_in <= {analog_readback[8],analog_readback[9]}; p_state <= 9; end
+					9: begin sfifo_data_in <= {analog_readback[10],analog_readback[11]}; p_state <= 10; end
+					10: begin sfifo_data_in <= {analog_readback[12],analog_readback[13]}; p_state <= 11; end
+					11: begin sfifo_data_in <= {analog_readback[14],analog_readback[15]}; p_state <= 12; end			
+					12: begin sfifo_data_in <= {trip_thresh[0],trip_thresh[1]}; p_state <= 13; end
+					13: begin sfifo_data_in <= {trip_thresh[2],trip_thresh[3]}; p_state <= 14; end
+					14: begin sfifo_data_in <= {trip_thresh[4],trip_thresh[5]}; p_state <= 15; end
+					15: begin sfifo_data_in <= {trip_thresh[6],trip_thresh[7]}; p_state <= 16; end
+					16: begin sfifo_data_in <= {trip_thresh[8],trip_thresh[9]}; p_state <= 17; end
+					17: begin sfifo_data_in <= {trip_thresh[10],trip_thresh[11]}; p_state <= 18; end
+					18: begin sfifo_data_in <= {trip_thresh[12],trip_thresh[13]}; p_state <= 19; end
+					19: begin sfifo_data_in <= {trip_thresh[14],trip_thresh[15]}; p_state <= 20; end
 					20: begin sfifo_data_in <= Ch_I_value[0]; p_state <= 21; end
 					21: begin sfifo_data_in <= Ch_I_value[1]; p_state <= 22; end
 					22: begin sfifo_data_in <= Ch_I_value[2]; p_state <= 23; end
@@ -983,8 +988,8 @@ cal_current cal_i_ins(
 					27: begin sfifo_data_in <= Ch_I_value[7]; p_state <= 28; end
 					28: begin sfifo_data_in <= 32'b0; p_state <= 29; end
 					29: begin sfifo_data_in <= 32'b0; p_state <= 30; end
-					30: begin sfifo_data_in <= 32'b0; p_state <= 31; end
-					31: begin sfifo_data_in <= 32'b0; p_state <= 32; end
+					30: begin sfifo_data_in <= {16'b0,relay_contact,digi_in}; p_state <= 31; end
+					31: begin sfifo_data_in <= EID; p_state <= 32; end
 					32: begin sFIFO_wr<= 0; p_state <= 0; end
 					default:
 						begin sFIFO_wr<= 0; p_state <= 0; end
@@ -999,10 +1004,10 @@ cal_current cal_i_ins(
 //Target protect logic : 
 // input: 8 digital, 8 analog, 16 trip threshold;
 // output: 16 analog (8 input + 8 derived value), 8 relay contact.
+// note very important!!!
+// the 16 bit current/threshold signal are in unit of 65.5 nA, 
+// the HV threshold is also represented by current in which 1 uA = 100 V. 
 
-`define T1_TARGET 1
-//`define T2_TARGET 1
-//`define TNF_TARGET 1
 
 //HV divider input channel has the conversion: 1 uA = 100 V, due to the 100 Mohm divider resistor of 0682-2 module
 
