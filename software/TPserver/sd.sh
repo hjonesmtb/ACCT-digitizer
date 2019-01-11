@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh x
 # Mount SDcard
 
 echo "Mount SDcard for FPGA configuration upgrade"

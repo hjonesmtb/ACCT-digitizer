@@ -177,8 +177,8 @@ wire T1SUM_SAFETY = T1SUM_OK|T1SUMmask;
 wire T2SUM_SAFETY = T2SUM_OK|T2SUMmask;
 wire TNFSUM_SAFETY = TNFSUM_OK|TNFSUMmask;
 
-assign relay[0] = 0'b1; //not in use, set to "0" to save power
-assign relay[1] = 0'b1; //not in use
+assign relay[0] = 1'b0; //not in use, set to "0" to save power
+assign relay[1] = 1'b0; //not in use
 assign relay[2] = T1_SUMMARY;
 assign relay[4] = HALO_HV_En;
 assign relay[6] = T1_HV_En;
@@ -213,5 +213,5 @@ assign status[22] = relay[5];
 assign status[23] = 1'b0;
 assign status[31:24] = 8'b0;
 
-assign fault = ~&relay; //= 1,only when realy bits are all 1
+assign fault = ~T1_SUMMARY; 
 endmodule

@@ -232,8 +232,8 @@ assign stm_hw_events = {{15{1'b0}}, SW, fpga_led_internal, fpga_debounced_button
 `define T1_TARGET 1
 //`define T2_TARGET 1
 //`define TNF_TARGET 1
-parameter FPGA_VERSION_NO = 32'd2019010900; //yyyy_mm_dd_nn: T1 nn=00, T2 nn=01, TNF nn=02;
-
+//parameter FPGA_VERSION_NO = 32'd2019010700; //yyyy_mm_dd_nn: T1 nn=00, T2 nn=01, TNF nn=02;
+parameter FPGA_VERSION_NO = 32'd20190001; //verification
 
 wire self_chk, test_pulse;
 
@@ -255,9 +255,9 @@ wire eeprom_scl,eeprom_sda;
 wire [1:0] ch_gain [7:0]; 
 wire [7:0] relay_contact;
 
-wire HPS_Cold_Reset, LED_OK, LED_CNF_DONE, LED_Fault;
+wire Cold_Reset_Req, LED_OK, LED_CNF_DONE, LED_Fault;
 assign LED_Fault = interlock_fault;
-assign LED_CNF_DONE = 1'b1; //I don't know how to use this LED so far.
+assign LED_CNF_DONE = Cold_Reset_Req; //I don't know how to use this LED so far.
 
 // GPIO pin mapping :
    assign GPIO_1_27 = 1; //ADC_RST
@@ -268,7 +268,7 @@ assign LED_CNF_DONE = 1'b1; //I don't know how to use this LED so far.
 	assign GPIO_1_20 = test_pulse;  //test pulse: squre wave
 	assign GPIO_1_24 = self_chk; //Turn-on Analog Switch for Sigma-Delta signal
 	
-	assign HPS_Cold_Reset = GPIO_1_0;  //HPS_Cold_Reset 
+	assign Cold_Reset_Req = ~GPIO_1_0;  //HPS_Cold_Reset 
 	assign GPIO_1_3 = LED_OK;  //LED_OK
 	assign GPIO_1_5 = LED_CNF_DONE;  //LED_CNF_DONE
 	assign GPIO_1_2 = LED_Fault;  //LED_Fault
@@ -626,7 +626,8 @@ soc_system u0(
                .button_pio_external_connection_export(fpga_debounced_buttons),
                                                                             // button_pio_external_connection.export
                //.hps_0_h2f_reset_reset_n(hps_fpga_reset_n),                  //                hps_0_h2f_reset.reset_n
-               .hps_0_f2h_cold_reset_req_reset_n(~hps_cold_reset),          //       hps_0_f2h_cold_reset_req.reset_n
+               
+					.hps_0_f2h_cold_reset_req_reset_n(~Cold_Reset_Req),          //       hps_0_f2h_cold_reset_req.reset_n
                .hps_0_f2h_debug_reset_req_reset_n(~hps_debug_reset),        //      hps_0_f2h_debug_reset_req.reset_n
                .hps_0_f2h_stm_hw_events_stm_hwevents(stm_hw_events),        //        hps_0_f2h_stm_hw_events.stm_hwevents
                .hps_0_f2h_warm_reset_req_reset_n(~hps_warm_reset),          //       hps_0_f2h_warm_reset_req.reset_n
@@ -1091,7 +1092,7 @@ dht11 temp_sensor(
 
 
 //========LED ============================
-flash_LED(
+flash_LED flash_led_inst(
     .clk(SPI_CLK),  //10 MHz clock 
 	 .led_level(LED_OK)     
     );
@@ -1118,7 +1119,7 @@ hps_reset hps_reset_inst(
 altera_edge_detector pulse_cold_reset(
                          .clk(fpga_clk_50),
                          .rst_n(hps_fpga_reset_n),
-                         .signal_in(hps_reset_req[0]),
+                         .signal_in(Cold_Reset_Req),
                          .pulse_out(hps_cold_reset)
                      );
 defparam pulse_cold_reset.PULSE_EXT = 6;
