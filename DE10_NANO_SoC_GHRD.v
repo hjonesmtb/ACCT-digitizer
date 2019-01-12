@@ -177,6 +177,11 @@ module DE10_NANO_SoC_GHRD(
 `define 	PCA_GAIN_BIT_L8 configuration[0]
 `define 	PCA_GAIN_BIT_H8 configuration[1]
 
+`define 	CON_REG_L8 configuration[2]
+`define 	CON_REG_H8 configuration[3]
+
+`define 	MASK_REG_L8 configuration[4]
+`define 	MASK_REG_H8 configuration[5]
 
 `define 	TRIP_TH0  {configuration[11],configuration[10]}
 `define 	TRIP_TH1  {configuration[13],configuration[12]}
@@ -507,8 +512,8 @@ parameter integer 	FIFO_ADDR = 11;
 
 //parameter integer 	RELAY_ADDR = 12;
 
-parameter integer 	CONF_RD_ADDR = 13;
-parameter integer 	CONF_WR_ADDR = 14;
+//parameter integer 	CONF_RD_ADDR = 13;
+//parameter integer 	CONF_WR_ADDR = 14;
 
 parameter integer 	EEPROM_RD_ADDR = 15;
 parameter integer 	EEPROM_WR_ADDR = 16;
@@ -644,11 +649,10 @@ soc_system u0(
            );
 
 //Avalon Bus interface 	
-reg [15:0] control_reg = 0;	
 reg [15:0] ch_reg = 0;	
 
-wire ena_dht = control_reg[2];
-assign self_chk = control_reg[3];
+wire ena_dht = `CON_REG_L8[2];
+assign self_chk = `CON_REG_L8[3];
 
 wire [2:0] ch_select = ch_reg[2:0];
 
@@ -696,14 +700,14 @@ always@(posedge SYS_CLK)
 	else begin
    /*   Write to Control Register   */
 	if ((avalon_addr == CR_ADDR) & (avalon_write_o == 1) ) 
-			control_reg <= avalon_writedata[15:0]; 	
+			{`CON_REG_H8,`CON_REG_L8} <= avalon_writedata[15:0]; 	
 	/*   Write to ch_select Register   */
 	if ((avalon_addr == CH_SELECT_ADDR) & (avalon_write_o == 1) ) 
 			ch_reg <= avalon_writedata[15:0]; 	
 			
 	/*   Read from Control Register   */		
 	if ((avalon_addr == CR_ADDR) & (avalon_read_o == 1) ) 
-			dout <= {16'b0,control_reg}; 
+			dout <= {16'b0,`CON_REG_H8,`CON_REG_L8}; 
 	
 	/*   Read from iStatus Register   */		
 	if ((avalon_addr == SR_ADDR) & (avalon_read_o == 1) ) 
@@ -715,11 +719,11 @@ always@(posedge SYS_CLK)
 
 	/*   Write to Mask Register   */
 	if ((avalon_addr == MR_ADDR) & (avalon_write_o == 1) ) 
-			mask_reg <= avalon_writedata[15:0]; 	
+			{`MASK_REG_H8,`MASK_REG_L8} <= avalon_writedata[15:0]; 	
 
    /*   Read Mask Register  */		
 	if ((avalon_addr == MR_ADDR) & (avalon_read_o == 1)) 
-			dout <= {16'b0,mask_reg}; 			
+			dout <= {16'b0,`MASK_REG_H8,`MASK_REG_L8}; 			
 	
 	/*   slow fifo occupancy     */		
 	if ((avalon_addr == SFIFO_WD_ADDR) & (avalon_read_o == 1)) 
@@ -960,7 +964,7 @@ cal_current cal_i_ins(
 				case(p_state)
 					0:if(processing_done && !sfifo_half_full)
 						begin  sFIFO_wr<= 1; sfifo_data_in <= PID; p_state <= 1; end
-					1: begin sfifo_data_in <= {control_reg,mask_reg}; p_state <= 2; end
+					1: begin sfifo_data_in <= {`CON_REG_H8,`CON_REG_L8,`MASK_REG_H8,`MASK_REG_L8}; p_state <= 2; end
 					2: begin sfifo_data_in <= {humi,temp}; p_state <= 3; end
 					3: begin sfifo_data_in <= interlock_status; p_state <= 4; end			
 					4: begin sfifo_data_in <= {analog_readback[0],analog_readback[1]}; p_state <= 5; end
@@ -1012,16 +1016,15 @@ cal_current cal_i_ins(
 
 //HV divider input channel has the conversion: 1 uA = 100 V, due to the 100 Mohm divider resistor of 0682-2 module
 
-reg [15:0] mask_reg; //signal mask bit for interlock logic
 wire [15:0] analog_readback[15:0];  //for slow FIFO read back
 wire [31:0] interlock_status; //for slow FIFO read back
 wire interlock_fault; //to drive Fault LED only
-
+wire [15:0] mask_bit = {`MASK_REG_H8,`MASK_REG_L8};
 
 `ifdef T1_TARGET
 	T1_logic T1_inst(
  	      .digi_in(digi_in), //8 channel digital input
-			.mask(mask_reg),
+			.mask(mask_bit),
 			.analog_in(I_value), //8 analog value, uppger 16 bit of Ch_I_value, unit 65.5 nA  
 			.thresh(trip_thresh), //16 trip threshold, 16 bit value 
 	
@@ -1036,7 +1039,7 @@ wire interlock_fault; //to drive Fault LED only
 `ifdef T2_TARGET
 	T2_logic T2_inst(
  	      .digi_in(digi_in), //8 channel digital input
-			.mask(mask_reg),
+			.mask(mask_bit),
 			.analog_in(I_value), //8 analog value, uppger 16 bit of Ch_I_value, unit 65.5 nA  
 			.thresh(trip_thresh), //16 trip threshold, 16 bit value 
 	
@@ -1051,7 +1054,7 @@ wire interlock_fault; //to drive Fault LED only
 `ifdef TNF_TARGET
 	TNF_logic TNF_inst(
  	      .digi_in(digi_in), //8 channel digital input
-			.mask(mask_reg),
+			.mask(mask_bit),
 			.analog_in(I_value), //8 analog value, uppger 16 bit of Ch_I_value, unit 65.5 nA  
 			.thresh(trip_thresh), //16 trip threshold, 16 bit value 
 	

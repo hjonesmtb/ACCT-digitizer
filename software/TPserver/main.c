@@ -31,6 +31,8 @@ void error_exit(const char *msg)
 }
 
 int cmd_proc(char *cmdString_in , int *value_back, char **string_back, int **array_Ptr, int *array_Dim);
+void Load_Conf();
+
 
 void* VR_BASE;
 char cmdString[256];
@@ -91,6 +93,8 @@ int main(int argc, char* argv[])
 	 char *string_back;
 	 //char arrayString[STRING_MAX_LENGTH];
 	 
+	 //load configration from eeprom
+	 Load_Conf();
          
        
      while(1) {

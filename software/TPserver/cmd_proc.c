@@ -24,8 +24,15 @@ static inline uint32_t readReg(void* addr)
     return *(uint32_t*) (addr);
 }
 
+
 int dataArray[1024];
 extern void* VR_BASE;
+
+void Load_Conf()
+{
+     writeReg(VR_BASE+EEPROM_RD,0);
+}
+
 
 int cmd_proc(char *cmdString_in , int *value_back, char **string_back, int **array_Ptr, int *array_Dim)
 {
@@ -88,8 +95,8 @@ char cmd[50],*sdp,*chp;
 		if ( strcmp(cmd,"CONF2EEPROM")== 0 ) {writeReg(VR_BASE+EEPROM_WR,invalue);return 0;}
 		if ( strcmp(cmd,"EEPROM2CONF")== 0 ) {writeReg(VR_BASE+EEPROM_RD,invalue);return 0;}
 		
-		if ( strcmp(cmd,"REG2CONF")== 0 ) {writeReg(VR_BASE+CONF_WR,invalue);return 0;}
-		if ( strcmp(cmd,"CONF2REG")== 0 ) {writeReg(VR_BASE+CONF_RD,invalue);return 0;;}
+		//if ( strcmp(cmd,"REG2CONF")== 0 ) {writeReg(VR_BASE+CONF_WR,invalue);return 0;}
+		//if ( strcmp(cmd,"CONF2REG")== 0 ) {writeReg(VR_BASE+CONF_RD,invalue);return 0;;}
 		
 		if ( strcmp(cmd,"SFIFO:WD?")== 0 ) {*value_back = readReg(VR_BASE+SFIFO_WD);return 1;}
 		if ( strcmp(cmd,"SFIFO?")== 0 ) {

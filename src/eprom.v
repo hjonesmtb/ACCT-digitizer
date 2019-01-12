@@ -322,11 +322,13 @@ i2c_master i2c_master_inst(
               45:
                 begin
                   
-                  if (out_data[0] == 0)
+                  if ((out_data[0] == 0) && (out_data[2] == 0))
                      begin 
                        i2c_cs <= 0; i2c_rd <= 0;
                        state <= 46;
                      end
+						else if ((out_data[0] == 0) && (out_data[2] == 1))
+									state <= 40;
                 end
                 
               46: //write starting address = 0
