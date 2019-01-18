@@ -237,8 +237,8 @@ assign stm_hw_events = {{15{1'b0}}, SW, fpga_led_internal, fpga_debounced_button
 `define T1_TARGET 1
 //`define T2_TARGET 1
 //`define TNF_TARGET 1
-//parameter FPGA_VERSION_NO = 32'd2019010700; //yyyy_mm_dd_nn: T1 nn=00, T2 nn=01, TNF nn=02;
-parameter FPGA_VERSION_NO = 32'd20190001; //verification
+parameter FPGA_VERSION_NO = 32'd0020190117; //nn_yyyy_mm_dd: T1 nn=00, T2 nn=01, TNF nn=02;
+//parameter FPGA_VERSION_NO = 32'd20190001; //verification
 
 wire self_chk, test_pulse;
 
@@ -258,7 +258,8 @@ wire [7:0] digi_in; //logic signal input 8 channel
 wire eeprom_scl,eeprom_sda;
 
 wire [1:0] ch_gain [7:0]; 
-wire [7:0] relay_contact;
+wire [7:0] relay_contact_m;
+wire [7:0] relay_contact = run? relay_contact_m :8'b0;
 
 wire Cold_Reset_Req, LED_OK, LED_CNF_DONE, LED_Fault;
 assign LED_Fault = interlock_fault;
@@ -278,30 +279,27 @@ assign LED_CNF_DONE = Cold_Reset_Req; //I don't know how to use this LED so far.
 	assign GPIO_1_5 = LED_CNF_DONE;  //LED_CNF_DONE
 	assign GPIO_1_2 = LED_Fault;  //LED_Fault
 	
-  	
-	 
-	 
+ 	 
 	//assign GPIO_0_14 = eeprom_scl;
 	//assign GPIO_0_15 = eeprom_sda;
 	
-	assign digi_in[0] = ~GPIO_1_10; 
-	assign digi_in[1] = ~GPIO_1_11; 
-	assign digi_in[2] = ~GPIO_1_12; 
-	assign digi_in[3] = ~GPIO_1_13; 
-	assign digi_in[4] = ~GPIO_1_14; 
-	assign digi_in[5] = ~GPIO_1_15; 
-	assign digi_in[6] = ~GPIO_1_16; 
-	assign digi_in[7] = ~GPIO_1_17; 
-	
-	
-	assign GPIO_1_35 = relay_contact[0]; 
-	assign GPIO_0_3  = relay_contact[1]; 
-	assign GPIO_0_9  = relay_contact[2]; 
-	assign GPIO_0_13 = relay_contact[3]; 
-	assign GPIO_0_19 = relay_contact[4]; 
+	assign digi_in[2] = ~GPIO_1_10; 
+	assign digi_in[3] = ~GPIO_1_11; 
+	assign digi_in[0] = ~GPIO_1_12; 
+	assign digi_in[1] = ~GPIO_1_13; 
+	assign digi_in[6] = ~GPIO_1_14; 
+	assign digi_in[7] = ~GPIO_1_15; 
+	assign digi_in[4] = ~GPIO_1_16; 
+	assign digi_in[5] = ~GPIO_1_17; 
+
+	assign GPIO_1_35 = relay_contact[2]; 
+	assign GPIO_0_3  = relay_contact[4]; 
+	assign GPIO_0_9  = relay_contact[6]; 
+	assign GPIO_0_13 = relay_contact[0]; 
+	assign GPIO_0_19 = relay_contact[3]; 
 	assign GPIO_0_25 = relay_contact[5]; 
-	assign GPIO_0_29 = relay_contact[6]; 
-	assign GPIO_0_35 = relay_contact[7]; 
+	assign GPIO_0_29 = relay_contact[7]; 
+	assign GPIO_0_35 = relay_contact[1]; 
  
  
 	//Ch0--A1 of sch channel
@@ -651,6 +649,7 @@ soc_system u0(
 //Avalon Bus interface 	
 reg [15:0] ch_reg = 0;	
 
+wire run = `CON_REG_L8[0];
 wire ena_dht = `CON_REG_L8[2];
 assign self_chk = `CON_REG_L8[3];
 
@@ -918,7 +917,7 @@ cal_current cal_i_ins(
 	.rst(SYS_RST),
 
 	.I_value(Ch_I_value), //signed 32bit, in pA
-	.I_val16(I_value), //signed 16 bit, in 65.5 nA
+	.I_val16(I_value), //unsigned positive 16 bit, in 65.5 nA
 	.RDY(processing_done)	
     );
 	 
@@ -1030,7 +1029,7 @@ wire [15:0] mask_bit = {`MASK_REG_H8,`MASK_REG_L8};
 	
 			.readback(analog_readback), //16 analog read back values 16 bit	
 			.status(interlock_status),  //legacy: 32 bit status 
-			.relay(relay_contact),
+			.relay(relay_contact_m),
 			.fault(interlock_fault)     
 
     );
@@ -1045,7 +1044,7 @@ wire [15:0] mask_bit = {`MASK_REG_H8,`MASK_REG_L8};
 	
 			.readback(analog_readback) //16 analog read back values 16 bit	
 			.status(interlock_status),  //legacy: 32 bit status 
-			.relay(relay_contact),
+			.relay(relay_contact_m),
 			.fault(interlock_fault)     
 
     );
@@ -1060,7 +1059,7 @@ wire [15:0] mask_bit = {`MASK_REG_H8,`MASK_REG_L8};
 	
 			.readback(analog_readback) //16 analog read back values 16 bit	
 			.status(interlock_status),  //legacy: 32 bit status 
-			.relay(relay_contact),
+			.relay(relay_contact_m),
 			.fault(interlock_fault)     
 
     );

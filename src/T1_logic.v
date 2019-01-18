@@ -4,7 +4,7 @@
 // BL1A TARGET protect logic: based on document TNFSUM.doc,T1SUM.doc, T2SUM.doc;	    
 // by: Shengli Liu, Diagnostics, TRIUMF
 // Histroy: Created on Dec.12,2018
-//
+// last modified: January 17,2019
 // Name-channel Mapping: 
 // Note: channel is the Analog current input channel of 1039 module, TH_Index = Read_back index
 //      
@@ -27,20 +27,30 @@
                          
                      
 //Tabel 2: Input signal to Interlock logic 
-//Note: mask bit "1" means overide, i.e. not involved in the logic result
-//!!! Specific to T1  !!!
+//Note: mask bit "1" means valid, i.e. is involved in the logic calculation
+//!!! mask bit 0~11 are common for all T1,T2,TNF, and is the same as the Threshold index !!!
+//!!! mask bit 12~ 15 are Specific to T1  !!!
 // Mask_Index   Signal    Mask_TNF(default) Digi_channel
-// 0             L_OK       1             
-// 1             R_OK       1             
-// 2             D_OK       1
-// 3             U_OK       1
-// 4             SOT_OK     1 
-// 5             HALO_OK    1
-// 6             HV_OK      1 
-// 7             T1VAC_OK   1              0
-// 8             T1SUM_OK   1              1           
-// 9             T2SUM_OK   1              2  
-// 10            TNFSUM_OK  1              3
+// 0             U_OK       1             
+// 1             D_OK       1             
+// 2             L_OK       1
+// 3             R_OK       1
+// 4             Halo_OK    1 
+// 5             Den_OK     1
+// 6             Tot_OK     1 
+// 7             HV_OK      1
+// 8             absLR_OK   1              
+// 9             absUD_OK   1                         
+// 10            absDT_OK   1                
+// 11            SOT_OK     1              
+
+// 12             T1VAC_OK   1              0
+// 13             T1SUM_OK   1              1           
+// 14             T2SUM_OK   1              2  
+// 15             TNFSUM_OK  1              3
+
+
+
 
 //Tabel 3: Mapping Backpanel channel to logic channel, using this table when connect physical signal cables.
 //backpannel lables:
@@ -50,18 +60,26 @@
 //!!! Specific to T1  !!!
 //Note: Analog input channel is already matched. The channels not mapped are not in use for T1 logic.
 //The following table's 1st colomn is the backpanel channel number.
-//Digi-in Logic   Signal
-// 0     	3     TNFSUM_OK
-// 1        2     T2SUM_OK
-// 2        1     T1SUM_OK
-// 3        0     T1VAC_OK
-//Realy   Logic   Signal
+//It has been already mapped in top module to correct GPIO pins.
+//Digi-in PCBch   Signal
+// 0      2   	TNFSUM_OK
+// 1      3   	T2SUM_OK
+// 2      0   	T1SUM_OK
+// 3      1   	T1VAC_OK
+// 4      6   	Not defined
+// 5      7   	Not defined
+// 6      4   	Not defined
+// 7      5   	Not defined
+
+//Realy   PCBch   Signal
 // 0        2     T1_SUMMARY
 // 1        4     HALO_HV_En
 // 2        6     T1_HV_En
+// 3        0     not in use
 // 4        3     T1SUM_SAFETY
 // 5        5     T2SUM_SAFETY
 // 6        7     TNFSUM_SAFETY
+// 7        1     not in use
 
 //////////////////////////////////////////////////////////////////////////////////
 module T1_logic(
@@ -69,7 +87,7 @@ module T1_logic(
 	input rst,
 	input [7:0] digi_in, //8 channel digital input
 	input [15:0] mask,
-	input [ADC_BIT_WIDTH-1:0] analog_in[7:0], //8 analog input, in unit of 65.5nA  
+	input [ADC_BIT_WIDTH-1:0] analog_in[7:0], //8 analog input, positive,in unit of 65.5nA  
 	input [ADC_BIT_WIDTH-1:0] thresh[15:0], //16 trip threshold 
 	
 	output [ADC_BIT_WIDTH-1:0] readback[15:0], //16 analog values for read back	
@@ -156,17 +174,17 @@ wire SOT_OK = SOT_value < SOT_th;
 wire HALO_OK = Halo_value < Halo_th;
 wire HV_OK = HV_value < HV_th;
 
-wire Lmask = mask[0];
-wire Rmask = mask[1];
-wire Dmask = mask[2];
-wire Umask = mask[3];
-wire SOTmask = mask[4];
-wire HALOmask = mask[5];
-wire HVmask = mask[6];
-wire T1VACmask = mask[7];
-wire T1SUMmask = mask[8];
-wire T2SUMmask = mask[9];
-wire TNFSUMmask = mask[10];
+wire Umask = ~mask[0];
+wire Dmask = ~mask[1];
+wire Lmask = ~mask[2];
+wire Rmask = ~mask[3];
+wire HALOmask = ~mask[4];
+wire HVmask = ~mask[7];
+wire SOTmask = ~mask[11];
+wire T1VACmask = ~mask[12];
+wire T1SUMmask = ~mask[13];
+wire T2SUMmask = ~mask[14];
+wire TNFSUMmask = ~mask[15];
 
  
 //output relay contacts
@@ -177,14 +195,16 @@ wire T1SUM_SAFETY = T1SUM_OK|T1SUMmask;
 wire T2SUM_SAFETY = T2SUM_OK|T2SUMmask;
 wire TNFSUM_SAFETY = TNFSUM_OK|TNFSUMmask;
 
-assign relay[0] = 1'b0; //not in use, set to "0" to save power
-assign relay[1] = 1'b0; //not in use
-assign relay[2] = T1_SUMMARY;
-assign relay[4] = HALO_HV_En;
-assign relay[6] = T1_HV_En;
-assign relay[3] = T1SUM_SAFETY;
+assign relay[0] = T1_SUMMARY;
+assign relay[1] = HALO_HV_En;
+assign relay[2] = T1_HV_En;
+assign relay[3] = 1'b0; //not in use, set to "0" to save power
+
+assign relay[4] = T1SUM_SAFETY;
 assign relay[5] = T2SUM_SAFETY;
-assign relay[7] = TNFSUM_SAFETY ;
+assign relay[6] = TNFSUM_SAFETY ;
+assign relay[7] = 1'b0; //not in use, set to "0" to save power
+
 
 
 assign status[0] = WD;  

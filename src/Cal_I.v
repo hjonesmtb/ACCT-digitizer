@@ -7,6 +7,7 @@
 //      12.288: ADC input range, 0x8000: ADC bin for 0 V input, gain = (10,100,1000,10000) (nA/V)         
 //      input: ADC 16 bit straight binary, gain
 //      output: I_value, signed number wth 32 bit range, in pA.
+//      output: I_val16, unsigned positive 16 bit, in unit of 65.5 nA.
 // by: Shengli Liu, Diagnostics, TRIUMF
 // Histroy: Created on Nov.30,2018
 //
@@ -19,7 +20,7 @@ module cal_current(
 	input rst,
 
 	output [31:0] I_value[7:0], //signed, in unit of pA
-	output [15:0] I_val16[7:0], //signed, 16 bit, in unit of 65.5 nA.
+	output [15:0] I_val16[7:0], //positive 16 bit, in unit of 65.5 nA.
 	output reg RDY	
     );
 
@@ -96,7 +97,8 @@ for (i = 0; i < 8 ; i = i + 1)
 		.datab(k[i]),
 		.result(I_value[i])
 		);	
-  	 assign I_val16[i] = I_value[i][31:16];
+  	 assign I_val16[i] = I_value[i][31]? {1'b0,~I_value[i][30:16]}
+	                   : I_value[i][31:16];
 	end
 endgenerate 
 
