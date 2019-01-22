@@ -28,8 +28,8 @@
                      
 //Tabel 2: Input signal to Interlock logic 
 //Note: mask bit "1" means valid, i.e. is involved in the logic calculation
-//!!! mask bit 0~11 are common for all T1,T2,TNF, and is the same as the Threshold index !!!
-//!!! mask bit 12~ 15 are Specific to T1  !!!
+//!!! mask bit 0~12 are common for all T1,T2,TNF, and is the same as the Threshold index !!!
+//!!! mask bit 13~ 15 are Specific to T1  !!!
 // Mask_Index   Signal    Mask_TNF(default) Digi_channel
 // 0             U_OK       1             
 // 1             D_OK       1             
@@ -43,11 +43,11 @@
 // 9             absUD_OK   1                         
 // 10            absDT_OK   1                
 // 11            SOT_OK     1              
+// 12            TMS_OK     1              
 
-// 12             T1VAC_OK   1              0
-// 13             T1SUM_OK   1              1           
-// 14             T2SUM_OK   1              2  
-// 15             TNFSUM_OK  1              3
+// 13             T1VAC_OK   1              0
+// 14             T2SUM_OK   1              1  
+// 15             TNFSUM_OK  1              2
 
 
 
@@ -64,7 +64,7 @@
 //Digi-in PCBch   Signal
 // 0      2   	TNFSUM_OK
 // 1      3   	T2SUM_OK
-// 2      0   	T1SUM_OK
+// 2      0   	
 // 3      1   	T1VAC_OK
 // 4      6   	Not defined
 // 5      7   	Not defined
@@ -149,16 +149,15 @@ assign readback[12] = TMS_value;
 
 wire [15:0] absLR_value = (L_value > R_value)? L_value-R_value
                   : R_value-L_value;					
-wire [15:0] absUD_value = (D_value-U_value)? D_value-U_value
+wire [15:0] absUD_value = (D_value > U_value)? D_value-U_value
                   : U_value-D_value;
-wire [15:0] absDT_value = 16'b0; 
-wire [15:0] TMS_value = 16'b0; 
+wire [15:0] absDT_value = (Den_value > Tot_value)? Den_value-Tot_value
+                  : Tot_value-Den_value;; 
 
 //Assign digital input signal according to Table 2 above:
 wire T1VAC_OK = digi_in[0];
-wire T1SUM_OK = digi_in[1];
-wire T2SUM_OK = digi_in[2];
-wire TNFSUM_OK = digi_in[3];
+wire T2SUM_OK = digi_in[1];
+wire TNFSUM_OK = digi_in[2];
 
 wire WD = 1'b1; //FPGA watchdog: so far I don't know what could be used, Dec.12,2018
 
@@ -167,8 +166,10 @@ wire R_OK = R_value < R_th;
 wire D_OK = D_value < D_th;
 wire U_OK = U_value < U_th;
 
-wire SUM_value = L_value + R_value + D_value + U_value;
-wire SOT_value = SUM_value/ Tot_value;
+wire [15:0] SUM_value = L_value + R_value + D_value + U_value;
+wire [15:0] SOT_value = SUM_value/Tot_value;
+wire [15:0] TMS_value = Tot_value - SUM_value; 
+
 
 wire SOT_OK = SOT_value < SOT_th;
 wire HALO_OK = Halo_value < Halo_th;
@@ -181,17 +182,18 @@ wire Rmask = ~mask[3];
 wire HALOmask = ~mask[4];
 wire HVmask = ~mask[7];
 wire SOTmask = ~mask[11];
-wire T1VACmask = ~mask[12];
-wire T1SUMmask = ~mask[13];
+wire TMSmask = ~mask[12];
+wire T1VACmask = ~mask[13];
 wire T2SUMmask = ~mask[14];
 wire TNFSUMmask = ~mask[15];
 
  
 //output relay contacts
 wire T1_SUMMARY = WD & (L_OK|Lmask) & (R_OK|Rmask) & (D_OK|Dmask) & (U_OK|Umask) & (SOT_OK|SOTmask) & (HALO_OK|HALOmask) & (HV_OK|HVmask) & (T1VAC_OK|T1VACmask); 
+wire T1SUM_OK = T1_SUMMARY;
 wire HALO_HV_En = T1VAC_OK|T1VACmask;
 wire T1_HV_En = T1VAC_OK|T1VACmask;
-wire T1SUM_SAFETY = T1SUM_OK|T1SUMmask;
+wire T1SUM_SAFETY = T1SUM_OK;
 wire T2SUM_SAFETY = T2SUM_OK|T2SUMmask;
 wire TNFSUM_SAFETY = TNFSUM_OK|TNFSUMmask;
 
@@ -199,7 +201,6 @@ assign relay[0] = T1_SUMMARY;
 assign relay[1] = HALO_HV_En;
 assign relay[2] = T1_HV_En;
 assign relay[3] = 1'b0; //not in use, set to "0" to save power
-
 assign relay[4] = T1SUM_SAFETY;
 assign relay[5] = T2SUM_SAFETY;
 assign relay[6] = TNFSUM_SAFETY ;
@@ -215,23 +216,20 @@ assign status[4] = U_OK;
 assign status[5] = SOT_OK;  
 assign status[6] = HALO_OK;  
 assign status[7] = HV_OK;  
-
 assign status[8] = T1VAC_OK;  
 assign status[9] = T1SUM_OK;  
 assign status[10] = T2SUM_OK;  
 assign status[11] = TNFSUM_OK;  
-
 assign status[16:12] = 5'b0; //not in use
-
 assign status[17] = relay[0];
 assign status[18] = relay[1];
 assign status[19] = relay[2];
 assign status[20] = relay[3];
 assign status[21] = relay[4];
 assign status[22] = relay[5];
-
-assign status[23] = 1'b0;
-assign status[31:24] = 8'b0;
+assign status[23] = relay[6];
+assign status[24] = relay[7];
+assign status[31:25] = 7'b0;
 
 assign fault = ~T1_SUMMARY; 
 endmodule

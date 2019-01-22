@@ -237,7 +237,7 @@ assign stm_hw_events = {{15{1'b0}}, SW, fpga_led_internal, fpga_debounced_button
 `define T1_TARGET 1
 //`define T2_TARGET 1
 //`define TNF_TARGET 1
-parameter FPGA_VERSION_NO = 32'd0020190117; //nn_yyyy_mm_dd: T1 nn=00, T2 nn=01, TNF nn=02;
+parameter FPGA_VERSION_NO = 32'd0020190118; //nn_yyyy_mm_dd: T1 nn=00, T2 nn=01, TNF nn=02;
 //parameter FPGA_VERSION_NO = 32'd20190001; //verification
 
 wire self_chk, test_pulse;
