@@ -89,8 +89,8 @@ module DE10_NANO_SoC_GHRD(
 	 output GPIO_1_24,  //self check
 	
 	 input  GPIO_1_0,  //HPS_Cold_Reset 
-	 output GPIO_1_3,  //LED_OK
-	 output GPIO_1_5,  //LED_CNF_DONE
+	 output GPIO_1_3,  //LED_COMM
+	 output GPIO_1_5,  //LED_FPGA
 	 output GPIO_1_2,  //LED_Fault
 		 
 	 //i2c eeprom
@@ -237,7 +237,7 @@ assign stm_hw_events = {{15{1'b0}}, SW, fpga_led_internal, fpga_debounced_button
 `define T1_TARGET 1
 //`define T2_TARGET 1
 //`define TNF_TARGET 1
-parameter FPGA_VERSION_NO = 32'd0020190118; //nn_yyyy_mm_dd: T1 nn=00, T2 nn=01, TNF nn=02;
+parameter FPGA_VERSION_NO = 32'd0020190124; //nn_yyyy_mm_dd: T1 nn=00, T2 nn=01, TNF nn=02;
 //parameter FPGA_VERSION_NO = 32'd20190001; //verification
 
 wire self_chk, test_pulse;
@@ -261,9 +261,9 @@ wire [1:0] ch_gain [7:0];
 wire [7:0] relay_contact_m;
 wire [7:0] relay_contact = run? relay_contact_m :8'b0;
 
-wire Cold_Reset_Req, LED_OK, LED_CNF_DONE, LED_Fault;
+wire Cold_Reset_Req, LED_COMM, LED_FPGA, LED_Fault;
 assign LED_Fault = interlock_fault;
-assign LED_CNF_DONE = Cold_Reset_Req; //I don't know how to use this LED so far.
+//assign LED_CNF_DONE = Cold_Reset_Req; //I don't know how to use this LED so far.
 
 // GPIO pin mapping :
    assign GPIO_1_27 = 1; //ADC_RST
@@ -275,8 +275,8 @@ assign LED_CNF_DONE = Cold_Reset_Req; //I don't know how to use this LED so far.
 	assign GPIO_1_24 = self_chk; //Turn-on Analog Switch for Sigma-Delta signal
 	
 	assign Cold_Reset_Req = ~GPIO_1_0;  //HPS_Cold_Reset 
-	assign GPIO_1_3 = LED_OK;  //LED_OK
-	assign GPIO_1_5 = LED_CNF_DONE;  //LED_CNF_DONE
+	assign GPIO_1_3 = LED_COMM;  //LED_COMM, indicating communication activity, not implemented yet.
+	assign GPIO_1_5 = LED_FPGA;  //LED_FPGA
 	assign GPIO_1_2 = LED_Fault;  //LED_Fault
 	
  	 
@@ -726,7 +726,7 @@ always@(posedge SYS_CLK)
 	
 	/*   slow fifo occupancy     */		
 	if ((avalon_addr == SFIFO_WD_ADDR) & (avalon_read_o == 1)) 
-			dout <= {16'b0,8'b0,sfifo_rd_wd};
+			begin comm_act <= ~comm_act; dout <= {16'b0,8'b0,sfifo_rd_wd}; end
 	
 
 	/*   Read slow fifo     */		
@@ -1094,9 +1094,11 @@ dht11 temp_sensor(
 
 
 //========LED ============================
+reg comm_act;
+assign LED_COMM = comm_act;
 flash_LED flash_led_inst(
     .clk(SPI_CLK),  //10 MHz clock 
-	 .led_level(LED_OK)     
+	 .led(LED_FPGA)
     );
 	
 	

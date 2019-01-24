@@ -152,7 +152,7 @@ wire [15:0] absLR_value = (L_value > R_value)? L_value-R_value
 wire [15:0] absUD_value = (D_value > U_value)? D_value-U_value
                   : U_value-D_value;
 wire [15:0] absDT_value = (Den_value > Tot_value)? Den_value-Tot_value
-                  : Tot_value-Den_value;; 
+                  : Tot_value-Den_value; 
 
 //Assign digital input signal according to Table 2 above:
 wire T1VAC_OK = digi_in[0];
@@ -167,7 +167,7 @@ wire D_OK = D_value < D_th;
 wire U_OK = U_value < U_th;
 
 wire [15:0] SUM_value = L_value + R_value + D_value + U_value;
-wire [15:0] SOT_value = SUM_value/Tot_value;
+wire [15:0] SOT_value = (Tot_value == 0)? 16'b0 : SUM_value/Tot_value;
 wire [15:0] TMS_value = Tot_value - SUM_value; 
 
 
