@@ -18,7 +18,7 @@
 // 4        4       Halo_value  Halo_th         
 // 5        5       Den_value   Den_th          
 // 6        6       Tot_value   Tot_th                          external input
-// 7        7       HV_value    HV_th          ProtectMonitorHV external input 
+// 7        7       HV_value    HV_th          ProtectMonitorHV external input                      
 // 8                absLR_value LMR_th         |L-R|            calculated
 // 9                absUD_value UMD_th         |U-D|            calculated
 // 10               absDT_value DMT_th         |D-T|            calculated
@@ -147,6 +147,8 @@ assign readback[12] = TMS_value;
 //Interlock Logic: 
 // !!! Specific to T1 !!!
 
+wire [31:0] SUM_100,Pratio;
+
 wire [15:0] absLR_value = (L_value > R_value)? L_value-R_value
                   : R_value-L_value;					
 wire [15:0] absUD_value = (D_value > U_value)? D_value-U_value
@@ -167,7 +169,7 @@ wire D_OK = D_value < D_th;
 wire U_OK = U_value < U_th;
 
 wire [15:0] SUM_value = L_value + R_value + D_value + U_value;
-wire [15:0] SOT_value = (Tot_value == 0)? 16'b0 : SUM_value/Tot_value;
+wire [15:0] SOT_value = ((Tot_value == 0) && (SUM_value == 0))? 16'b0 : Pratio[15:0];
 wire [15:0] TMS_value = Tot_value - SUM_value; 
 
 
@@ -232,4 +234,17 @@ assign status[24] = relay[7];
 assign status[31:25] = 7'b0;
 
 assign fault = ~T1_SUMMARY; 
+
+lpm_mul	mul_const (
+		.dataa(SUM_value),
+		.datab(16'd100),
+		.result(SUM_100)
+		);	
+
+lpm_div div_const(
+	.denom(Tot_value),
+	.numer(SUM_100),
+	.quotient(Pratio),
+	.remain());
+	
 endmodule
