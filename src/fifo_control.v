@@ -42,7 +42,7 @@ parameter  state_idle = 0; //
 parameter  state_load = 1; //
 parameter  state_load_end = 2; //
 
-reg [2:0] state;
+reg [2:0] state; /*synthesis keep*/
 
 wire [4*ADC_BIT_WIDTH-1:0] dout_BLR; 
 

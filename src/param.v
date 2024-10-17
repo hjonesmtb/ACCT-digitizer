@@ -17,4 +17,7 @@ parameter ADC_SPI_TIMER_WAIT = 100; //How many cycles of SPI_CLK between adc cyc
                                     // Not supported for synthesis
 parameter SFIFO_WIDTH = 32; //Slow fifo data width
 parameter SF_WIDTH = 32; //Single floating datat width
+parameter FFIFO_WIDTH = 32; //Slow fifo data width
 												
+parameter DAC_DATA_WIDTH = 16; //16 bits of DAC										
+parameter LONG_WIDTH = 32;												

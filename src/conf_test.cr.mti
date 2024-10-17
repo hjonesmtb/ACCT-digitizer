@@ -1,16 +1,16 @@
-{C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/conf_tb.v} {1 {vlog -work work -sv {C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/conf_tb.v}
-Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
--- Compiling module conf_tb
-
-Top level modules:
-	conf_tb
-
-} {} {}} {C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/eprom.v} {1 {vlog -work work -sv {C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/eprom.v}
+{C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/eprom.v} {1 {vlog -work work -sv {C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/eprom.v}
 Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
 -- Compiling module I2C_eeprom
 
 Top level modules:
 	I2C_eeprom
+
+} {} {}} {C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/conf_tb.v} {1 {vlog -work work -sv {C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/conf_tb.v}
+Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
+-- Compiling module conf_tb
+
+Top level modules:
+	conf_tb
 
 } {} {}} {C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/I2C_Master.v} {1 {vlog -work work -sv {C:/Myprojects/Target Protect 1039/FPGA/Target-Protect-Firmware/src/I2C_Master.v}
 Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012

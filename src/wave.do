@@ -1,22 +1,30 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate /conf_tb/dut/SYS_RST
-add wave -noupdate /conf_tb/dut/SYS_CLK
-add wave -noupdate /conf_tb/dut/rd_eeprom
-add wave -noupdate /conf_tb/dut/wr_eeprom
-add wave -noupdate /conf_tb/dut/wr_conf
-add wave -noupdate /conf_tb/dut/pca_gain_reg
-add wave -noupdate /conf_tb/dut/sda
-add wave -noupdate /conf_tb/dut/scl
-add wave -noupdate /conf_tb/dut/eeprom_buffer
-add wave -noupdate /conf_tb/dut/eeprom_busy
-add wave -noupdate /conf_tb/dut/eeprom_data_valid
-add wave -noupdate /conf_tb/dut/state
+add wave -noupdate -format Logic /base_line_tb/Baseline_inst/clk
+add wave -noupdate -divider -height 30 <NULL>
+add wave -noupdate -format Analog-Step -radix unsigned -scale 0.10000000000000001 /base_line_tb/Baseline_inst/din
+add wave -noupdate -format Literal -radix unsigned /base_line_tb/Baseline_inst/dout
+add wave -noupdate -divider <NULL>
+add wave -noupdate -format Logic /base_line_tb/Baseline_inst/reset
+add wave -noupdate -format Logic /base_line_tb/Baseline_inst/trigger
+add wave -noupdate -format Logic /base_line_tb/Baseline_inst/integration
+add wave -noupdate -format Literal /base_line_tb/Baseline_inst/inptr
+add wave -noupdate -format Literal /base_line_tb/Baseline_inst/outptr
+add wave -noupdate -format Literal /base_line_tb/Baseline_inst/sum
+add wave -noupdate -format Literal -radix unsigned /base_line_tb/Baseline_inst/buffer
+add wave -noupdate -divider <NULL>
+add wave -noupdate -format Analog-Step -radix unsigned -scale 0.10000000000000001 /base_line_tb/Summer_inst/dout
+add wave -noupdate -format Literal -radix unsigned /base_line_tb/Summer_inst/din1
+add wave -noupdate -format Literal -radix unsigned /base_line_tb/Summer_inst/din2
+add wave -noupdate -divider <NULL>
+add wave -noupdate -format Literal /base_line_tb/U_Delay/din
+add wave -noupdate -format Literal /base_line_tb/U_Delay/delayed_db
+add wave -noupdate -format Logic /base_line_tb/enable_bl
+add wave -noupdate -format Logic /base_line_tb/enable_pg
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {50032 ps} 0}
-quietly wave cursor active 1
-configure wave -namecolwidth 263
-configure wave -valuecolwidth 100
+WaveRestoreCursors {{Cursor 1} {660000 ps} 0} {{Cursor 2} {3220000 ps} 0}
+configure wave -namecolwidth 201
+configure wave -valuecolwidth 40
 configure wave -justifyvalue left
 configure wave -signalnamewidth 0
 configure wave -snapdistance 10
@@ -27,6 +35,5 @@ configure wave -gridoffset 0
 configure wave -gridperiod 1
 configure wave -griddelta 40
 configure wave -timeline 0
-configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {157500 ps}
+WaveRestoreZoom {457875 ps} {1314947 ps}

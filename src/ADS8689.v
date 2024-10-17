@@ -4,6 +4,7 @@
  * no values are written to ADC. 
  * Only shifts out 16 bit ADC conversion result.
  * Shengli Liu, Nov.1,2018
+ * Modified: for ADS8681, 1Msps, Apr.3,2019
  */
 module ADS8689
     (
@@ -28,26 +29,28 @@ module ADS8689
                 state_sclk_fall = 2, 
                 state_end       = 3,
 					 state_clr = 4;
-
-    reg [4:0] state;
+					 
+	 parameter ADC_FREQ = 500000; //500KSPS, Max 1000 KSPS for  ADS8681
+    parameter CLK_FREQ = 25000000; //10MHZ, Max 66 MHz for  ADS8681
+    parameter DIV = CLK_FREQ/ADC_FREQ; //2**7=128; 97.6KHz; CLK_FREQ/ADC_FREQ= 100
+    
+	 reg [4:0] state;
     reg [4:0] cnt;
-    reg [9:0] timer_cnt;  
+    reg [6:0] timer_cnt;  
     reg [15:0] sr; 
     
-    parameter ADC_PERIOD = 10000; //10KHz, Max 100 KHz for  ADS8689
-    parameter CLK_FREQ = 10000000; //10MHZ, Max 66 MHz for  ADS8689
-    parameter TARGET = CLK_FREQ/ADC_PERIOD; //1000 counts
-    
+        
     reg start_conv;
     assign mosi = 0;
      
 always @ (posedge clk)  
- // if (timer_cnt >= TARGET) begin timer_cnt <= 0; start_conv <= 1; end
- // else begin start_conv <= 0; timer_cnt <= timer_cnt + 1; end
-  begin 
-     timer_cnt <= timer_cnt + 1;
-     start_conv <= &timer_cnt;
-  end	  
+  if (timer_cnt >= DIV) begin timer_cnt <= 0; start_conv <= 1; end
+  else begin start_conv <= 0; timer_cnt <= timer_cnt + 1; end
+
+//  begin 
+//     timer_cnt <= timer_cnt + 1;
+//    start_conv <= &timer_cnt;
+//  end	  
   
 always @ (posedge clk) 
 begin
