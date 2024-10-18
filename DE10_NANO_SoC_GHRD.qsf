@@ -477,27 +477,9 @@ set_global_assignment -name UNIPHY_SEQUENCER_DQS_CONFIG_ENABLE ON
 set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
 set_global_assignment -name ECO_REGENERATE_REPORT ON
 
-set_global_assignment -name FITTER_EFFORT "FAST FIT"
+set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
 set_global_assignment -name ENABLE_SIGNALTAP ON
-set_global_assignment -name USE_SIGNALTAP_FILE signal_tap_eeprom_new.stp
-set_global_assignment -name SLD_NODE_CREATOR_ID 110 -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_RAM_BLOCK_TYPE=AUTO" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=805334528" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_POWER_UP_TRIGGER=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_INVERSION_MASK_LENGTH=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ATTRIBUTE_MEM_MODE=OFF" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_FLOW_USE_GENERATED=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_BITS=11" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_BUFFER_FULL_STOP=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_CURRENT_RESOURCE_WIDTH=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INCREMENTAL_ROUTING=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_PIPELINE=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_RAM_PIPELINE=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_COUNTER_PIPELINE=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=1" -section_id auto_signaltap_0
+set_global_assignment -name USE_SIGNALTAP_FILE synavg.stp
 set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (Verilog)"
 set_global_assignment -name EDA_OUTPUT_DATA_FORMAT "VERILOG HDL" -section_id eda_simulation
 set_instance_assignment -name SLEW_RATE 0 -to GPIO_0[35]
@@ -572,7 +554,6 @@ set_instance_assignment -name SLEW_RATE 0 -to GPIO_1[3]
 set_instance_assignment -name SLEW_RATE 0 -to GPIO_1[2]
 set_instance_assignment -name SLEW_RATE 0 -to GPIO_1[1]
 set_instance_assignment -name SLEW_RATE 0 -to GPIO_1[0]
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_IN_ENABLED=0" -section_id auto_signaltap_0
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_0_0
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_0_2
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_0_4
@@ -591,24 +572,14 @@ set_location_assignment PIN_D11 -to GPIO_0_3
 set_location_assignment PIN_AF7 -to GPIO_0_6
 set_location_assignment PIN_AF4 -to GPIO_0_8
 set_location_assignment PIN_AD5 -to GPIO_0_10
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[8] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to FPGA_CLK1_50 -section_id auto_signaltap_0
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_1_23
 set_location_assignment PIN_AE22 -to GPIO_1_23
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[2] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[15] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_0_14
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_0_15
 set_location_assignment PIN_AD23 -to GPIO_0_14
 set_location_assignment PIN_AE24 -to GPIO_0_15
 set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005
 set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[12] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[4] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[20] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[24] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[21] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[17] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
 set_location_assignment PIN_E8 -to GPIO_0_1
 set_location_assignment PIN_AH13 -to GPIO_0_5
 set_location_assignment PIN_AH14 -to GPIO_0_7
@@ -617,7 +588,6 @@ set_location_assignment PIN_AG14 -to GPIO_0_11
 set_location_assignment PIN_AE6 -to GPIO_0_13
 set_location_assignment PIN_D12 -to GPIO_0_16
 set_location_assignment PIN_AD20 -to GPIO_0_17
-set_location_assignment PIN_C12 -to GPIO_0_18
 set_location_assignment PIN_AD17 -to GPIO_0_19
 set_location_assignment PIN_AC23 -to GPIO_0_20
 set_location_assignment PIN_Y19 -to GPIO_0_22
@@ -677,7 +647,6 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_0_11
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_0_13
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_0_16
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_0_17
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_0_18
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_0_19
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_0_20
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_0_22
@@ -729,33 +698,36 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_1_32
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_1_33
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_1_34
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO_1_35
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[3] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[6] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[22] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[26] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[31] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[28] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[18] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[11] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[19] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[29] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
+set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
+set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS TEST_BENCH_MODE -section_id eda_simulation
+set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH tb -section_id eda_simulation
+set_global_assignment -name EDA_TEST_BENCH_NAME tb -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id tb
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME tb -section_id tb
+set_global_assignment -name EDA_TEST_BENCH_FILE top_testbench.v -section_id tb
+set_global_assignment -name OPTIMIZATION_MODE "AGGRESSIVE PERFORMANCE"
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
+set_global_assignment -name SMART_RECOMPILE ON
+set_global_assignment -name SEED 2
+set_global_assignment -name OPTIMIZE_IOC_REGISTER_PLACEMENT_FOR_TIMING "PACK ALL IO REGISTERS"
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
+set_global_assignment -name ALM_REGISTER_PACKING_EFFORT HIGH
+set_global_assignment -name VERILOG_FILE src/lpf2_IIR.v
+set_global_assignment -name VERILOG_FILE src/pulse_gen.v
 set_global_assignment -name VERILOG_FILE DE10_NANO_SoC_GHRD.v
-set_global_assignment -name VERILOG_FILE src/TNF_logic.v
-set_global_assignment -name VERILOG_FILE src/T1_logic.v
-set_global_assignment -name VERILOG_FILE src/T2_logic.v
+set_global_assignment -name VERILOG_FILE src/lpf_IIR.v
+set_global_assignment -name VERILOG_FILE src/clockdiv.v
 set_global_assignment -name VERILOG_FILE src/param.v
 set_global_assignment -name VERILOG_FILE src/DHT11.v
 set_global_assignment -name VERILOG_FILE src/flash_LED.v
 set_global_assignment -name VERILOG_FILE src/fifo_control.v
 set_global_assignment -name VERILOG_FILE Avalon_Slave_Interface_32.v
 set_global_assignment -name VERILOG_FILE src/pin_mux/pin_mux.v
-set_global_assignment -name VERILOG_FILE src/shift_reg/shift_reg.v
-set_global_assignment -name VERILOG_FILE src/clockdiv.v
 set_global_assignment -name VERILOG_FILE src/filter/filter.v
 set_global_assignment -name SDC_FILE DE10_NANO_SOC_GHRD.sdc
 set_global_assignment -name VERILOG_FILE src/Cal_I.v
 set_global_assignment -name VERILOG_FILE ip/intr_capturer/intr_capturer.v
-set_global_assignment -name VERILOG_FILE src/ADS8689.v
 set_global_assignment -name VERILOG_FILE src/eprom.v
 set_global_assignment -name VERILOG_FILE src/I2C_Master.v
 set_global_assignment -name VERILOG_FILE ip/edge_detect/altera_edge_detector.v
@@ -763,8 +735,6 @@ set_global_assignment -name VERILOG_FILE ip/debounce/debounce.v
 set_global_assignment -name QIP_FILE ip/fastFIFO4096/fifo4096.qip
 set_global_assignment -name QIP_FILE ip/altsource_probe/hps_reset.qip
 set_global_assignment -name QIP_FILE soc_system/synthesis/soc_system.qip
-set_global_assignment -name QIP_FILE SYS_PLL.qip
-set_global_assignment -name SIP_FILE SYS_PLL.sip
 set_global_assignment -name SIGNALTAP_FILE debug_setup.stp
 set_global_assignment -name SIGNALTAP_FILE signal_tap_adc.stp
 set_global_assignment -name SIGNALTAP_FILE signal_tap_eeprom.stp
@@ -772,129 +742,383 @@ set_global_assignment -name QIP_FILE ip/slfifo.qip
 set_global_assignment -name SIGNALTAP_FILE signal_tap_sfifo.stp
 set_global_assignment -name QIP_FILE ip/lpm_mul.qip
 set_global_assignment -name SIGNALTAP_FILE signal_tap_eeprom_new.stp
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[0] -to GPIO_1_6 -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1] -to GPIO_1_8 -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[0] -to GPIO_1_6 -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1] -to GPIO_1_8 -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[1] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[7] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[9] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[14] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[16] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[25] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[30] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[2] -to "I2C_eeprom:eeprom_inst|buf_cnt[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[3] -to "I2C_eeprom:eeprom_inst|buf_cnt[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[4] -to "I2C_eeprom:eeprom_inst|buf_cnt[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[5] -to "I2C_eeprom:eeprom_inst|buf_cnt[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[6] -to "I2C_eeprom:eeprom_inst|buf_cnt[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[7] -to "I2C_eeprom:eeprom_inst|buf_cnt[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[8] -to "I2C_eeprom:eeprom_inst|buf_cnt[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[9] -to "I2C_eeprom:eeprom_inst|buf_cnt[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[10] -to "I2C_eeprom:eeprom_inst|busy" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[2] -to "I2C_eeprom:eeprom_inst|buf_cnt[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[3] -to "I2C_eeprom:eeprom_inst|buf_cnt[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[4] -to "I2C_eeprom:eeprom_inst|buf_cnt[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[5] -to "I2C_eeprom:eeprom_inst|buf_cnt[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[6] -to "I2C_eeprom:eeprom_inst|buf_cnt[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[7] -to "I2C_eeprom:eeprom_inst|buf_cnt[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[8] -to "I2C_eeprom:eeprom_inst|buf_cnt[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[9] -to "I2C_eeprom:eeprom_inst|buf_cnt[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[10] -to "I2C_eeprom:eeprom_inst|busy" -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[0] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[10] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK=000000000000000000000000000000" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK_LENGTH=30" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SEGMENT_SIZE=65536" -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[23] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=65536" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[11] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[12] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[13] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[14] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[15] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[16] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[17] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[18] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[19] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|out_data[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[20] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|out_data[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[21] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|out_data[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[22] -to "I2C_eeprom:eeprom_inst|in_data[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[23] -to "I2C_eeprom:eeprom_inst|in_data[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[24] -to "I2C_eeprom:eeprom_inst|in_data[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[25] -to "I2C_eeprom:eeprom_inst|in_data[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[26] -to "I2C_eeprom:eeprom_inst|in_data[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[27] -to "I2C_eeprom:eeprom_inst|in_data[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[28] -to "I2C_eeprom:eeprom_inst|in_data[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[29] -to "I2C_eeprom:eeprom_inst|in_data[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[30] -to "I2C_eeprom:eeprom_inst|state.00010000" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[31] -to "I2C_eeprom:eeprom_inst|state.00010001" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[32] -to "I2C_eeprom:eeprom_inst|state.00010010" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[33] -to "I2C_eeprom:eeprom_inst|state.00010011" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[34] -to "I2C_eeprom:eeprom_inst|state.00010100" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[35] -to "I2C_eeprom:eeprom_inst|state.00101011" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[36] -to "I2C_eeprom:eeprom_inst|state.00101100" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[37] -to "I2C_eeprom:eeprom_inst|state.00101101" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[38] -to "I2C_eeprom:eeprom_inst|state.00101110" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[39] -to "I2C_eeprom:eeprom_inst|state.00101111" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[40] -to "I2C_eeprom:eeprom_inst|state.00110000" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[41] -to "I2C_eeprom:eeprom_inst|state.00110001" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[42] -to "I2C_eeprom:eeprom_inst|state.00110010" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[43] -to "I2C_eeprom:eeprom_inst|state.00110011" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[44] -to "I2C_eeprom:eeprom_inst|state.00110100" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[45] -to "I2C_eeprom:eeprom_inst|state.00110101" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[46] -to "I2C_eeprom:eeprom_inst|state.00110110" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[47] -to "I2C_eeprom:eeprom_inst|state.00110111" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[48] -to "I2C_eeprom:eeprom_inst|valid" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[49] -to rd_eeprom -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[50] -to wr_eeprom -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[11] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[12] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[13] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[14] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[15] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[16] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[17] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[18] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|buffer[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[19] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|out_data[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[20] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|out_data[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[21] -to "I2C_eeprom:eeprom_inst|i2c_master:i2c_master_inst|out_data[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[22] -to "I2C_eeprom:eeprom_inst|in_data[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[23] -to "I2C_eeprom:eeprom_inst|in_data[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[24] -to "I2C_eeprom:eeprom_inst|in_data[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[25] -to "I2C_eeprom:eeprom_inst|in_data[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[26] -to "I2C_eeprom:eeprom_inst|in_data[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[27] -to "I2C_eeprom:eeprom_inst|in_data[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[28] -to "I2C_eeprom:eeprom_inst|in_data[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[29] -to "I2C_eeprom:eeprom_inst|in_data[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[30] -to "I2C_eeprom:eeprom_inst|state.00010000" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[31] -to "I2C_eeprom:eeprom_inst|state.00010001" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[32] -to "I2C_eeprom:eeprom_inst|state.00010010" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[33] -to "I2C_eeprom:eeprom_inst|state.00010011" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[34] -to "I2C_eeprom:eeprom_inst|state.00010100" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[35] -to "I2C_eeprom:eeprom_inst|state.00101011" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[36] -to "I2C_eeprom:eeprom_inst|state.00101100" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[37] -to "I2C_eeprom:eeprom_inst|state.00101101" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[38] -to "I2C_eeprom:eeprom_inst|state.00101110" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[39] -to "I2C_eeprom:eeprom_inst|state.00101111" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[40] -to "I2C_eeprom:eeprom_inst|state.00110000" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[41] -to "I2C_eeprom:eeprom_inst|state.00110001" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[42] -to "I2C_eeprom:eeprom_inst|state.00110010" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[43] -to "I2C_eeprom:eeprom_inst|state.00110011" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[44] -to "I2C_eeprom:eeprom_inst|state.00110100" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[45] -to "I2C_eeprom:eeprom_inst|state.00110101" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[46] -to "I2C_eeprom:eeprom_inst|state.00110110" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[47] -to "I2C_eeprom:eeprom_inst|state.00110111" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[48] -to "I2C_eeprom:eeprom_inst|valid" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[49] -to rd_eeprom -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[50] -to wr_eeprom -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=51" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=51" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_BITS=51" -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[5] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[13] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
-set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[27] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=sld_reserved_DE10_NANO_SoC_GHRD_auto_signaltap_0_1_51f7," -section_id auto_signaltap_0
 set_global_assignment -name QIP_FILE ip/lpm_div.qip
+set_global_assignment -name VERILOG_FILE src/AD4001.v
+set_global_assignment -name QIP_FILE ip/clk_pll.qip
+set_global_assignment -name SIP_FILE ip/clk_pll.sip
+set_global_assignment -name VERILOG_FILE src/DAC.v
+set_global_assignment -name QIP_FILE ip/altfp_sub.qip
+set_global_assignment -name QIP_FILE ip/altfp_add.qip
+set_global_assignment -name QIP_FILE ip/altfp_exp.qip
+set_global_assignment -name QIP_FILE ip/altfp_convert.qip
+set_global_assignment -name QIP_FILE ip/altfp_mult.qip
+set_global_assignment -name QIP_FILE ip/altfp_comp.qip
+set_global_assignment -name QIP_FILE ip/altfp_fp2int.qip
+set_global_assignment -name QIP_FILE ip/altfp_16int2fp.qip
+set_global_assignment -name QIP_FILE ip/altfp_int2fp.qip
+set_global_assignment -name QIP_FILE ip/altfp_mul.qip
+set_global_assignment -name SIGNALTAP_FILE signal_tap_dac_calib.stp
+set_global_assignment -name SIGNALTAP_FILE signal_tap_DCrestore.stp
+set_global_assignment -name QIP_FILE ip/altfp_fx2fp.qip
+set_global_assignment -name VERILOG_FILE src/boxfilter.v
+set_global_assignment -name QIP_FILE ip/lpm_addsub.qip
+set_global_assignment -name VERILOG_FILE src/data_gate.v
+set_global_assignment -name QIP_FILE ip/clk35_pll.qip
+set_global_assignment -name SIP_FILE ip/clk35_pll.sip
+set_global_assignment -name QIP_FILE ip/shift_reg.qip
+set_global_assignment -name VERILOG_FILE src/boxfilter_sr.v
+set_global_assignment -name VERILOG_FILE src/DAC_control.v
+set_global_assignment -name QIP_FILE ip/altfp_fp2int32.qip
+set_global_assignment -name QIP_FILE ip/fifo1024/fifo1024.qip
+set_global_assignment -name VERILOG_FILE src/combfilter.v
+set_global_assignment -name VERILOG_FILE src/pulse_processing.v
+set_global_assignment -name VERILOG_FILE src/self_trig.v
+set_global_assignment -name QIP_FILE ip/altfp_div.qip
+set_global_assignment -name QIP_FILE ip/lpm_3232div.qip
+set_global_assignment -name VERILOG_FILE src/IIR.v
+set_global_assignment -name QIP_FILE ip/lpm_mul_unsigned.qip
+set_global_assignment -name QIP_FILE ip/clk23_pll/clk23_pll.qip
+set_global_assignment -name SIP_FILE ip/clk23_pll/clk23_pll.sip
+set_global_assignment -name VERILOG_FILE src/synavg.v
+set_global_assignment -name QIP_FILE ip/RAM/ram32_1024.qip
+set_global_assignment -name SIGNALTAP_FILE signal_tap_SA.stp
+set_global_assignment -name SIGNALTAP_FILE signal_tap_SA_method.stp
+set_global_assignment -name SIGNALTAP_FILE signal_tap_SA_method1.stp
+set_global_assignment -name QIP_FILE ip/lpm_addsub32.qip
+set_global_assignment -name VERILOG_FILE src/pulse_shaping.v
+set_global_assignment -name SIGNALTAP_FILE signal_tap_dac.stp
+set_global_assignment -name VERILOG_FILE src/channel_block.v
+set_global_assignment -name SIGNALTAP_FILE signal_tap_IIR_filter.stp
+set_global_assignment -name VERILOG_FILE src/Hist.v
+set_global_assignment -name QIP_FILE ip/RAM/ram16_4096.qip
+set_global_assignment -name SIGNALTAP_FILE signal_tap_hist.stp
+set_global_assignment -name QIP_FILE ip/RAM/ram16_1024.qip
+set_global_assignment -name QIP_FILE ip/altfp_inv.qip
+set_global_assignment -name QIP_FILE ip/altfp_div/altfp_div3232.qip
+set_global_assignment -name QIP_FILE ip/lpm_div10.qip
+set_global_assignment -name QIP_FILE ip/altfp_fx2fp_gate.qip
+set_global_assignment -name QIP_FILE ip/altfp_mul_gate.qip
+set_global_assignment -name QIP_FILE ip/altfp_add_gate.qip
+set_global_assignment -name VERILOG_FILE src/out_avg.v
+set_global_assignment -name VERILOG_FILE src/lpf_2th_IIR.v
+set_global_assignment -name VERILOG_FILE src/lpf5_IIR.v
+set_global_assignment -name VERILOG_FILE src/lpf_3th_IIR.v
+set_global_assignment -name SIGNALTAP_FILE signal_tap_LPF.stp
+set_global_assignment -name SIGNALTAP_FILE signal_tap_diode.stp
+set_global_assignment -name VERILOG_FILE simulation/comb/comb_tb.v
+set_global_assignment -name VERILOG_FILE simulation/adc_sim/adc_tb.v
+set_global_assignment -name VERILOG_FILE src/comb_triggered.v
+set_global_assignment -name SIGNALTAP_FILE rf_test.stp
+set_global_assignment -name QIP_FILE ip/RAM/ram_24_16k.qip
+set_global_assignment -name SIGNALTAP_FILE synavg.stp
+set_global_assignment -name SLD_NODE_CREATOR_ID 110 -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|clk" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[0] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[2] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[3] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[4] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[5] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[6] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[7] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[8] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[9] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[10] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[11] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[12] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[13] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[14] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[15] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[16] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[17] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[18] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[19] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[20] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[21] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[22] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[23] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[24] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[25] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[26] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[27] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[28] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[29] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[30] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[31] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[32] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[33] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[34] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[35] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[36] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[37] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[38] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[39] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[40] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[41] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[42] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[43] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[44] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[45] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[46] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[47] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[48] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[20]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[49] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[21]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[50] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[22]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[51] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[23]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[52] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[24]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[53] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[25]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[54] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[26]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[55] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[27]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[56] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[28]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[57] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[29]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[58] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[59] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[30]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[60] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[61] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[62] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[63] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[64] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[65] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[66] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[67] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|pulse_start" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[68] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[69] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[70] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[71] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[72] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[73] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[74] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[75] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[76] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[77] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[78] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[79] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[80] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[81] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[82] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[83] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[84] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[85] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[86] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[87] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[88] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[89] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[90] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[91] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[92] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[93] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[94] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[95] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[96] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[97] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[98] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[99] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[100] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[101] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[102] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[103] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[104] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[105] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[106] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[107] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[108] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[109] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[110] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[111] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[112] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[113] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[114] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[115] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[116] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[117] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[118] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[119] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[120] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[121] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[122] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[123] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[0] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[2] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[3] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[4] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[5] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[6] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[7] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[8] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[9] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[10] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[11] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[12] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[13] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[14] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[15] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[16] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[17] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[18] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[19] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|acc_data_in[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[20] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[21] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[22] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[23] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[24] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[25] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[26] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[27] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[28] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[29] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[30] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[31] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[32] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[33] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[34] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[35] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|avg_signal[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[36] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[37] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[38] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[39] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[40] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[41] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[42] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[43] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[44] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[45] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[46] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[47] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[48] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[20]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[49] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[21]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[50] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[22]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[51] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[23]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[52] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[24]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[53] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[25]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[54] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[26]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[55] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[27]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[56] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[28]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[57] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[29]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[58] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[59] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[30]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[60] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[61] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[62] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[63] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[64] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[65] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[66] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|integral[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[67] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|pulse_start" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[68] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[69] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[70] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[71] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[72] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[73] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[74] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[75] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[76] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[77] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[78] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[79] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[80] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[81] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[82] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[83] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[84] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[85] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[86] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[87] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_in[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[88] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[89] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[90] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[91] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[92] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[93] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[94] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[95] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[96] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[97] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[98] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[99] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[100] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[101] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[102] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[103] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[104] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[105] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[106] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[107] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|ram_data_out[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[108] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[109] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[110] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[111] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[112] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[113] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[114] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[115] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[116] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[117] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[118] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[119] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[120] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[121] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[122] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[123] -to "Channel_Block:Channel_2_inst|syn_averaging:syn_avg_inst|signal[9]" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_RAM_BLOCK_TYPE=AUTO" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=124" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=124" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_BITS=124" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=805334528" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_POWER_UP_TRIGGER=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK=000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK_LENGTH=396" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_INVERSION_MASK_LENGTH=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SEGMENT_SIZE=1024" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ATTRIBUTE_MEM_MODE=OFF" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_FLOW_USE_GENERATED=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_BITS=11" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_BUFFER_FULL_STOP=1" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_CURRENT_RESOURCE_WIDTH=1" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INCREMENTAL_ROUTING=1" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[0] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[1] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[2] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[3] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[4] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[5] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[6] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[7] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[8] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[9] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[10] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[11] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[12] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[13] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[14] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[15] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[16] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[17] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[18] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[19] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[20] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[21] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[22] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[23] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[24] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[25] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[26] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[27] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[28] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[29] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[30] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[31] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL=1" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=1024" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_IN_ENABLED=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_PIPELINE=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_RAM_PIPELINE=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_COUNTER_PIPELINE=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1," -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id auto_signaltap_0
+set_global_assignment -name VERILOG_FILE simulation/peak_sim/peak_tb.v
+set_global_assignment -name SLD_FILE db/synavg_auto_stripped.stp
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_global_assignment -name SLD_FILE db/signal_tap_eeprom_new_auto_stripped.stp

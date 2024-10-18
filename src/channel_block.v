@@ -85,10 +85,9 @@ module Channel_Block(
 
 `include "src/param.v"
 
-//`define DIODE_CLAMP_METHOD 1 //test purpose now
+
 //`define COMB_FILTER 1  //comment if don't need comb filter for 2C toroid 
-//`define BOX_FILTER_METHOD 1  //comment if don't need BOX filter 
-//`define THRESHOLD_METHOD 1  //comment if don't this method
+//`define BOX_FILTER_METHOD 1  //comment if don't need BOX filter \
 `define SYN_AVG_METHOD 1  //comment if don't this method
 
 // The fllowing two 5th IIR consumes 50% FPGA Logic Blocks
@@ -172,36 +171,7 @@ combfilter combfilter_inst(
 // comb filter ends ////////////////////////////	 
 
 
-// Time Constant starts ///////////////////////////////////////
-`ifdef TIME_CONSTANT_METHOD
-
-reg [SF_WIDTH-1:0] fpVLP_delayed;
-//delay one SCLK to align the Base line and waveform
-always @(posedge SCLK) 
-begin 
-  fpVLP_delayed <= fpVLP;
-end
-
-dc_restore dc_restore_inst(
-    .FCLK(SCLK),
-    .in_valid(Data_Valid),   
-	 .PULL_UP(DCR_PU),
-	 .PULL_DN(DCR_PD),
-	 .VLP(fpVLP),
-    .VMIN(fpBL)
-    );
-	 
-altfp_sub sub_inst1 (.dataa(fpVLP_delayed), .datab(fpBL), .clock(SCLK), .result(fpVBL_TC) ); 
-altfp_fp2int conv_inst2 (.dataa(fpBL), .clock(SCLK), .result(BL_TC));  
-
-`endif
-
-//Time Constnt ends///////////////////////////////////////////
-
-
 //Box filter starts //////////////////////////////////////////
-
-
 `ifdef BOX_FILTER_METHOD
 wire [ADC_DATA_WIDTH-1:0] boxf_in = CB_METHOD? combf_out : VLP;
 boxfilter_sr bf_inst(
@@ -319,53 +289,7 @@ Hist hist_inst(
 wire [LONG_WIDTH-1:0] pulse_AVG/*synthesis keep*/;
 wire [LONG_WIDTH-1:0] pulse_width,pulse_period/*synthesis keep*/; 
 wire [ADC_DATA_WIDTH-1:0] pulse_BL;
-
-//Threshold method starts///////////////////////////////////
-`ifdef THRESHOLD_METHOD
-
- pulse_processing pulse_pro_inst(
-	.signal(VLP),
-	.threshold(`TRIG_TH), //postive value, ADC bin number
-	.in_valid(Data_Valid),
-		
-	.clk(SCLK), // SCLK 35 MHz
-   .BL(pulse_BL),
-	.AVG_reg(pulse_AVG), //signed 32 bit
-	.pw_reg(pulse_width), //32 bit integer in unit of 0.86749 us (ADC sampling period)
-	.tw_reg(pulse_period)  //as above
-);
-
-altfp_int2fp int2fpconv_inst3 (.dataa(pulse_AVG), .clock(SCLK), .result(fpAVG)); 
-
-`endif
-
-// Threshold method ends ///////////////////////
-
-//Diode_Clamp method starts///////////////////////////////////
-`ifdef DIODE_CLAMP_METHOD
-
- diode_clamp diode_clamp_inst(
-    .FCLK(SCLK),
-    .in_valid(Data_Valid), 
-    
-	 .DIODE_TH(DIODE_TH),     //threshold
-	 .DIODE_NCrev(DIODE_NCrev),  //negtive reverse of C
-	 .DIODE_R1rev(DIODE_R1rev), //reverse of R1
-    .DIODE_R2rev(DIODE_R2rev), //sf, the reverse of the diode conducting resistiance  
 	 
- 	 //.R1_rev(32'h3a83126f), //0.001, 1K resistor, sf, the reverse of the diode conducting resistiance 
-		 
-    .Vin(fpVLP), //input signal
-
-    .Vdc(fpVBL_DC) //output with DC restored
-
-    );
-
-altfp_fp2int conv_inst4 (.dataa(fpVBL_DC), .clock(SCLK), .result(VBL_DC));  
-
-`endif
-	
-// Diode_Clamp method ends ///////////////////////	 
 	 
 
 //if ISIS_pulse missing, the DAC output is switched to BF_Method results. SL, 2022-04-13
@@ -569,7 +493,7 @@ wire trip_OK = 1;
 // slfifo is 128 words(32bit) deep, Nov.29,2018
 	
 //============Packing=================================
-	parameter PID = 32'h4142504d; // "ABPM"
+	parameter PID = 32'h41434354; // "ACCT"
    
 	reg [7:0] p_state;
 
@@ -594,13 +518,13 @@ wire trip_OK = 1;
 					5: begin sfifo_data_in <= {16'b0,DC_Index}; p_state <= 6; end	
 					6: begin sfifo_data_in <= fpDC; p_state <= 7; end	
 
-					7: begin sfifo_data_in <= DCR_PU; p_state <= 8; end
-					8: begin sfifo_data_in <= DCR_PD; p_state <= 9; end
+					7: begin sfifo_data_in <= 0; p_state <= 8; end
+					8: begin sfifo_data_in <= 0; p_state <= 9; end
 					9: begin sfifo_data_in <= ALPHA; p_state <= 10; end
-					10: begin sfifo_data_in <= DIODE_TH; p_state <= 11; end
-					11: begin sfifo_data_in <= DIODE_NCrev; p_state <= 12; end	
-					12: begin sfifo_data_in <= DIODE_R1rev; p_state <= 13; end
-					13: begin sfifo_data_in <= DIODE_R2rev; p_state <= 14; end
+					10: begin sfifo_data_in <= 0; p_state <= 11; end
+					11: begin sfifo_data_in <= 0; p_state <= 12; end	
+					12: begin sfifo_data_in <= 0; p_state <= 13; end
+					13: begin sfifo_data_in <= 0; p_state <= 14; end
 
 					14: begin sfifo_data_in <= 0; p_state <= 15; end
 					15: begin sfifo_data_in <= 0; p_state <= 16; end

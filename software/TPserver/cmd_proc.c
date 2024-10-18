@@ -1,15 +1,16 @@
 /*
  * cmd_proc.c  
  */
-
+ 
 //Oct.11,2018, SL: created for Target Protect DE10 Server
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+ 
 #include "main.h"
 
+//#define BLOCK_SIZE 4096 //block transfer size for FAST FIFO
 #define BLOCK_SIZE 1024 //block transfer size for FAST FIFO
 #define PACKET_SIZE 32 //block transfer size for PACKET
 
@@ -17,7 +18,7 @@ static inline void writeReg(void* addr, uint32_t value)
 {
     *(uint32_t*) (addr) = value;
 }
-
+ 
 static inline uint32_t readReg(void* addr)
 {
 
@@ -25,12 +26,17 @@ static inline uint32_t readReg(void* addr)
 }
 
 
-int dataArray[1024];
+int dataArray[BLOCK_SIZE];
 extern void* VR_BASE;
 
 void Load_Conf()
 {
      writeReg(VR_BASE+EEPROM_RD,0);
+}
+
+void ADC_Init()
+{
+    readReg(VR_BASE+ADC_INIT);
 }
 
 
@@ -39,7 +45,7 @@ int cmd_proc(char *cmdString_in , int *value_back, char **string_back, int **arr
 
 char cmd[50],*sdp,*chp;
 
-  //uint32_t trash;
+  //uint32_t trash; 
   //uint32_t fifo_wd;
 
   uint32_t cmdlen, val_len;
@@ -80,17 +86,23 @@ char cmd[50],*sdp,*chp;
 		if ( strcmp(cmd,"CR")== 0 ) {writeReg(VR_BASE+CR,invalue);return 0;}
 		if ( strcmp(cmd,"CR?")== 0 ) {*value_back = readReg(VR_BASE+CR);return 1;}
 		if ( strcmp(cmd,"SR?")== 0 ) {*value_back = readReg(VR_BASE+SR);return 1;}
-		if ( strcmp(cmd,"MR")== 0 ) {writeReg(VR_BASE+MR,invalue);return 0;}
-		if ( strcmp(cmd,"MR?")== 0 ) {*value_back = readReg(VR_BASE+MR);return 1;}
+		//if ( strcmp(cmd,"MR")== 0 ) {writeReg(VR_BASE+MR,invalue);return 0;}
+		//if ( strcmp(cmd,"MR?")== 0 ) {*value_back = readReg(VR_BASE+MR);return 1;}
 		if ( strcmp(cmd,"FPGA_VER?")== 0 ) {*value_back = readReg(VR_BASE+FPGA_VER);return 1;}
+		if ( strcmp(cmd,"FW_VER?")== 0 ) {*value_back = FW_VERSION;return 1;}
+		
+		if ( strcmp(cmd,"ADC_INIT")== 0 ) {*value_back = readReg(VR_BASE+ADC_INIT);return 1;}
+		if ( strcmp(cmd,"ADC_READ")== 0 ) {*value_back = readReg(VR_BASE+ADC_READ);return 1;}
 				
 		if ( strcmp(cmd,"CH:SEL")== 0 ) {writeReg(VR_BASE+CH_SEL,invalue);return 0;}
+
+//		if ( strcmp(cmd,"PCA:GAIN")== 0 ) {writeReg(VR_BASE+PCA_GAIN,invalue);return 0;}
+//		if ( strcmp(cmd,"PCA:GAIN?")== 0 ) {*value_back = readReg(VR_BASE+PCA_GAIN);return 1;}
+
+		if ( strcmp(cmd,"ALPHA")== 0 ) {writeReg(VR_BASE+ALPHA,invalue);return 0;}
+		if ( strcmp(cmd,"ALPHA?")== 0 ) {*value_back = readReg(VR_BASE+ALPHA);return 1;}
 		
-		if ( strcmp(cmd,"PCA:GAIN")== 0 ) {writeReg(VR_BASE+PCA_GAIN,invalue);return 0;}
-		if ( strcmp(cmd,"PCA:GAIN?")== 0 ) {*value_back = readReg(VR_BASE+PCA_GAIN);return 1;}
-		
-		if ( strcmp(cmd,"RELAY")== 0 ) {writeReg(VR_BASE+RELAY,invalue);return 0;}
-		if ( strcmp(cmd,"RELAY?")== 0 ) {*value_back = readReg(VR_BASE+RELAY);return 1;}
+		//if ( strcmp(cmd,"BEAM_AVG?")== 0 ) {*value_back = readReg(VR_BASE+BEAM_AVG);return 1;}
 		
 		if ( strcmp(cmd,"CONF2EEPROM")== 0 ) {writeReg(VR_BASE+EEPROM_WR,invalue);return 0;}
 		if ( strcmp(cmd,"EEPROM2CONF")== 0 ) {writeReg(VR_BASE+EEPROM_RD,invalue);return 0;}
@@ -111,54 +123,60 @@ char cmd[50],*sdp,*chp;
 			*array_Ptr = &dataArray[0]; *array_Dim = BLOCK_SIZE;
     		return 3;}
 		
-        if ( strcmp(cmd,"TRIP:TH0")== 0 ) {writeReg(VR_BASE+TRIP_TH0,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH0?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH0);return 1;}
+//        if ( strcmp(cmd,"TRIP:TH0")== 0 ) {writeReg(VR_BASE+TRIP_TH0,invalue);return 0;}
+//		if ( strcmp(cmd,"TRIP:TH0?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH0);return 1;}
+//
+//        if ( strcmp(cmd,"TRIP:TH1")== 0 ) {writeReg(VR_BASE+TRIP_TH1,invalue);return 0;}
+//		if ( strcmp(cmd,"TRIP:TH1?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH1);return 1;}
+//
+//		if ( strcmp(cmd,"TRIG:TH")== 0 ) {writeReg(VR_BASE+TRIG_TH,invalue);return 0;}
+//
+		if ( strcmp(cmd,"CAL_WAVE")== 0 ) {writeReg(VR_BASE+CAL_WAVE,invalue);return 0;}
+		if ( strcmp(cmd,"CAL_WAVE?")== 0 ) {*value_back = readReg(VR_BASE+CAL_WAVE);return 1;}
+		
+		if ( strcmp(cmd,"IIR_OUT_BF_K1")== 0 ) {writeReg(VR_BASE+IIR_OUT_BF_K1,invalue);return 0;}
+		if ( strcmp(cmd,"IIR_OUT_BF_K1?")== 0 ) {*value_back = readReg(VR_BASE+IIR_OUT_BF_K1);return 1;}
+		
+		if ( strcmp(cmd,"IIR_OUT_BF_K2")== 0 ) {writeReg(VR_BASE+IIR_OUT_BF_K2,invalue);return 0;}
+		if ( strcmp(cmd,"IIR_OUT_BF_K2?")== 0 ) {*value_back = readReg(VR_BASE+IIR_OUT_BF_K2);return 1;}
+		
+		if ( strcmp(cmd,"IIR_OUT_SA_K1")== 0 ) {writeReg(VR_BASE+IIR_OUT_SA_K1,invalue);return 0;}
+		if ( strcmp(cmd,"IIR_OUT_SA_K1?")== 0 ) {*value_back = readReg(VR_BASE+IIR_OUT_SA_K1);return 1;}
+		
+		if ( strcmp(cmd,"IIR_OUT_SA_K2")== 0 ) {writeReg(VR_BASE+IIR_OUT_SA_K2,invalue);return 0;}
+		if ( strcmp(cmd,"IIR_OUT_SA_K2?")== 0 ) {*value_back = readReg(VR_BASE+IIR_OUT_SA_K2);return 1;}
+		
+//		if ( strcmp(cmd,"DCR_PU")== 0 ) {writeReg(VR_BASE+DCR_PU,invalue);return 0;}
+//		if ( strcmp(cmd,"DCR_PU?")== 0 ) {*value_back = readReg(VR_BASE+DCR_PU);return 1;}
+//
+//		if ( strcmp(cmd,"DCR_PD")== 0 ) {writeReg(VR_BASE+DCR_PD,invalue);return 0;}
+//		if ( strcmp(cmd,"DCR_PD?")== 0 ) {*value_back = readReg(VR_BASE+DCR_PD);return 1;}
+//
+		if ( strcmp(cmd,"FP_SLOPE")== 0 ) {writeReg(VR_BASE+FP_SLOPE,invalue);return 0;}
+		if ( strcmp(cmd,"FP_SLOPE?")== 0 ) {*value_back = readReg(VR_BASE+FP_SLOPE);return 1;}
+		
+		if ( strcmp(cmd,"FP_OFFSET")== 0 ) {writeReg(VR_BASE+FP_OFFSET,invalue);return 0;}
+		if ( strcmp(cmd,"FP_OFFSET?")== 0 ) {*value_back = readReg(VR_BASE+FP_OFFSET);return 1;}
+	 			
+		if ( strcmp(cmd,"CONF_LOAD")== 0 ) {writeReg(VR_BASE+EEPROM_RD,0); return 0;}
+		
+		if ( strcmp(cmd,"MODULE_ID0")== 0 ) {writeReg(VR_BASE+MODULE_ID0,invalue);return 0;}
+		if ( strcmp(cmd,"MODULE_ID0?")== 0 ) {*value_back = readReg(VR_BASE+MODULE_ID0);return 1;}
+		
+		if ( strcmp(cmd,"MODULE_ID1")== 0 ) {writeReg(VR_BASE+MODULE_ID1,invalue);return 0;}
+		if ( strcmp(cmd,"MODULE_ID1?")== 0 ) {*value_back = readReg(VR_BASE+MODULE_ID1);return 1;}
 
-        if ( strcmp(cmd,"TRIP:TH1")== 0 ) {writeReg(VR_BASE+TRIP_TH1,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH1?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH1);return 1;}
+		if ( strcmp(cmd,"FP_CH0_G")== 0 ) {writeReg(VR_BASE+FP_CH0_G,invalue);return 0;}
+		if ( strcmp(cmd,"FP_CH0_G?")== 0 ) {*value_back = readReg(VR_BASE+FP_CH0_G);return 1;}		
 		
-        if ( strcmp(cmd,"TRIP:TH2")== 0 ) {writeReg(VR_BASE+TRIP_TH2,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH2?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH2);return 1;}
+		if ( strcmp(cmd,"FP_CH0_Z")== 0 ) {writeReg(VR_BASE+FP_CH0_Z,invalue);return 0;}
+		if ( strcmp(cmd,"FP_CH0_Z?")== 0 ) {*value_back = readReg(VR_BASE+FP_CH0_Z);return 1;}			
 		
-        if ( strcmp(cmd,"TRIP:TH3")== 0 ) {writeReg(VR_BASE+TRIP_TH3,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH3?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH3);return 1;}
+		if ( strcmp(cmd,"FP_CH1_G")== 0 ) {writeReg(VR_BASE+FP_CH1_G,invalue);return 0;}
+		if ( strcmp(cmd,"FP_CH1_G?")== 0 ) {*value_back = readReg(VR_BASE+FP_CH1_G);return 1;}			
 		
-        if ( strcmp(cmd,"TRIP:TH4")== 0 ) {writeReg(VR_BASE+TRIP_TH4,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH4?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH4);return 1;}
-		
-        if ( strcmp(cmd,"TRIP:TH5")== 0 ) {writeReg(VR_BASE+TRIP_TH5,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH5?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH5);return 1;}
-		
-        if ( strcmp(cmd,"TRIP:TH6")== 0 ) {writeReg(VR_BASE+TRIP_TH6,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH6?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH6);return 1;}
-		
-        if ( strcmp(cmd,"TRIP:TH7")== 0 ) {writeReg(VR_BASE+TRIP_TH7,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH7?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH7);return 1;}
-		
-        if ( strcmp(cmd,"TRIP:TH8")== 0 ) {writeReg(VR_BASE+TRIP_TH8,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH8?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH8);return 1;}
-		
-        if ( strcmp(cmd,"TRIP:TH9")== 0 ) {writeReg(VR_BASE+TRIP_TH9,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH9?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH9);return 1;}
-		
-        if ( strcmp(cmd,"TRIP:TH10")== 0 ) {writeReg(VR_BASE+TRIP_TH10,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH10?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH10);return 1;}
-		
-        if ( strcmp(cmd,"TRIP:TH11")== 0 ) {writeReg(VR_BASE+TRIP_TH11,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH11?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH11);return 1;}
-		
-        if ( strcmp(cmd,"TRIP:TH12")== 0 ) {writeReg(VR_BASE+TRIP_TH12,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH12?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH12);return 1;}
-		
-        if ( strcmp(cmd,"TRIP:TH13")== 0 ) {writeReg(VR_BASE+TRIP_TH13,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH13?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH13);return 1;}
-		
-        if ( strcmp(cmd,"TRIP:TH14")== 0 ) {writeReg(VR_BASE+TRIP_TH14,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH14?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH14);return 1;}																														
-    		
-        if ( strcmp(cmd,"TRIP:TH15")== 0 ) {writeReg(VR_BASE+TRIP_TH15,invalue);return 0;}
-		if ( strcmp(cmd,"TRIP:TH15?")== 0 ) {*value_back = readReg(VR_BASE+TRIP_TH15);return 1;}
-				
+		if ( strcmp(cmd,"FP_CH1_Z")== 0 ) {writeReg(VR_BASE+FP_CH1_Z,invalue);return 0;}
+		if ( strcmp(cmd,"FP_CH1_Z?")== 0 ) {*value_back = readReg(VR_BASE+FP_CH1_Z);return 1;}							
 		
     	printf("\n\r Error: Bad command %s \n\r", cmd);
 		
@@ -167,3 +185,5 @@ char cmd[50],*sdp,*chp;
     return 0;
 
 }
+
+  

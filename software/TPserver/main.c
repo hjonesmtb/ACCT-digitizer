@@ -1,5 +1,15 @@
 /* Target Protect Project*/
 
+/*
+(Note: the SoC EDS installed path is: C:\intelFPGA\18.0\embedded), 
+double click the bat file: Embedded_Command_Shell.bat to start the Linux Console in the Windows OS )
+Change directory to the software/TPserver folder of the firmware project and type "make". 
+This will automatically compile the program. 
+note: type pwd to find where you are
+
+*/
+
+
 // function: Create a socket server. Dump the received message from the client and loopack the message to client.
 // usage: TPServer PortNum, PortNum is a interger larger than 2000.)
 
@@ -19,6 +29,7 @@
 //#include <pthread.h>
 
 
+
 #include "main.h"
 
 
@@ -29,10 +40,10 @@ void error_exit(const char *msg)
     perror(msg);
     exit(1);
 }
-
+ 
 int cmd_proc(char *cmdString_in , int *value_back, char **string_back, int **array_Ptr, int *array_Dim);
 void Load_Conf();
-
+void ADC_Init();
 
 void* VR_BASE;
 char cmdString[256];
@@ -95,6 +106,7 @@ int main(int argc, char* argv[])
 	 
 	 //load configration from eeprom
 	 Load_Conf();
+	 //ADC_Init();
          
        
      while(1) {
