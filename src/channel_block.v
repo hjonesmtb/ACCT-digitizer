@@ -41,15 +41,15 @@ module Channel_Block(
  input [31:0] IIR_OUT_BF_K2,
  input [31:0] IIR_OUT_SA_K1,
  input [31:0] IIR_OUT_SA_K2,
- 
- input [31:0] DIODE_TH,     //threshold
- input [31:0] DIODE_NCrev,  //negtive reverse of C
- input [31:0] DIODE_R1rev, //reverse of R1
- input [31:0] DIODE_R2rev, //sf, the reverse of the diode conducting resistiance 
+// 
+// input [31:0] DIODE_TH,     //threshold
+// input [31:0] DIODE_NCrev,  //negtive reverse of C
+// input [31:0] DIODE_R1rev, //reverse of R1
+// input [31:0] DIODE_R2rev, //sf, the reverse of the diode conducting resistiance 
  
  input [15:0] ALPHA,
- input [31:0] DCR_PU,
- input [31:0] DCR_PD,
+// input [31:0] DCR_PU,
+// input [31:0] DCR_PD,
  
  input [SF_WIDTH-1:0] FP_G,
  input [SF_WIDTH-1:0] FP_Z,
@@ -59,7 +59,7 @@ module Channel_Block(
  
  input [15:0] CON_REG,
  input [15:0] STATUS_REG,
- input [1:0] relay_contact,
+// input [1:0] relay_contact,
  input [15:0] temp,
  
  // to DAC
@@ -77,11 +77,20 @@ module Channel_Block(
  input sfifo_rd,
  
  output reg trip, //beam value trip
- output overflow
+ output overflow,
  
-
+ output [ADC_DATA_WIDTH-1:0] N_sample,
+ output [7:0] DC_Index,
+ output [ADC_DATA_WIDTH-1:0] BL_SA,
+ output signed [ADC_DATA_WIDTH-1:0] peak,
+ output signed [SF_WIDTH-1:0] peaknA,
+ output signed [SF_WIDTH-1:0] fpDC,
+ output signed [SF_WIDTH-1:0] fpVBL,
  
-);
+ output signed [31:0] BEAMnA,
+ 
+ output processing_done
+ );
 
 `include "src/param.v"
 
@@ -94,10 +103,9 @@ module Channel_Block(
 //`define INPUT_5TH_FILTER 1 
 //`define OUTPUT_5TH_FILTER 1 
 
-wire [SF_WIDTH-1:0] fpDIN,fpVBL_BF,fpVBL_DC,fpVBL_TC,fpVLP,fpBL,fpVBL,fpAVG,fpINT,fpBEAM0,fpBEAM1,fpBEAM2;//*synthesis keep*/;
+wire [SF_WIDTH-1:0] fpDIN,fpVBL_BF,fpVBL_DC,fpVBL_TC,fpVLP,fpBL,fpAVG,fpINT,fpBEAM0, fpBEAM1,fpBEAM2;//*synthesis keep*/;
 wire [ADC_DATA_WIDTH-1:0] BEAM0,VLP,VBL_BF,VBL_DC,VBL,VSA,hist_data/*synthesis keep*/;	
-wire [ADC_DATA_WIDTH-1:0] BL,BL_BF,BL_TC,BL_SA, N_sample/*synthesis keep*/;
-wire [SF_WIDTH-1:0] fpDC;
+wire [ADC_DATA_WIDTH-1:0] BL,BL_BF,BL_TC/*synthesis keep*/;
 
 wire avg_valid/*synthesis keep*/;
 wire bf_overflow; 
@@ -194,7 +202,6 @@ altfp_16int2fp int2fpconv_inst2 (.dataa(VBL_BF), .clock(SCLK), .result(fpVBL_BF)
 
 //Synchrnous Averaging start//
 
-wire signed [15:0] peak;
 wire [31:0] fpPeak;
 altfp_16int2fp int2fpconv_inst4 (.dataa(peak), .clock(SCLK), .result(fpPeak)); 
 `ifdef SYN_AVG_METHOD
@@ -295,7 +302,7 @@ wire [ADC_DATA_WIDTH-1:0] pulse_BL;
 //if ISIS_pulse missing, the DAC output is switched to BF_Method results. SL, 2022-04-13
 wire SA_Valid = (~ISIS_pulse_lost) | ch_cal_on; 
 
-assign overflow = bf_overflow | combf_overflow | sa_overflow | hist_overflow; // algorithm overflow
+assign overflow = sa_overflow; // frequency too low
 
 assign fpVBL = DC_METHOD? fpVBL_DC : 
                BF_METHOD? fpVBL_BF : 
@@ -367,7 +374,7 @@ LPF_IIR LPF_output_inst2(
     );
 
 //wire [SF_WIDTH-1:0] fpBEAM = CON_REG[1]? fpBEAM1 : fpBEAM0; //uncomment if using 5th order outptu filter
-wire [SF_WIDTH-1:0] fpBEAM = fpBEAM0;
+assign fpBEAM = fpBEAM0;
  	
 ////////////////////////////////////////////////////////////////////////////
 
@@ -392,14 +399,11 @@ wire BF_METHOD = (METHOD == 2'b01);
 wire SA_METHOD = (METHOD == 2'b10);
 wire CB_METHOD = (METHOD == 2'b11); //0: No Comb filter, 1: enable comb filter (for 2C toroid )
 
-						
-
+					
 //================ Calculate BEAM current and DAC value ==============
 
-wire processing_done;
+
 wire [DAC_DATA_WIDTH-1:0] DAC_code;
-wire signed [31:0] BEAMnA, peaknA;
-wire [7:0] DC_Index;
 
 cal_current cal_i_ins(
    .METHOD(METHOD), //this input is not used. 
@@ -450,8 +454,6 @@ DAC_control DAC_control_inst
 		  
     );	
 	 	 
-
-
 
 ///============== Trip generating ===============		 
 `ifdef TRIP_ENABLE		 
@@ -510,17 +512,17 @@ wire trip_OK = 1;
 				case(p_state)
 					0:if(processing_done && !sfifo_half_full)
 						begin sFIFO_wr<= 1; sfifo_data_in <= PID; p_state <= 1; end
-					1: begin sfifo_data_in <= {CON_REG,STATUS_REG}; p_state <= 2; end
-					2: begin sfifo_data_in <= {relay_contact,temp}; p_state <= 3; end
-					3: begin sfifo_data_in <= BEAMnA; p_state <= 4; end
+					1: begin sfifo_data_in <= {CON_REG,STATUS_REG}; p_state <= 2; end // pass through
+					2: begin sfifo_data_in <= {16'b0,temp}; p_state <= 3; end // pass through
+					3: begin sfifo_data_in <= BEAMnA; p_state <= 4; end // unique
 					
-					4: begin sfifo_data_in <= {16'b0,N_sample}; p_state <= 5; end
-					5: begin sfifo_data_in <= {16'b0,DC_Index}; p_state <= 6; end	
-					6: begin sfifo_data_in <= fpDC; p_state <= 7; end	
+					4: begin sfifo_data_in <= {16'b0,N_sample}; p_state <= 5; end //unique
+					5: begin sfifo_data_in <= {16'b0,DC_Index}; p_state <= 6; end	 //unique
+					6: begin sfifo_data_in <= fpDC; p_state <= 7; end	//unique
 
 					7: begin sfifo_data_in <= 0; p_state <= 8; end
 					8: begin sfifo_data_in <= 0; p_state <= 9; end
-					9: begin sfifo_data_in <= ALPHA; p_state <= 10; end
+					9: begin sfifo_data_in <= ALPHA; p_state <= 10; end // pass through
 					10: begin sfifo_data_in <= 0; p_state <= 11; end
 					11: begin sfifo_data_in <= 0; p_state <= 12; end	
 					12: begin sfifo_data_in <= 0; p_state <= 13; end
@@ -530,18 +532,18 @@ wire trip_OK = 1;
 					15: begin sfifo_data_in <= 0; p_state <= 16; end
 					16: begin sfifo_data_in <= 0; p_state <= 17; end
 					17: begin sfifo_data_in <= 0; p_state <= 18; end
-					18: begin sfifo_data_in <= BL_SA; p_state <= 19; end // BL as integer
-					19: begin sfifo_data_in <= peak; p_state <= 20; end // peak as integer
-					20: begin sfifo_data_in <= peaknA; p_state <= 21; end // peak as float
+					18: begin sfifo_data_in <= BL_SA; p_state <= 19; end // unique - BL as integer
+					19: begin sfifo_data_in <= peak; p_state <= 20; end // unique - peak as integer
+					20: begin sfifo_data_in <= peaknA; p_state <= 21; end // unique - peak as float
 					21: begin sfifo_data_in <= 0; p_state <= 22; end
 					22: begin sfifo_data_in <= 0; p_state <= 23; end
 					23: begin sfifo_data_in <= 0; p_state <= 24; end
 					24: begin sfifo_data_in <= 0; p_state <= 25; end
 					25: begin sfifo_data_in <= 0; p_state <= 26; end
 					
-					26: begin sfifo_data_in <= fpVBL; p_state <= 27; end
-					27: begin sfifo_data_in <= fpBEAM0; p_state <= 28; end
-					28: begin sfifo_data_in <= fpBEAM1; p_state <= 29; end
+					26: begin sfifo_data_in <= fpVBL; p_state <= 27; end // unique
+					27: begin sfifo_data_in <= fpBEAM0; p_state <= 28; end // unique
+					28: begin sfifo_data_in <= fpBEAM1; p_state <= 29; end // unique
 					29: begin sfifo_data_in <= 0; p_state <= 30; end
 					30: begin sfifo_data_in <= 0; p_state <= 31; end
 					31: begin sfifo_data_in <= 0; p_state <= 32; end

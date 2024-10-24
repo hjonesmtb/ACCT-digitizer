@@ -21,9 +21,10 @@
  * 2023/05/05: reuse hist.V, to replace bottom.v to find BL for syn_avg method, to fix error at very low DC during startup. 
  
  * 2024/09/11: changed droop compensation to 3/2^18. Increased fast fifo to 8192 words.
+ * oct 2024  : changed fast fifo to 16k. Removed unused commands.
  */
  
-parameter FPGA_VERSION_NO = 32'd20241017; //yyyy_mm_dd_hh:
+parameter FPGA_VERSION_NO = 32'd20241024; //yyyy_mm_dd_hh:
 // taken from may 2023
 
 module DE10_NANO_SoC_GHRD(
@@ -221,7 +222,7 @@ assign stm_hw_events = {{15{1'b0}}, SW, fpga_led_internal, fpga_debounced_button
 
 /************************************************************************/
 /************************* Target Protect Logic *************************/
-/********************************41434354***************************************/
+/************************************************************************/
 
 
 
@@ -426,7 +427,22 @@ wire ch1_overflow,ch2_overflow;
 wire ch1_trip,ch2_trip; //channel trip to turn off relay-- relay SW open.
 
 wire syn_pulse = ISIS_pulse_trimed ; //Apr24_2020
- 
+
+/////////////////// - new HJ
+wire [15:0] N_sample1, N_sample2;
+wire [7:0] DC_Index1, DC_Index2;
+wire [15:0] BL_SA1, BL_SA2;
+wire [15:0] peak1, peak2;
+
+wire [SF_WIDTH-1:0] peaknA1, peaknA2;
+wire [SF_WIDTH-1:0] fpDC1, fpDC2;
+wire [SF_WIDTH-1:0] fpVBL1, fpVBL2;				
+wire [31:0] BEAMnA1,BEAMnA2;
+
+
+wire processing_done;
+/////////////////// - new HJ				
+
 Channel_Block Channel_1_inst(
  .SCLK(SCLK),
  .SYS_CLK(SYS_CLK),
@@ -465,7 +481,7 @@ Channel_Block Channel_1_inst(
  
  .CON_REG({`CON_REG_H8,`CON_REG_L8}),
  .STATUS_REG(status_reg),
- .relay_contact(1'b0),
+// .relay_contact(1'b0),
  .temp(temp),
  
  // to DAC
@@ -484,7 +500,18 @@ Channel_Block Channel_1_inst(
  
  //output 
  .trip(ch1_trip),
- .overflow(ch1_overflow)
+ .overflow(ch1_overflow),
+ 
+ .N_sample(N_sample1),
+ .DC_Index(DC_Index1),
+ .BL_SA(BL_SA1),
+ .peak(peak1),
+ .peaknA(peaknA1),
+ .fpDC(fpDC),
+ .fpVBL(fpVBL1),
+ 
+ .BEAMnA(BEAMnA1),
+ .processing_done(processing_done)
  
 );				
 
@@ -530,7 +557,7 @@ Channel_Block Channel_2_inst(
  
  .CON_REG({`CON_REG_H8,`CON_REG_L8}),
  .STATUS_REG(status_reg),
- .relay_contact(1'b0),
+ //.relay_contact(1'b0),
  .temp(temp),
  
  // to DAC
@@ -549,12 +576,108 @@ Channel_Block Channel_2_inst(
  
  //output 
  .trip(ch2_trip),
- .overflow(ch2_overflow)
+ .overflow(ch2_overflow),
+
+ .N_sample(N_sample2),
+ .DC_Index(DC_Index2),
+ .BL_SA(BL_SA2),
+ .peak(peak2),
+ .peaknA(peaknA2),
+ .fpDC(fpDC2),
+ .fpVBL(fpVBL2),
+ .BEAMnA(BEAMnA2),
  
-);				
+ .processing_done()
+ );				
 
 `endif
 /////////////////////////////////////////////
+
+///================ Slow FIFO ===================
+
+   wire [7:0] sfifo_wr_wd;
+	reg sFIFO_wr;
+	reg [SFIFO_WIDTH-1:0] sfifo_data_in;
+	wire sfifo_half_full = sfifo_wr_wd[6]; // 64   
+	
+
+	 wire [SFIFO_WIDTH-1:0] slow_fifo_dout_2;
+	 wire [7:0] sfifo_rd_wd_2;
+
+	slfifo Slow_FIFO (
+		.aclr(SYS_RST),
+		.data(sfifo_data_in),
+		.wrclk(SCLK),
+		.rdclk(SYS_CLK),
+		.wrreq(sFIFO_wr),
+		.rdreq(sfifo_rd),
+		.q(slow_fifo_dout_2),
+		.rdusedw(sfifo_rd_wd_2), 
+		.wrusedw(sfifo_wr_wd)
+	);  
+	
+//============Packing=================================
+	parameter PID = 32'h41434354; // "ACCT"
+   
+	reg [7:0] p_state;
+
+//data packet size is 8 words (32bit)
+	always @(posedge SCLK)
+	begin
+		if(SYS_RST)
+			begin
+				p_state <= 0;
+				sFIFO_wr<= 0;
+			end
+		else
+			begin
+				case(p_state)
+					0:if(processing_done && !sfifo_half_full)
+						begin sFIFO_wr<= 1; sfifo_data_in <= PID; p_state <= 1; end
+					1: begin sfifo_data_in <= {{`CON_REG_H8,`CON_REG_L8},status_reg}; p_state <= 2; end // pass through
+					2: begin sfifo_data_in <= {16'b0,temp}; p_state <= 3; end // pass through
+					3: begin sfifo_data_in <= BEAMnA1; p_state <= 4; end // unique
+					
+					4: begin sfifo_data_in <= BEAMnA2; p_state <= 5; end //unique
+					5: begin sfifo_data_in <= {N_sample1,N_sample2}; p_state <= 6; end	 //unique
+					6: begin sfifo_data_in <= fpDC1; p_state <= 7; end	//unique
+
+					7: begin sfifo_data_in <= fpDC2; p_state <= 8; end
+					8: begin sfifo_data_in <= 0; p_state <= 9; end
+					9: begin sfifo_data_in <= `ALPHA; p_state <= 10; end // pass through
+					10: begin sfifo_data_in <= 0; p_state <= 11; end
+					11: begin sfifo_data_in <= 0; p_state <= 12; end	
+					12: begin sfifo_data_in <= 0; p_state <= 13; end
+					13: begin sfifo_data_in <= 0; p_state <= 14; end
+
+					14: begin sfifo_data_in <= 0; p_state <= 15; end
+					15: begin sfifo_data_in <= 0; p_state <= 16; end
+					16: begin sfifo_data_in <= 0; p_state <= 17; end
+					17: begin sfifo_data_in <= 0; p_state <= 18; end
+					18: begin sfifo_data_in <= BL_SA1; p_state <= 19; end // unique - BL as integer
+					19: begin sfifo_data_in <= peak1; p_state <= 20; end // unique - peak as integer
+					20: begin sfifo_data_in <= peaknA1; p_state <= 21; end // unique - peak as float
+					21: begin sfifo_data_in <= 0; p_state <= 22; end
+					22: begin sfifo_data_in <= BL_SA2; p_state <= 23; end
+					23: begin sfifo_data_in <= peak2; p_state <= 24; end
+					24: begin sfifo_data_in <= peaknA2; p_state <= 25; end
+					25: begin sfifo_data_in <= 0; p_state <= 26; end
+					
+					26: begin sfifo_data_in <= fpVBL1; p_state <= 27; end // unique
+					27: begin sfifo_data_in <= 0; p_state <= 28; end // unique
+					28: begin sfifo_data_in <= 0; p_state <= 29; end // unique
+					29: begin sfifo_data_in <= fpVBL2; p_state <= 30; end
+					30: begin sfifo_data_in <= 0; p_state <= 31; end
+					31: begin sfifo_data_in <= 0; p_state <= 32; end
+					32: begin sFIFO_wr<= 0; p_state <= 0; end
+					default:
+						begin sFIFO_wr<= 0; p_state <= 0; end
+				endcase
+			end
+
+	end
+	
+////////////////
 
 //I2C eeprom interface ////////////////////////////////////
 parameter CONF_BUF_SIZE = 128; //max = 128 bytes for 24AA025E48T for user application

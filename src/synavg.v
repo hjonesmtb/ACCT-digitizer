@@ -10,6 +10,7 @@
 
 
 // modified by HJ for variable pulse width. 
+// Oct 2024 : modified overflow to detect when pulse length exceeds 16384
 
 
 `timescale 1ns / 1ps
@@ -72,8 +73,9 @@ module syn_averaging(
    assign acc_addr = acc_rd_en? acc_raddr : acc_waddr;
 	
 	reg new_pulse;
+	reg signed[36:0] integral; // integrate pulse (scaled by alpha) bits = 20+14+3 (max alpha = 2^3 - 1 = 9)	
 	
-	reg signed[36:0] integral; // integrate pulse (scaled by alpha) bits = 20+14+3 (max alpha = 2^3 - 1 = 9)
+	reg ovf; // oveflow flag that is updated during each pulse
 	
 always @ (posedge clk )
 begin
@@ -83,6 +85,10 @@ begin
 			if (pulse_start | new_pulse) //new pulse
 				begin 
 					pulse_len <= addr;
+					
+					overflow <= ovf;
+					ovf <= 0;
+					
 					addr <= 10'b0;
 					new_pulse <= 0;
 					integral <= 0;
@@ -98,7 +104,14 @@ begin
 					//if (in_valid ) begin rd_en <= 1; state <= state_2; end else state <= state_1;
 				end 
 			else if (in_valid) //next data point within the same pulse
-				begin addr <= addr + 1; rd_en <= 1; state <= state_2; end 
+				begin 
+						addr <= addr + 1;
+						if(&addr == 1'b1) begin
+							ovf <= 1;
+						end
+						rd_en <= 1;
+						state <= state_2; 
+				end 
 		end
 		
 		state_1: 
@@ -205,7 +218,6 @@ reg avg_valid_reg/*synthesis keep*/;
 assign avg_valid = avg_valid_reg;
 assign avg_signal = avg_signal_24[DATA_WIDTH-1:0];
 
-//assign overflow = avg_signal < (-400);
 
 always @ (posedge clk )
 begin
