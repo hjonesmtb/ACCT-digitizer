@@ -28,12 +28,7 @@ note: type pwd to find where you are
 
 //#include <pthread.h>
 
-
-
 #include "main.h"
-
-
-
 
 void error_exit(const char *msg)
 {
@@ -46,8 +41,11 @@ void Load_Conf();
 void ADC_Init();
 
 void* VR_BASE;
+
 char cmdString[256];
 
+int avg1_samples[HIST_LENGTH], avg2_samples[HIST_LENGTH];
+int peak1_samples[HIST_LENGTH], peak2_samples[HIST_LENGTH];
 
 int main(int argc, char* argv[])
 {
@@ -71,9 +69,7 @@ int main(int argc, char* argv[])
 	if( VR_BASE == MAP_FAILED ) {
     	close( fd );
 		error_exit("mmap");	       
-	}
-
-    
+	}    
                           
     
      int sockfd, newsockfd, portno;

@@ -441,6 +441,7 @@ wire [31:0] BEAMnA1,BEAMnA2;
 
 
 wire processing_done;
+wire ISIS_pulse_lost;
 /////////////////// - new HJ				
 
 Channel_Block Channel_1_inst(
@@ -459,7 +460,7 @@ Channel_Block Channel_1_inst(
  .METHOD(METHOD), 
  .AVG_MODE(AVG_MODE),
  .HIST_MODE(HIST_MODE),
- .OUTAVG_MODE(OUTAVG_MODE),
+ .OUTAVG_MODE(),
  .CAL_REG({cal_dc_reg,cal_amp_reg}),
 
  .ch_gain(ch_gain[0]), 
@@ -507,7 +508,7 @@ Channel_Block Channel_1_inst(
  .BL_SA(BL_SA1),
  .peak(peak1),
  .peaknA(peaknA1),
- .fpDC(fpDC),
+ .fpDC(fpDC1),
  .fpVBL(fpVBL1),
  
  .BEAMnA(BEAMnA1),
@@ -535,7 +536,7 @@ Channel_Block Channel_2_inst(
  .METHOD(METHOD), 
  .AVG_MODE(AVG_MODE),
  .HIST_MODE(HIST_MODE),
- .OUTAVG_MODE(OUTAVG_MODE),
+ .OUTAVG_MODE(),
  .CAL_REG({cal_dc_reg,cal_amp_reg}),
 
  .ch_gain(ch_gain[1]), 
@@ -643,32 +644,32 @@ Channel_Block Channel_2_inst(
 					6: begin sfifo_data_in <= fpDC1; p_state <= 7; end	//unique
 
 					7: begin sfifo_data_in <= fpDC2; p_state <= 8; end
-					8: begin sfifo_data_in <= 0; p_state <= 9; end
+					8: begin sfifo_data_in <= 8; p_state <= 9; end 
 					9: begin sfifo_data_in <= `ALPHA; p_state <= 10; end // pass through
-					10: begin sfifo_data_in <= 0; p_state <= 11; end
-					11: begin sfifo_data_in <= 0; p_state <= 12; end	
-					12: begin sfifo_data_in <= 0; p_state <= 13; end
-					13: begin sfifo_data_in <= 0; p_state <= 14; end
-
-					14: begin sfifo_data_in <= 0; p_state <= 15; end
-					15: begin sfifo_data_in <= 0; p_state <= 16; end
-					16: begin sfifo_data_in <= 0; p_state <= 17; end
-					17: begin sfifo_data_in <= 0; p_state <= 18; end
+					10: begin sfifo_data_in <= 10; p_state <= 11; end // std_dev of avg1
+					11: begin sfifo_data_in <= 11; p_state <= 12; end // std_dev of avg2
+					12: begin sfifo_data_in <= 12; p_state <= 13; end 
+					13: begin sfifo_data_in <= 13; p_state <= 14; end 
+					14: begin sfifo_data_in <= 14; p_state <= 15; end
+					15: begin sfifo_data_in <= 15; p_state <= 16; end
+					16: begin sfifo_data_in <= 16; p_state <= 17; end
+					17: begin sfifo_data_in <= 17; p_state <= 18; end
 					18: begin sfifo_data_in <= BL_SA1; p_state <= 19; end // unique - BL as integer
 					19: begin sfifo_data_in <= peak1; p_state <= 20; end // unique - peak as integer
 					20: begin sfifo_data_in <= peaknA1; p_state <= 21; end // unique - peak as float
-					21: begin sfifo_data_in <= 0; p_state <= 22; end
+					21: begin sfifo_data_in <= 18; p_state <= 22; end
 					22: begin sfifo_data_in <= BL_SA2; p_state <= 23; end
 					23: begin sfifo_data_in <= peak2; p_state <= 24; end
 					24: begin sfifo_data_in <= peaknA2; p_state <= 25; end
-					25: begin sfifo_data_in <= 0; p_state <= 26; end
+					25: begin sfifo_data_in <= 25; p_state <= 26; end
 					
 					26: begin sfifo_data_in <= fpVBL1; p_state <= 27; end // unique
-					27: begin sfifo_data_in <= 0; p_state <= 28; end // unique
-					28: begin sfifo_data_in <= 0; p_state <= 29; end // unique
+					27: begin sfifo_data_in <= 27; p_state <= 28; end // std dev of peak1
+					28: begin sfifo_data_in <= 28; p_state <= 29; end // std dev of peak2
+
 					29: begin sfifo_data_in <= fpVBL2; p_state <= 30; end
-					30: begin sfifo_data_in <= 0; p_state <= 31; end
-					31: begin sfifo_data_in <= 0; p_state <= 32; end
+					30: begin sfifo_data_in <= 30; p_state <= 31; end
+					31: begin sfifo_data_in <= 31; p_state <= 32; end
 					32: begin sFIFO_wr<= 0; p_state <= 0; end
 					default:
 						begin sFIFO_wr<= 0; p_state <= 0; end
@@ -953,11 +954,11 @@ always@(posedge SYS_CLK)
 
 	/*   slow fifo occupancy     */		
 	if ((avalon_addr == SFIFO_WD_ADDR) & (avalon_read_o == 1)) 
-			begin comm_act <= ~comm_act; dout <= {16'b0,8'b0,sfifo_rd_wd}; end
+			begin comm_act <= ~comm_act; dout <= {16'b0,8'b0,sfifo_rd_wd_2}; end
 	
 	/*   Read slow fifo     */		
 	if ((avalon_addr == SFIFO_ADDR) & (avalon_read_o == 1)) 
-			dout <= slow_fifo_dout; 	
+			dout <= slow_fifo_dout_2; 	
 	
 	/*   Reset fast fifo     */		
 	if ((avalon_addr == FIFO_CLR_ADDR) & (avalon_write_o == 1)) 
@@ -1100,7 +1101,7 @@ end //always
 		
 		.wr(fifo_wr), // output, write Fast fifo
 	
-		.busy(busy) // output, not in use
+		.busy() // output, not in use
 	);
 	
 //=========== DHT11 sensor ========================

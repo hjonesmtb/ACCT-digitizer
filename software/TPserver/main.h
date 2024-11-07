@@ -13,7 +13,9 @@
 
 #define FW_VERSION 20230106 //firmware version 
 //#define FW_VERSION 20190002 //firmware version 
- 
+
+#define HIST_LENGTH 10 // number of samples to calculate std dev from
+
 #define BUFFER_MAX_SIZE 4000
 #define STRING_MAX_LENGTH 36864
 

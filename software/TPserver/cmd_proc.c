@@ -7,12 +7,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
- 
+#include <math.h>
+
 #include "main.h"
 
 //#define BLOCK_SIZE 4096 //block transfer size for FAST FIFO
 #define BLOCK_SIZE 1024 //block transfer size for FAST FIFO
 #define PACKET_SIZE 32 //block transfer size for PACKET
+
+#define AVG1_IDX 3
+#define AVG2_IDX 4
+#define PEAK1_IDX 20
+#define PEAK2_IDX 24
+
+#define AVG1_ERR_IDX 10
+#define AVG2_ERR_IDX 11
+#define PEAK1_ERR_IDX 27
+#define PEAK2_ERR_IDX 28
 
 static inline void writeReg(void* addr, uint32_t value)
 {
@@ -25,6 +36,13 @@ static inline uint32_t readReg(void* addr)
     return *(uint32_t*) (addr);
 }
 
+//union Data {
+//	int i;
+//	float f;
+//};
+
+extern int avg1_samples[HIST_LENGTH], avg2_samples[HIST_LENGTH];
+extern int peak1_samples[HIST_LENGTH], peak2_samples[HIST_LENGTH];
 
 int dataArray[BLOCK_SIZE];
 extern void* VR_BASE;
@@ -39,9 +57,35 @@ void ADC_Init()
     readReg(VR_BASE+ADC_INIT);
 }
 
-
-int cmd_proc(char *cmdString_in , int *value_back, char **string_back, int **array_Ptr, int *array_Dim)
+int get_stddev(int samples[])
 {
+	int avg = 0;
+	int sum_sq = 0;
+	int idx = 0;
+	for (idx = HIST_LENGTH-1; idx > 0; idx--){
+		samples[idx] = samples[idx-1];
+		avg += samples[idx];
+	}
+	samples[0] = readReg(VR_BASE+SFIFO);
+	avg += samples[0];
+	avg /= HIST_LENGTH;
+	//dataArray[cntr] = samples[0];
+
+	for (idx = 0; idx < HIST_LENGTH; idx++){
+		sum_sq += (int) pow(samples[idx] - avg,2);
+	}
+	
+	return (int) sqrt(sum_sq/HIST_LENGTH); //std dev
+}
+	
+
+	int cmd_proc(char *cmdString_in , int *value_back, char **string_back, int **array_Ptr, int *array_Dim)
+{
+
+//union Data curr;
+//union Data stddev;
+
+int avg1_err=0, avg2_err=0, peak1_err=0, peak2_err=0;
 
 char cmd[50],*sdp,*chp;
 
@@ -112,7 +156,56 @@ char cmd[50],*sdp,*chp;
 		
 		if ( strcmp(cmd,"SFIFO:WD?")== 0 ) {*value_back = readReg(VR_BASE+SFIFO_WD);return 1;}
 		if ( strcmp(cmd,"SFIFO?")== 0 ) {
-    		for(cntr=0;cntr<PACKET_SIZE;cntr++)  dataArray[cntr]= readReg(VR_BASE+SFIFO);
+    		for(cntr=0;cntr<PACKET_SIZE;cntr++){
+				
+				if(cntr == AVG1_IDX) { 
+					avg1_err = get_stddev(avg1_samples);
+					dataArray[cntr] = avg1_samples[0];
+				}
+				else if(cntr == AVG2_IDX) { 
+					avg2_err = get_stddev(avg2_samples);
+					dataArray[cntr] = avg2_samples[0];
+				}
+				else if(cntr == PEAK1_IDX) { 
+					peak1_err = get_stddev(peak1_samples);
+					//peak1_err = 420;
+					dataArray[cntr] = peak1_samples[0];
+				}
+				else if(cntr == PEAK2_IDX) { 
+					peak2_err = get_stddev(peak2_samples);
+					dataArray[cntr] = peak2_samples[0];
+				}
+			
+				else if(cntr == AVG1_ERR_IDX){
+					dataArray[cntr] = avg1_err;
+					readReg(VR_BASE+SFIFO);
+				}
+				else if(cntr == AVG2_ERR_IDX){
+					dataArray[cntr] = avg2_err;
+					readReg(VR_BASE+SFIFO);
+				}
+				else if(cntr == PEAK1_ERR_IDX){
+					dataArray[cntr] = peak1_err;
+					readReg(VR_BASE+SFIFO);
+				}
+				else if(cntr == PEAK2_ERR_IDX){
+					dataArray[cntr] = peak2_err;
+					readReg(VR_BASE+SFIFO);
+				}
+				else{
+					dataArray[cntr] = readReg(VR_BASE+SFIFO);
+				}	
+			}
+//            dataArray[10] = curr_samples2[1];
+//			dataArray[11] = curr_samples2[2];
+//			dataArray[12] = curr_samples2[3];
+//			dataArray[13] = curr_samples2[4];
+//			dataArray[14] = curr_samples2[5];
+//			dataArray[15] = curr_samples2[6];
+//			dataArray[16] = curr_samples2[7];
+//			dataArray[17] = curr_samples2[8];
+//			dataArray[18] = curr_samples2[9];
+
 			*array_Ptr = &dataArray[0]; *array_Dim = PACKET_SIZE;
     		return 3;}
 		

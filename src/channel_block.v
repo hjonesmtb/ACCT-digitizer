@@ -103,7 +103,7 @@ module Channel_Block(
 //`define INPUT_5TH_FILTER 1 
 //`define OUTPUT_5TH_FILTER 1 
 
-wire [SF_WIDTH-1:0] fpDIN,fpVBL_BF,fpVBL_DC,fpVBL_TC,fpVLP,fpBL,fpAVG,fpINT,fpBEAM0, fpBEAM1,fpBEAM2;//*synthesis keep*/;
+wire [SF_WIDTH-1:0] fpDIN,fpVBL_BF,fpVBL_DC,fpVBL_TC,fpVLP,fpBL,fpAVG,fpINT, fpBEAM, fpBEAM0, fpBEAM1,fpBEAM2;//*synthesis keep*/;
 wire [ADC_DATA_WIDTH-1:0] BEAM0,VLP,VBL_BF,VBL_DC,VBL,VSA,hist_data/*synthesis keep*/;	
 wire [ADC_DATA_WIDTH-1:0] BL,BL_BF,BL_TC/*synthesis keep*/;
 

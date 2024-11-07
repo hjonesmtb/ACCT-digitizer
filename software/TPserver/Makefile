@@ -14,7 +14,7 @@ HWLIBS_ROOT = ../hwlib
 CFLAGS = $(MAKEFLAGS) -g -Wall -I$(HWLIBS_ROOT)/include \
 	-I$(HWLIBS_ROOT)/include/$(ALT_DEVICE_FAMILY) -D$(ALT_DEVICE_FAMILY) -std=gnu99
 
-LDFLAGS = -g -Wall -pthread
+LDFLAGS = -g -Wall -pthread -lm
 
 CROSS_COMPILE = arm-linux-gnueabihf-
 CC = $(CROSS_COMPILE)gcc
