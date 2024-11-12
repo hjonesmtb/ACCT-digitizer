@@ -117,7 +117,7 @@ begin
 					  end		
 		state_acc0:	begin
 						  wr_en <= 0;
-						  if (buf_addr < pulse_len) //~buf_addr[BUFF_ADDR_WIDTH] - HJ sept 3
+//						  if (buf_addr < pulse_len) //~buf_addr[BUFF_ADDR_WIDTH] - HJ sept 3
 								    begin buf_rd_en <= 1; state <= state_acc1;  end
 						  else  begin buf_addr <= 0; state <= state_loop; end
 						end 			

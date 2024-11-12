@@ -10,7 +10,8 @@
 
 
 // modified by HJ for variable pulse width. 
-// Oct 2024 : modified overflow to detect when pulse length exceeds 16384
+// Oct 10 2024 : modified overflow to detect when pulse length exceeds 16384
+// Nov 8 2024  : modified so addr will not overflow, and peak current calc will be correct for all frequencies
 
 
 `timescale 1ns / 1ps
@@ -104,10 +105,12 @@ begin
 					//if (in_valid ) begin rd_en <= 1; state <= state_2; end else state <= state_1;
 				end 
 			else if (in_valid) //next data point within the same pulse
-				begin 
-						addr <= addr + 1;
+				begin 		
 						if(&addr == 1'b1) begin
 							ovf <= 1;
+						end
+						else begin
+							addr <= addr + 1;
 						end
 						rd_en <= 1;
 						state <= state_2; 
@@ -135,14 +138,14 @@ begin
 		  if (pulse_start) begin new_pulse <= 1; state <= state_idle; end
 		  else begin 
 					if (acc_cnt == 1) //acc_cnt == 1, this is the first pulse. 
-						begin 
+						begin
 							ram_data_in <= signal;
 							integral <= integral + (ram_data_out-BL)*alpha;
 							acc_data_in <= ram_data_out + (integral>>>22);
 							acc_waddr <= addr;
 							acc_wr_en <= 1; 
 						end
-					else ram_data_in <= ram_data_out + signal; 
+					else ram_data_in <= ram_data_out + signal; // possible bug at overflow, last item will grow??
 					state <= state_5;
 				 end 	
 		end  

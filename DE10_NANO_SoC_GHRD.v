@@ -24,7 +24,7 @@
  * oct 2024  : changed fast fifo to 16k. Removed unused commands.
  */
  
-parameter FPGA_VERSION_NO = 32'd20241024; //yyyy_mm_dd_hh:
+parameter FPGA_VERSION_NO = 32'd20241112; //yyyy_mm_dd_hh:
 // taken from may 2023
 
 module DE10_NANO_SoC_GHRD(
@@ -101,7 +101,7 @@ module DE10_NANO_SoC_GHRD(
 	 //////////// GPIO //////////
 	 input GPIO_0_16, //RF_CLK_23, 
 	 input GPIO_0_1, //RF_lost, 
-	 input GPIO_0_0,  //ISIS_pulse	- change to GPIO_1_3 
+	 input GPIO_1_3,  //ISIS_pulse	
 	 
 	 output GPIO_1_29,  //ADC1_SDI
 	 output GPIO_1_31,  //ADC1_SCLK
@@ -253,7 +253,7 @@ wire Cold_Reset_Req;
 
 	wire rf_clk = GPIO_0_16; //external 23.055MHz from RF
    wire rf_lost = GPIO_0_1;
-	wire ISIS_pulse = GPIO_0_0;
+	wire ISIS_pulse = GPIO_1_3;
 	
 	assign GPIO_1_31  = ADC_SCLK;
 	assign GPIO_1_21  = ADC_SCLK;
