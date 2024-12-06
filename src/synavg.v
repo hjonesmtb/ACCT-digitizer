@@ -64,7 +64,7 @@ module syn_averaging(
 	wire signed [LONG_WIDTH-1:0] ram_data_out/*synthesis keep*/; 
 	
 	reg acc_rd_en, acc_wr_en;	
-	reg signed [LONG_WIDTH-1:0] acc_data_in, avg_signal_24, avg_2x/*synthesis keep*/;	
+	reg signed [LONG_WIDTH-1:0] acc_data_in, avg_signal_24/*synthesis keep*/;	
 	wire signed [LONG_WIDTH-1:0] acc_data_out/*synthesis keep*/;
 	
 	
@@ -119,7 +119,7 @@ begin
 		
 		state_1: 
 		begin
-		   if (in_valid) begin rd_en <= 1; state <= state_2; end // wait until acc mem is read from
+		   if (in_valid) begin rd_en <= 1; state <= state_2; end
 		end
 		
 		state_2: begin 
@@ -137,7 +137,7 @@ begin
 		begin
 		  if (pulse_start) begin new_pulse <= 1; state <= state_idle; end
 		  else begin 
-					if ((acc_cnt == 1)) // Unload buffer after AVG_TIMES. Edge case for AVG_TIMES = 1, since acc_cnt == 0 always.
+					if (acc_cnt == 1) //acc_cnt == 1, this is the first pulse. 
 						begin
 							ram_data_in <= signal;
 							integral <= integral + (ram_data_out-BL)*alpha;
@@ -146,7 +146,6 @@ begin
 							acc_wr_en <= 1; 
 						end
 					else ram_data_in <= ram_data_out + signal; // possible bug at overflow, last item will grow??
-						
 					state <= state_5;
 				 end 	
 		end  
@@ -202,15 +201,10 @@ reg start_proc;
 always @ (posedge clk ) 
 begin
 	case(acc_state)
-		0: if (acc_cnt == 2) begin
-				start_proc <= 1; 
-				acc_state <= 1;
-			end 
+		0: if (acc_cnt == 2 ) begin start_proc <= 1; acc_state <= 1; end 
 		1: begin
 		      start_proc <= 0;
-				if (acc_cnt[0] == 1) begin
-					acc_state <= 0; 
-				end
+				if (acc_cnt[0] == 1) acc_state <= 0; 
 			end
 		default: acc_state <= 0;
 	endcase
@@ -227,30 +221,19 @@ reg avg_valid_reg/*synthesis keep*/;
 assign avg_valid = avg_valid_reg;
 assign avg_signal = avg_signal_24[DATA_WIDTH-1:0];
 
+
 always @ (posedge clk )
 begin
 	case(pro_state)
-		0: if (start_proc) begin 
-				acc_rd_en <= 1;
-				acc_raddr <= 0; 
-				pro_state <= 1; 
-			end
+		0: if (start_proc)  begin acc_rd_en <= 1; acc_raddr <= 0; pro_state <= 1; end
 		1: pro_state <= 2; 
 		2: begin 
-				if (acc_raddr == pulse_len) begin 
-					acc_rd_en <= 0; 
-					avg_valid_reg <= 0; 
-					pro_state <= 3; 
-			   end //only keep 1016 samples
-			   else begin 
-					acc_raddr <= acc_raddr + 1;  
-					avg_valid_reg <= 1;  
-			   end
-				avg_signal_24 <= acc_data_out >>> SHIFT_BITS; //keep sign, devided the AVG_TIMES
+			  if (acc_raddr == pulse_len) begin acc_rd_en <= 0; avg_valid_reg <= 0; pro_state <= 3; end //only keep 1016 samples
+			  else begin acc_raddr <= acc_raddr + 1;  avg_valid_reg <= 1;  end
+			  avg_signal_24 <= acc_data_out >>> SHIFT_BITS; //keep sign, devided the AVG_TIMES
+			  //avg_signal_24 <= acc_data_out; //keep sign, devided the AVG_TIMES
 		   end
-		3: begin  
-				pro_state <= 0; 
-			end
+		3: begin  pro_state <= 0; end
 	   default: pro_state <= 0;
 	endcase
 	

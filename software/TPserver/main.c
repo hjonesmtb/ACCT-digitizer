@@ -96,9 +96,8 @@ int main(int argc, char* argv[])
      int n,value, sendTrue, strLength;
      int *array_Ptr,array_Dim;
      int array_Index;
-	  char valueString[50],arrayString[STRING_MAX_LENGTH];
-	  char *string_back;	 
-	  
+	 char valueString[50],arrayString[STRING_MAX_LENGTH];
+	 char *string_back;
 	 //char arrayString[STRING_MAX_LENGTH];
 	 
 	 //load configration from eeprom
@@ -126,8 +125,7 @@ int main(int argc, char* argv[])
               
             if (sendTrue != 0 ){
 		        if (sendTrue == 1){
-					  sprintf(valueString,"%d\r\n",value);
-						  
+			        sprintf(valueString,"%d\r\n",value);
 			        strLength = strlen(valueString);
 			        printf("value readback from FPGA = %d \n",value);
 			        if ( write(newsockfd,valueString,strLength) < 0) //Send to client
@@ -150,7 +148,9 @@ int main(int argc, char* argv[])
 				    else printf("FIFO transfer successfully string length = %d \n\r",strLength);    
 			    }
             }
-                        
+            
+            
+             
             if ( write(newsockfd,"0",1) < 0) //ack to client
 			            {perror("ERROR writing to client"); break; }
             

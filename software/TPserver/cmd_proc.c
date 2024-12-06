@@ -94,11 +94,7 @@ char cmd[50],*sdp,*chp;
 
   uint32_t cmdlen, val_len;
   uint32_t invalue,cntr;
-	
-  union fp_conv {
-	uint32_t ival;
-	float fval;
-  } invalue_fp, valueback_fp;
+
     
 	strcpy(cmd, cmdString_in);
 	chp = strchr(cmd,'\r');
@@ -123,7 +119,6 @@ char cmd[50],*sdp,*chp;
 			if (val_len > 0){
 				if (val_len == strspn(sdp,"-1234567890")) {
 					invalue = atoi(sdp);
-					invalue_fp.fval = atof(sdp)/100000; // Convert fixed point int into float (i.e '49100' --> 0.491)
 				}
 				else { printf("\n\r Error: There is a non digit character in value \n\r" ); return 0;
 				}
@@ -148,14 +143,8 @@ char cmd[50],*sdp,*chp;
 //		if ( strcmp(cmd,"PCA:GAIN")== 0 ) {writeReg(VR_BASE+PCA_GAIN,invalue);return 0;}
 //		if ( strcmp(cmd,"PCA:GAIN?")== 0 ) {*value_back = readReg(VR_BASE+PCA_GAIN);return 1;}
 
-		if ( strcmp(cmd,"ALPHA")== 0 ) {
-			writeReg(VR_BASE+ALPHA,invalue);
-			return 0;
-			}
-		if ( strcmp(cmd,"ALPHA?")== 0 ) {
-			*value_back = readReg(VR_BASE+ALPHA);
-			return 1;
-			}
+		if ( strcmp(cmd,"ALPHA")== 0 ) {writeReg(VR_BASE+ALPHA,invalue);return 0;}
+		if ( strcmp(cmd,"ALPHA?")== 0 ) {*value_back = readReg(VR_BASE+ALPHA);return 1;}
 		
 		//if ( strcmp(cmd,"BEAM_AVG?")== 0 ) {*value_back = readReg(VR_BASE+BEAM_AVG);return 1;}
 		
@@ -270,30 +259,14 @@ char cmd[50],*sdp,*chp;
 		if ( strcmp(cmd,"MODULE_ID1")== 0 ) {writeReg(VR_BASE+MODULE_ID1,invalue);return 0;}
 		if ( strcmp(cmd,"MODULE_ID1?")== 0 ) {*value_back = readReg(VR_BASE+MODULE_ID1);return 1;}
 
-		if ( strcmp(cmd,"FP_CH0_G")== 0 ) {
-			writeReg(VR_BASE+FP_CH0_G,invalue_fp.ival);
-			return 0;
-			}
-		if ( strcmp(cmd,"FP_CH0_G?")== 0 ) {
-			 valueback_fp.ival = readReg(VR_BASE+FP_CH0_G);
-			*value_back = (int) 100000*valueback_fp.fval;
-			return 1;
-			}		
+		if ( strcmp(cmd,"FP_CH0_G")== 0 ) {writeReg(VR_BASE+FP_CH0_G,invalue);return 0;}
+		if ( strcmp(cmd,"FP_CH0_G?")== 0 ) {*value_back = readReg(VR_BASE+FP_CH0_G);return 1;}		
 		
-		if ( strcmp(cmd,"FP_CH0_Z")== 0 ) {
-			writeReg(VR_BASE+FP_CH0_Z,invalue);
-			return 0;}
-		if ( strcmp(cmd,"FP_CH0_Z?")== 0 ) {
-			*value_back = readReg(VR_BASE+FP_CH0_Z);
-			return 1;
-			}			
+		if ( strcmp(cmd,"FP_CH0_Z")== 0 ) {writeReg(VR_BASE+FP_CH0_Z,invalue);return 0;}
+		if ( strcmp(cmd,"FP_CH0_Z?")== 0 ) {*value_back = readReg(VR_BASE+FP_CH0_Z);return 1;}			
 		
-		if ( strcmp(cmd,"FP_CH1_G")== 0 ) {writeReg(VR_BASE+FP_CH1_G,invalue_fp.ival);return 0;}
-		if ( strcmp(cmd,"FP_CH1_G?")== 0 ) {
-			valueback_fp.ival = readReg(VR_BASE+FP_CH1_G);
-			*value_back = (int) 100000*valueback_fp.fval;
-			return 1;
-			}			
+		if ( strcmp(cmd,"FP_CH1_G")== 0 ) {writeReg(VR_BASE+FP_CH1_G,invalue);return 0;}
+		if ( strcmp(cmd,"FP_CH1_G?")== 0 ) {*value_back = readReg(VR_BASE+FP_CH1_G);return 1;}			
 		
 		if ( strcmp(cmd,"FP_CH1_Z")== 0 ) {writeReg(VR_BASE+FP_CH1_Z,invalue);return 0;}
 		if ( strcmp(cmd,"FP_CH1_Z?")== 0 ) {*value_back = readReg(VR_BASE+FP_CH1_Z);return 1;}							

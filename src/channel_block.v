@@ -32,7 +32,7 @@ module Channel_Block(
  input [15:0] CAL_REG,
 
  input [1:0] ch_gain, 
- input [1:0] waveform_sel,
+ input [2:0] waveform_sel,
  input ch_cal_on,
  
  input [15:0] TRIP_TH, //16 bit integer, unit=100nA
@@ -96,7 +96,7 @@ module Channel_Block(
 
 
 //`define COMB_FILTER 1  //comment if don't need comb filter for 2C toroid 
-`define BOX_FILTER_METHOD 1  //comment if don't need BOX filter \
+//`define BOX_FILTER_METHOD 1  //comment if don't need BOX filter \
 `define SYN_AVG_METHOD 1  //comment if don't this method
 
 // The fllowing two 5th IIR consumes 50% FPGA Logic Blocks
@@ -378,13 +378,15 @@ assign fpBEAM = fpBEAM0;
  	
 ////////////////////////////////////////////////////////////////////////////
 
-assign fifo_din = (waveform_sel == 2'b00)? {BL,din} : // Raw input signal
-						(waveform_sel == 2'b01)? {BL,VLP} : //  LPF waveform
-						(waveform_sel == 2'b10)? {BL,VBL_BF} :  //  Box filter waveform
-						(waveform_sel == 2'b11)? {BL_SA,VSA} :      // SA averaged waveform 
+assign fifo_din = (waveform_sel == 3'b000)? {BL,din} : // Raw input signal
+						(waveform_sel == 3'b001)? {BL,VLP} : //  LPF waveform
+                  (waveform_sel == 3'b010)? {BL,combf_out} : // comb waveform
+						(waveform_sel == 3'b011)? {BL,VBL_BF} :  //  Box filter waveform
+						(waveform_sel == 3'b100)? {BL_SA,VSA} :      // SA averaged waveform 
+						(waveform_sel == 3'b101)? {VLP,VBL_DC} :      // Raw / DC waveform
 						 32'b0;
 											 
-assign fifo_din_valid = (waveform_sel == 2'b11)? avg_valid : Data_Valid;
+assign fifo_din_valid = (waveform_sel == 3'b100)? avg_valid : Data_Valid;
 								  
 
 
@@ -472,91 +474,91 @@ wire trip_OK = 1;
 
 ///================ Slow FIFO ===================
 
-//   wire [7:0] sfifo_wr_wd;
-//	reg sFIFO_wr;
-//	reg [SFIFO_WIDTH-1:0] sfifo_data_in;
-//	wire sfifo_half_full = sfifo_wr_wd[6]; // 64   
-//	
-//	slfifo Slow_FIFO (
-//		.aclr(SYS_RST),
-//		.data(sfifo_data_in),
-//		.wrclk(SCLK),
-//		.rdclk(SYS_CLK),
-//		.wrreq(sFIFO_wr),
-//		.rdreq(sfifo_rd),
-//		.q(slow_fifo_dout),
-//		.rdusedw(sfifo_rd_wd), 
-//		.wrusedw(sfifo_wr_wd)
-//	);  
+   wire [7:0] sfifo_wr_wd;
+	reg sFIFO_wr;
+	reg [SFIFO_WIDTH-1:0] sfifo_data_in;
+	wire sfifo_half_full = sfifo_wr_wd[6]; // 64   
+	
+	slfifo Slow_FIFO (
+		.aclr(SYS_RST),
+		.data(sfifo_data_in),
+		.wrclk(SCLK),
+		.rdclk(SYS_CLK),
+		.wrreq(sFIFO_wr),
+		.rdreq(sfifo_rd),
+		.q(slow_fifo_dout),
+		.rdusedw(sfifo_rd_wd), 
+		.wrusedw(sfifo_wr_wd)
+	);  
 //	output [7:0]  rdusedw;
 //	output [7:0]  wrusedw;
 // slfifo is 128 words(32bit) deep, Nov.29,2018
 	
 //============Packing=================================
-//	parameter PID = 32'h41434354; // "ACCT"
-//   
-//	reg [7:0] p_state;
-//
-////data packet size is 8 words (32bit)
-//	always @(posedge SCLK)
-//	begin
-//		if(SYS_RST)
-//			begin
-//				p_state <= 0;
-//				sFIFO_wr<= 0;
-//			end
-//		else
-//			begin
-//				case(p_state)
-//					0:if(processing_done && !sfifo_half_full)
-//						begin sFIFO_wr<= 1; sfifo_data_in <= PID; p_state <= 1; end
-//					1: begin sfifo_data_in <= {CON_REG,STATUS_REG}; p_state <= 2; end // pass through
-//					2: begin sfifo_data_in <= {16'b0,temp}; p_state <= 3; end // pass through
-//					3: begin sfifo_data_in <= BEAMnA; p_state <= 4; end // unique
-//					
-//					4: begin sfifo_data_in <= {16'b0,N_sample}; p_state <= 5; end //unique
-//					5: begin sfifo_data_in <= {16'b0,DC_Index}; p_state <= 6; end	 //unique
-//					6: begin sfifo_data_in <= fpDC; p_state <= 7; end	//unique
-//
-//					7: begin sfifo_data_in <= 0; p_state <= 8; end
-//					8: begin sfifo_data_in <= 0; p_state <= 9; end
-//					9: begin sfifo_data_in <= ALPHA; p_state <= 10; end // pass through
-//					10: begin sfifo_data_in <= 0; p_state <= 11; end
-//					11: begin sfifo_data_in <= 0; p_state <= 12; end	
-//					12: begin sfifo_data_in <= 0; p_state <= 13; end
-//					13: begin sfifo_data_in <= 0; p_state <= 14; end
-//
-//					14: begin sfifo_data_in <= 0; p_state <= 15; end
-//					15: begin sfifo_data_in <= 0; p_state <= 16; end
-//					16: begin sfifo_data_in <= 0; p_state <= 17; end
-//					17: begin sfifo_data_in <= 0; p_state <= 18; end
-//					18: begin sfifo_data_in <= BL_SA; p_state <= 19; end // unique - BL as integer
-//					19: begin sfifo_data_in <= peak; p_state <= 20; end // unique - peak as integer
-//					20: begin sfifo_data_in <= peaknA; p_state <= 21; end // unique - peak as float
-//					21: begin sfifo_data_in <= 0; p_state <= 22; end
-//					22: begin sfifo_data_in <= 0; p_state <= 23; end
-//					23: begin sfifo_data_in <= 0; p_state <= 24; end
-//					24: begin sfifo_data_in <= 0; p_state <= 25; end
-//					25: begin sfifo_data_in <= 0; p_state <= 26; end
-//					
-//					26: begin sfifo_data_in <= fpVBL; p_state <= 27; end // unique
-//					27: begin sfifo_data_in <= fpBEAM0; p_state <= 28; end // unique
-//					28: begin sfifo_data_in <= fpBEAM1; p_state <= 29; end // unique
-//					29: begin sfifo_data_in <= 0; p_state <= 30; end
-//					30: begin sfifo_data_in <= 0; p_state <= 31; end
-//					31: begin sfifo_data_in <= 0; p_state <= 32; end
-//					32: begin sFIFO_wr<= 0; p_state <= 0; end
-//					
-////					22: begin sfifo_data_in <= FP_GC3; p_state <= 23; end
-////					23: begin sfifo_data_in <= FP_GC2; p_state <= 24; end
-////					24: begin sfifo_data_in <= FP_GC1; p_state <= 25; end
-////					25: begin sfifo_data_in <= FP_GC0; p_state <= 26; end
-//					default:
-//						begin sFIFO_wr<= 0; p_state <= 0; end
-//				endcase
-//			end
-//
-//	end
+	parameter PID = 32'h41434354; // "ACCT"
+   
+	reg [7:0] p_state;
+
+//data packet size is 8 words (32bit)
+	always @(posedge SCLK)
+	begin
+		if(SYS_RST)
+			begin
+				p_state <= 0;
+				sFIFO_wr<= 0;
+			end
+		else
+			begin
+				case(p_state)
+					0:if(processing_done && !sfifo_half_full)
+						begin sFIFO_wr<= 1; sfifo_data_in <= PID; p_state <= 1; end
+					1: begin sfifo_data_in <= {CON_REG,STATUS_REG}; p_state <= 2; end // pass through
+					2: begin sfifo_data_in <= {16'b0,temp}; p_state <= 3; end // pass through
+					3: begin sfifo_data_in <= BEAMnA; p_state <= 4; end // unique
+					
+					4: begin sfifo_data_in <= {16'b0,N_sample}; p_state <= 5; end //unique
+					5: begin sfifo_data_in <= {16'b0,DC_Index}; p_state <= 6; end	 //unique
+					6: begin sfifo_data_in <= fpDC; p_state <= 7; end	//unique
+
+					7: begin sfifo_data_in <= 0; p_state <= 8; end
+					8: begin sfifo_data_in <= 0; p_state <= 9; end
+					9: begin sfifo_data_in <= ALPHA; p_state <= 10; end // pass through
+					10: begin sfifo_data_in <= 0; p_state <= 11; end
+					11: begin sfifo_data_in <= 0; p_state <= 12; end	
+					12: begin sfifo_data_in <= 0; p_state <= 13; end
+					13: begin sfifo_data_in <= 0; p_state <= 14; end
+
+					14: begin sfifo_data_in <= 0; p_state <= 15; end
+					15: begin sfifo_data_in <= 0; p_state <= 16; end
+					16: begin sfifo_data_in <= 0; p_state <= 17; end
+					17: begin sfifo_data_in <= 0; p_state <= 18; end
+					18: begin sfifo_data_in <= BL_SA; p_state <= 19; end // unique - BL as integer
+					19: begin sfifo_data_in <= peak; p_state <= 20; end // unique - peak as integer
+					20: begin sfifo_data_in <= peaknA; p_state <= 21; end // unique - peak as float
+					21: begin sfifo_data_in <= 0; p_state <= 22; end
+					22: begin sfifo_data_in <= 0; p_state <= 23; end
+					23: begin sfifo_data_in <= 0; p_state <= 24; end
+					24: begin sfifo_data_in <= 0; p_state <= 25; end
+					25: begin sfifo_data_in <= 0; p_state <= 26; end
+					
+					26: begin sfifo_data_in <= fpVBL; p_state <= 27; end // unique
+					27: begin sfifo_data_in <= fpBEAM0; p_state <= 28; end // unique
+					28: begin sfifo_data_in <= fpBEAM1; p_state <= 29; end // unique
+					29: begin sfifo_data_in <= 0; p_state <= 30; end
+					30: begin sfifo_data_in <= 0; p_state <= 31; end
+					31: begin sfifo_data_in <= 0; p_state <= 32; end
+					32: begin sFIFO_wr<= 0; p_state <= 0; end
+					
+//					22: begin sfifo_data_in <= FP_GC3; p_state <= 23; end
+//					23: begin sfifo_data_in <= FP_GC2; p_state <= 24; end
+//					24: begin sfifo_data_in <= FP_GC1; p_state <= 25; end
+//					25: begin sfifo_data_in <= FP_GC0; p_state <= 26; end
+					default:
+						begin sFIFO_wr<= 0; p_state <= 0; end
+				endcase
+			end
+
+	end
 
 
 	
