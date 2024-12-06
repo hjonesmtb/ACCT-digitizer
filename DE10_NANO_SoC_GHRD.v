@@ -24,7 +24,7 @@
  * oct 2024  : changed fast fifo to 16k. Removed unused commands.
  */
  
-parameter FPGA_VERSION_NO = 32'd20241112; //yyyy_mm_dd_hh:
+parameter FPGA_VERSION_NO = 32'd20241206; //yyyy_mm_dd_hh:
 // taken from may 2023
 
 module DE10_NANO_SoC_GHRD(
@@ -115,8 +115,8 @@ module DE10_NANO_SoC_GHRD(
 	
 	 
 	 input  GPIO_0_32,  //HPS_Cold_Reset 
-	 output GPIO_0_34,  //LED_Comm.
-	 output GPIO_0_35,  //Fault
+	 output GPIO_0_34,  //LED_Fault.
+	 output GPIO_0_35,  //LED COMM
 	 		 
 	 //i2c eeprom
 	 output GPIO_1_6, //SCL
@@ -240,7 +240,7 @@ reg comm_act;
 reg [15:0] ch_reg;	
 
 wire ch_select = ch_reg[0];
-wire [2:0] waveform_sel = ch_reg[5:3];
+wire [1:0] waveform_sel = ch_reg[4:3];
 
 reg ADC_init_cmd; //pulse to init ADC AD4001 to turbo mode
 reg ADC_read_cmd; //pulse to read ADC AD4001 register
@@ -278,11 +278,6 @@ wire Cold_Reset_Req;
  
 	assign ADC_MISO[0]  =  GPIO_1_33;
 	assign ADC_MISO[1]  =  GPIO_1_23;
-	
-	//assign GPIO_1_10 = RF_pulse_syn; //test output 0
-	//assign GPIO_1_10 = SCLK; //test output 0
-	//assign GPIO_1_11 = ISIS_pulse_trimed; //test output 1
-	//assign GPIO_1_12 = pulse_start; //Test 2 
 	
 //not all the IO pn mapping are included here.	
 ///////////////////////////////////////////////////////////////////////////////////////////	
@@ -890,7 +885,7 @@ wire Ch2_Cal_On = ena_ch2_cal? 1 : 0;
 wire Ch1_DC_On = ~Ch1_Cal_On;
 wire Ch2_DC_On = ~Ch2_Cal_On;
 
-wire [15:0] status_reg = {6'b0,ch_gain[1],ch_gain[0],ch_reg[1:0],ch2_overflow, ch1_overflow,ISIS_pulse_lost,1'b0};
+wire [15:0] status_reg = {6'b0,ch_gain[1],ch_gain[0],ch_reg[0],ch_reg[4:3], ch2_overflow, ch1_overflow,ISIS_pulse_lost};
 	
 //{ch7,ch6,...ch0}, each channel use two bits for mux1,mux0
 
@@ -910,8 +905,8 @@ wire fifo_rd /*synthesis keep*/;
 assign fifo_rd = (avalon_addr == FIFO_ADDR & (avalon_read_i == 1));
 
 
-wire [SFIFO_WIDTH-1:0] slow_fifo_dout = ch_select? ch2_slow_fifo_dout : ch1_slow_fifo_dout;
-wire [7:0] sfifo_rd_wd = ch_select? ch2_sfifo_rd_wd : ch1_sfifo_rd_wd;
+//wire [SFIFO_WIDTH-1:0] slow_fifo_dout = ch_select? ch2_slow_fifo_dout : ch1_slow_fifo_dout;
+//wire [7:0] sfifo_rd_wd = ch_select? ch2_sfifo_rd_wd : ch1_sfifo_rd_wd;
 
 wire sfifo_rd /*synthesis keep*/;
 
@@ -926,6 +921,7 @@ always @ (posedge SYS_CLK)
 	  
 always @ (posedge SYS_CLK)
      avalon_read_o <= avalon_read_i;	  
+	  
 
 ////////////////////////////////////////////////////////////////////////////	  
 //Registers and Configuration data write/read  
@@ -1017,8 +1013,7 @@ always@(posedge SYS_CLK)
 			`IIR_OUT_SA_K2 <= avalon_writedata; 
    if ((avalon_addr == IIR_OUT_SA_K2_ADDR) & (avalon_read_o == 1) ) 
 			dout <= `IIR_OUT_SA_K2;  			
-			
-			
+				
 	      /*   Write/Read to FP_CH0_G  */ 
 	if ((avalon_addr == FP_CH0_G_ADDR) & (avalon_write_o == 1) ) 
 			`FP_CH0_G <= avalon_writedata; 
