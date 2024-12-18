@@ -495,9 +495,9 @@ Channel_Block Channel_1_inst(
  .fifo_din_valid(ch1_fifo_din_valid),
 
  //to/form slow fifo
- .slow_fifo_dout() ,//ch1_slow_fifo_dout
- .sfifo_rd_wd(),//ch1_sfifo_rd_wd
- .sfifo_rd(),//sfifo_rd
+// .slow_fifo_dout() ,//ch1_slow_fifo_dout
+// .sfifo_rd_wd(),//ch1_sfifo_rd_wd
+// .sfifo_rd(),//sfifo_rd
  
  //output 
  .trip(),//ch1_trip
@@ -571,9 +571,9 @@ Channel_Block Channel_2_inst(
  .fifo_din_valid(ch2_fifo_din_valid),
 
  //to/form slow fifo
- .slow_fifo_dout() ,//ch2_slow_fifo_dout
- .sfifo_rd_wd(),//ch2_sfifo_rd_wd
- .sfifo_rd(),//sfifo_rd
+// .slow_fifo_dout() ,//ch2_slow_fifo_dout
+// .sfifo_rd_wd(),//ch2_sfifo_rd_wd
+// .sfifo_rd(),//sfifo_rd
  
  //output 
  .trip(),//ch2_trip
