@@ -24,7 +24,7 @@
  * oct 2024  : changed fast fifo to 16k. Removed unused commands.
  */
  
-parameter FPGA_VERSION_NO = 32'd20241112; //yyyy_mm_dd_hh:
+parameter FPGA_VERSION_NO = 32'd20241217; //yyyy_mm_dd_hh:
 // taken from may 2023
 
 module DE10_NANO_SoC_GHRD(
@@ -495,12 +495,12 @@ Channel_Block Channel_1_inst(
  .fifo_din_valid(ch1_fifo_din_valid),
 
  //to/form slow fifo
- .slow_fifo_dout(ch1_slow_fifo_dout) ,
- .sfifo_rd_wd(ch1_sfifo_rd_wd),
- .sfifo_rd(sfifo_rd),
+ .slow_fifo_dout() ,//ch1_slow_fifo_dout
+ .sfifo_rd_wd(),//ch1_sfifo_rd_wd
+ .sfifo_rd(),//sfifo_rd
  
  //output 
- .trip(ch1_trip),
+ .trip(),//ch1_trip
  .overflow(ch1_overflow),
  
  .N_sample(N_sample1),
@@ -571,12 +571,12 @@ Channel_Block Channel_2_inst(
  .fifo_din_valid(ch2_fifo_din_valid),
 
  //to/form slow fifo
- .slow_fifo_dout(ch2_slow_fifo_dout) ,
- .sfifo_rd_wd(ch2_sfifo_rd_wd),
- .sfifo_rd(sfifo_rd),
+ .slow_fifo_dout() ,//ch2_slow_fifo_dout
+ .sfifo_rd_wd(),//ch2_sfifo_rd_wd
+ .sfifo_rd(),//sfifo_rd
  
  //output 
- .trip(ch2_trip),
+ .trip(),//ch2_trip
  .overflow(ch2_overflow),
 
  .N_sample(N_sample2),
@@ -655,11 +655,11 @@ Channel_Block Channel_2_inst(
 					16: begin sfifo_data_in <= 16; p_state <= 17; end
 					17: begin sfifo_data_in <= 17; p_state <= 18; end
 					18: begin sfifo_data_in <= BL_SA1; p_state <= 19; end // unique - BL as integer
-					19: begin sfifo_data_in <= peak1; p_state <= 20; end // unique - peak as integer
-					20: begin sfifo_data_in <= peaknA1; p_state <= 21; end // unique - peak as float
+					19: begin sfifo_data_in <= peak1; p_state <= 20; end //remove in next rev
+					20: begin sfifo_data_in <= peaknA1; p_state <= 21; end // unique - peak in nA (32 bit int)
 					21: begin sfifo_data_in <= 18; p_state <= 22; end
 					22: begin sfifo_data_in <= BL_SA2; p_state <= 23; end
-					23: begin sfifo_data_in <= peak2; p_state <= 24; end
+					23: begin sfifo_data_in <= peak2; p_state <= 24; end //remove in next rev
 					24: begin sfifo_data_in <= peaknA2; p_state <= 25; end
 					25: begin sfifo_data_in <= 25; p_state <= 26; end
 					
@@ -978,7 +978,7 @@ always@(posedge SYS_CLK)
 			
 	/*   Read fast fifo   */		
 	if ((avalon_addr == FIFO_ADDR) & (avalon_read_o == 1)) 
-			dout <= fast_fifo_dout; 	
+			dout <= {16'b0,fast_fifo_dout}; 	
 	
 //   /*   Write to Mini-PCA Gain bits   */
 //	if ((avalon_addr == PCA_GAIN_ADDR) & (avalon_write_o == 1) ) 

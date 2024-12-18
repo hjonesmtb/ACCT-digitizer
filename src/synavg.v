@@ -3,9 +3,7 @@
 //Description: Averaging one peroid of the pulse by pulse, seperated by 'pulse_start'.
 //Input: 'pulse_start': one clock, indicates new pulse, 
 //       'in_valid': one clock, indicates signal valid, Not synchronous to 'pulse_start';
-//Output: 
-
-
+// 
 //for toroid processor. clk is SCLK=35 MHz, data rate is 1.15275MHz
 
 

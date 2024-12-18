@@ -41,15 +41,8 @@ module Channel_Block(
  input [31:0] IIR_OUT_BF_K2,
  input [31:0] IIR_OUT_SA_K1,
  input [31:0] IIR_OUT_SA_K2,
-// 
-// input [31:0] DIODE_TH,     //threshold
-// input [31:0] DIODE_NCrev,  //negtive reverse of C
-// input [31:0] DIODE_R1rev, //reverse of R1
-// input [31:0] DIODE_R2rev, //sf, the reverse of the diode conducting resistiance 
  
  input [15:0] ALPHA,
-// input [31:0] DCR_PU,
-// input [31:0] DCR_PD,
  
  input [SF_WIDTH-1:0] FP_G,
  input [SF_WIDTH-1:0] FP_Z,
@@ -59,7 +52,7 @@ module Channel_Block(
  
  input [15:0] CON_REG,
  input [15:0] STATUS_REG,
-// input [1:0] relay_contact,
+
  input [15:0] temp,
  
  // to DAC
@@ -378,14 +371,21 @@ assign fpBEAM = fpBEAM0;
  	
 ////////////////////////////////////////////////////////////////////////////
 
-assign fifo_din = (waveform_sel == 3'b000)? {BL,din} : // Raw input signal
-						(waveform_sel == 3'b001)? {BL,VLP} : //  LPF waveform
-                  (waveform_sel == 3'b010)? {BL,combf_out} : // comb waveform
-						(waveform_sel == 3'b011)? {BL,VBL_BF} :  //  Box filter waveform
-						(waveform_sel == 3'b100)? {BL_SA,VSA} :      // SA averaged waveform 
-						(waveform_sel == 3'b101)? {VLP,VBL_DC} :      // Raw / DC waveform
-						 32'b0;
-											 
+//assign fifo_din = (waveform_sel == 3'b000)? {BL,din} : // Raw input signal
+//						(waveform_sel == 3'b001)? {BL,VLP} : //  LPF waveform
+//                  (waveform_sel == 3'b010)? {BL,combf_out} : // comb waveform
+//						(waveform_sel == 3'b011)? {BL,VBL_BF} :  //  Box filter waveform
+//						(waveform_sel == 3'b100)? {BL_SA,VSA} :      // SA averaged waveform 
+//						(waveform_sel == 3'b101)? {VLP,VBL_DC} :      // Raw / DC waveform
+//						 32'b0;
+
+assign fifo_din = (waveform_sel == 3'b000)? {din} : // Raw input signal
+						(waveform_sel == 3'b001)? {VLP} : //  LPF waveform
+                  (waveform_sel == 3'b010)? {combf_out} : // comb waveform
+						(waveform_sel == 3'b011)? {VBL_BF} :  //  Box filter waveform
+						(waveform_sel == 3'b100)? {VSA} :      // SA averaged waveform 
+						(waveform_sel == 3'b101)? {VBL_DC} :      // Raw / DC waveform
+						 32'b0;											 
 assign fifo_din_valid = (waveform_sel == 3'b100)? avg_valid : Data_Valid;
 								  
 
@@ -533,8 +533,8 @@ wire trip_OK = 1;
 					16: begin sfifo_data_in <= 0; p_state <= 17; end
 					17: begin sfifo_data_in <= 0; p_state <= 18; end
 					18: begin sfifo_data_in <= BL_SA; p_state <= 19; end // unique - BL as integer
-					19: begin sfifo_data_in <= peak; p_state <= 20; end // unique - peak as integer
-					20: begin sfifo_data_in <= peaknA; p_state <= 21; end // unique - peak as float
+					19: begin sfifo_data_in <= peak; p_state <= 20; end // unique - peak uncalibrated
+					20: begin sfifo_data_in <= peaknA; p_state <= 21; end // unique - peak in nA (32 bit int)
 					21: begin sfifo_data_in <= 0; p_state <= 22; end
 					22: begin sfifo_data_in <= 0; p_state <= 23; end
 					23: begin sfifo_data_in <= 0; p_state <= 24; end

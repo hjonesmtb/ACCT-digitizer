@@ -11,7 +11,7 @@
 #include "socal/alt_gpio.h"
 #include "hps_0.h"
 
-#define FW_VERSION 20230106 //firmware version 
+#define FW_VERSION 20241216 // firmware version 
 //#define FW_VERSION 20190002 //firmware version 
 
 #define HIST_LENGTH 10 // number of samples to calculate std dev from

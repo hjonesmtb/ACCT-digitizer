@@ -3,6 +3,7 @@
  * project 
  * Written by David Bascelli
  * August 2018
+ * changed FFIFO width to 16
  */
 
 parameter FILTER_TAPS = 6; //Use a 6 tap moving average filter
@@ -17,7 +18,7 @@ parameter ADC_SPI_TIMER_WAIT = 100; //How many cycles of SPI_CLK between adc cyc
                                     // Not supported for synthesis
 parameter SFIFO_WIDTH = 32; //Slow fifo data width
 parameter SF_WIDTH = 32; //Single floating datat width
-parameter FFIFO_WIDTH = 32; //Slow fifo data width
+parameter FFIFO_WIDTH = 16; //Slow fifo data width
 												
 parameter DAC_DATA_WIDTH = 16; //16 bits of DAC										
 parameter LONG_WIDTH = 32;												
