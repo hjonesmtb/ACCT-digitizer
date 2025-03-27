@@ -24,7 +24,7 @@
  * oct 2024  : changed fast fifo to 16k. Removed unused commands.
  */
  
-parameter FPGA_VERSION_NO = 32'd20241217; //yyyy_mm_dd_hh:
+parameter FPGA_VERSION_NO = 32'd20250103; //yyyy_mm_dd_hh:
 // taken from may 2023
 
 module DE10_NANO_SoC_GHRD(
@@ -115,8 +115,8 @@ module DE10_NANO_SoC_GHRD(
 	
 	 
 	 input  GPIO_0_32,  //HPS_Cold_Reset 
-	 output GPIO_0_34,  //LED_Comm.
-	 output GPIO_0_35,  //Fault
+	 output GPIO_0_34,  //.
+	 output GPIO_0_35,  //LED_Comm
 	 		 
 	 //i2c eeprom
 	 output GPIO_1_6, //SCL
@@ -236,6 +236,7 @@ wire  ADC_SS;
 
 wire [1:0] ch_gain [1:0]; 
 
+wire LED_FAULT = ISIS_pulse_lost | ch1_overflow | ch2_overflow; // status LED
 reg comm_act;
 reg [15:0] ch_reg;	
 
@@ -273,8 +274,8 @@ wire Cold_Reset_Req;
 	
 	assign Cold_Reset_Req = ~GPIO_0_32;  //HPS_Cold_Reset 
 
-	assign GPIO_0_35 = LED_COMM;  //LED_COMM, indicating communication activity
-	assign GPIO_0_34 = LED_FPGA; //LED_FPGA;  //not defined yet
+	assign GPIO_0_35 = LED_FAULT;  //LED_COMM, indicating fault
+	assign GPIO_0_34 = LED_COMM; //LED_FPGA  indicating data 
  
 	assign ADC_MISO[0]  =  GPIO_1_33;
 	assign ADC_MISO[1]  =  GPIO_1_23;
@@ -1124,7 +1125,7 @@ flash_LED flash_led_inst(
     .clk(SCLK),  //35 MHz clock 
 	 .pulse(ISIS_pulse_trimed), //1 sclk pulse
 	 .pulse_lost(ISIS_pulse_lost), //1 if no isis_pulse for 0.95 seconds
-	 .led(LED_FPGA)
+	 .led(LED_FPGA) // 
     );
 	
 	

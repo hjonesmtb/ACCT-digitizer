@@ -467,6 +467,4 @@ wire trip_OK = 1;
 
 `endif
 
-	
-	
 endmodule
