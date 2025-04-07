@@ -1,13 +1,10 @@
-//Synchronous Averaging algorithm: for toroid digital signal processing
-//Shengli Liu, Dec.5,2019
+//Synchronous Averaging algorithm for ACCT digital signal processing
 //Description: Averaging one peroid of the pulse by pulse, seperated by 'pulse_start'.
 //Input: 'pulse_start': one clock, indicates new pulse, 
 //       'in_valid': one clock, indicates signal valid, Not synchronous to 'pulse_start';
 // 
 //for toroid processor. clk is SCLK=35 MHz, data rate is 1.15275MHz
 
-
-// modified by HJ for variable pulse width. 
 // Oct 10 2024 : modified overflow to detect when pulse length exceeds 16384
 // Nov 8 2024  : modified so addr will not overflow, and peak current calc will be correct for all frequencies
 
@@ -29,7 +26,8 @@ module syn_averaging(
 	output avg_valid,
    output signed [15:0] avg_signal,
 	output reg [13:0] pulse_len, // added sept 3 - HJ
-	output overflow
+	output overflow,
+	output [31:0] debug
 );
 
 // ADC sampling freq 1.15275MHz (T=0.86749 us), refer to "AD4001.v"
@@ -59,7 +57,7 @@ module syn_averaging(
 	
    reg rd_en, wr_en/*synthesis keep*/;
 	reg signed [LONG_WIDTH-1:0] ram_data_in/*synthesis keep*/; 
-	wire signed [LONG_WIDTH-1:0] ram_data_out/*synthesis keep*/; 
+	wire signed [LONG_WIDTH-1:0] ram_data_out, ram_dout_latched/*synthesis keep*/; 
 	
 	reg acc_rd_en, acc_wr_en;	
 	reg signed [LONG_WIDTH-1:0] acc_data_in, avg_signal_24/*synthesis keep*/;	
@@ -78,6 +76,7 @@ module syn_averaging(
 	
 always @ (posedge clk )
 begin
+	 
 	case(state)
 		state_idle:
 		begin 
@@ -88,7 +87,7 @@ begin
 					overflow <= ovf;
 					ovf <= 0;
 					
-					addr <= 10'b0;
+					addr <= 0;
 					new_pulse <= 0;
 					integral <= 0;
 					if (acc_cnt < AVG_TIMES-1)
@@ -138,8 +137,9 @@ begin
 					if (acc_cnt == 1) //acc_cnt == 1, this is the first pulse. 
 						begin
 							ram_data_in <= signal;
-							integral <= integral + (ram_data_out-BL)*alpha;
-							acc_data_in <= ram_data_out + (integral>>>22);
+							integral <= integral + (ram_data_out - BL)*alpha;
+							ram_dout_latched <= ram_data_out;
+							acc_data_in <= ram_dout_latched + (integral>>>22); // changed from ram_data_out
 							acc_waddr <= addr;
 							acc_wr_en <= 1; 
 						end

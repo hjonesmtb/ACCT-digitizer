@@ -10,6 +10,8 @@
  * Apr.13,2022: added SA_Valid, to switch DAC outptu to BF method when ISIS_pulse is missing, and not in Cal mode.
  *              added IIR_OUT_K for both BF method and SA method.
  * Dec. 8,2022: added DC_METHOD (diode_clamp), remvoed TC_METHOD.
+ 
+ * Apr 3 2025: Changed HIST input to sa_in, so it's not averaged.
  */
 
 module Channel_Block(
@@ -77,7 +79,8 @@ module Channel_Block(
  
  output signed [31:0] BEAMnA,
  
- output processing_done
+ output processing_done,
+ output [31:0] debug
  );
 
 `include "src/param.v"
@@ -243,7 +246,8 @@ syn_averaging syn_avg_inst(
 	.avg_signal(VSA), //16 bit signed data
 	.pulse_len(pulse_len),
 
-	.overflow(sa_overflow)
+	.overflow(sa_overflow),
+	.debug(debug)
 );
 
 //added on January05,2023 to replace Hist which needs too much RAM resources failed to fit 2 channel.
@@ -258,7 +262,7 @@ syn_averaging syn_avg_inst(
 
 Hist hist_inst(
 	.clk(SCLK), // SCLK 35 MHz
-	.signal(VSA),
+	.signal(sa_in), // VSA
 	.in_valid(avg_valid), //signal valid,
 	.pulse_start(pulse_start),  //one clock pulse, i.e.   ISIS pulse
 	.AVG_TIMES(HIST_AVG), //8 byte unsigned, histogram averaging times: 4,8,16,32,... pulses * 1024

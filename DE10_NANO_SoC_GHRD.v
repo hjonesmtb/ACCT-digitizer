@@ -24,7 +24,7 @@
  * oct 2024  : changed fast fifo to 16k. Removed unused commands.
  */
  
-parameter FPGA_VERSION_NO = 32'd20250103; //yyyy_mm_dd_hh:
+parameter FPGA_VERSION_NO = 32'd20250407; //yyyy_mm_dd_hh:
 // taken from may 2023
 
 module DE10_NANO_SoC_GHRD(
@@ -443,6 +443,9 @@ wire [31:0] BEAMnA1,BEAMnA2;
 
 wire processing_done;
 wire ISIS_pulse_lost;
+
+wire [31:0] avg_debug1, avg_debug2;
+
 /////////////////// - new HJ				
 
 Channel_Block Channel_1_inst(
@@ -513,7 +516,8 @@ Channel_Block Channel_1_inst(
  .fpVBL(fpVBL1),
  
  .BEAMnA(BEAMnA1),
- .processing_done(processing_done)
+ .processing_done(processing_done),
+ .debug(avg_debug1)
  
 );				
 
@@ -589,7 +593,8 @@ Channel_Block Channel_2_inst(
  .fpVBL(fpVBL2),
  .BEAMnA(BEAMnA2),
  
- .processing_done()
+ .processing_done(),
+ .debug(avg_debug2)
  );				
 
 `endif
@@ -650,8 +655,8 @@ Channel_Block Channel_2_inst(
 					10: begin sfifo_data_in <= 10; p_state <= 11; end // std_dev of avg1
 					11: begin sfifo_data_in <= 11; p_state <= 12; end // std_dev of avg2
 					12: begin sfifo_data_in <= 12; p_state <= 13; end 
-					13: begin sfifo_data_in <= 13; p_state <= 14; end 
-					14: begin sfifo_data_in <= 14; p_state <= 15; end
+					13: begin sfifo_data_in <= avg_debug1; p_state <= 14; end 
+					14: begin sfifo_data_in <= avg_debug2; p_state <= 15; end
 					15: begin sfifo_data_in <= 15; p_state <= 16; end
 					16: begin sfifo_data_in <= 16; p_state <= 17; end
 					17: begin sfifo_data_in <= 17; p_state <= 18; end
