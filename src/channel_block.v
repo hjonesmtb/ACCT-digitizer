@@ -95,7 +95,7 @@ module Channel_Block(
 //`define OUTPUT_5TH_FILTER 1 
 
 wire [SF_WIDTH-1:0] fpDIN,fpVBL_BF,fpVBL_DC,fpVBL_TC,fpVLP,fpBL,fpAVG,fpINT, fpBEAM, fpBEAM0, fpBEAM1,fpBEAM2;//*synthesis keep*/;
-wire [ADC_DATA_WIDTH-1:0] BEAM0,VLP,VBL_BF,VBL_DC,VBL,VSA,hist_data/*synthesis keep*/;	
+wire [ADC_DATA_WIDTH-1:0] BEAM0,VLP,VBL_BF,VBL_DC,VBL,VSA,hist_data,VSA_comp/*synthesis keep*/;	
 wire [ADC_DATA_WIDTH-1:0] BL,BL_BF,BL_TC/*synthesis keep*/;
 
 wire avg_valid/*synthesis keep*/;
@@ -206,7 +206,7 @@ wire [15:0] AVG_TIMES = (AVG_MODE == 3'b000)? 4 :
 								(AVG_MODE == 3'b110)? 256 :
 								(AVG_MODE == 3'b111)? 512 : 1;
 								
-wire [7:0] HIST_AVG = (HIST_MODE == 3'b000)? 4 : 
+wire [7:0] HIST_AVG =   (HIST_MODE == 3'b000)? 4 : 
                         (HIST_MODE == 3'b001)? 8 :
 								(HIST_MODE == 3'b010)? 16 :
 								(HIST_MODE == 3'b011)? 32 :
@@ -244,6 +244,7 @@ syn_averaging syn_avg_inst(
 	.N_sample(N_sample), //16 bit, number of samples per pulse
    .avg_valid(avg_valid),
 	.avg_signal(VSA), //16 bit signed data
+	.avg_signal_comp(VSA_comp),
 	.pulse_len(pulse_len),
 
 	.overflow(sa_overflow),
@@ -262,7 +263,7 @@ syn_averaging syn_avg_inst(
 
 Hist hist_inst(
 	.clk(SCLK), // SCLK 35 MHz
-	.signal(sa_in), // VSA
+	.signal(VSA), // VSA
 	.in_valid(avg_valid), //signal valid,
 	.pulse_start(pulse_start),  //one clock pulse, i.e.   ISIS pulse
 	.AVG_TIMES(HIST_AVG), //8 byte unsigned, histogram averaging times: 4,8,16,32,... pulses * 1024
@@ -382,7 +383,7 @@ assign fifo_din = (waveform_sel == 3'b000)? {din} : // Raw input signal
 						(waveform_sel == 3'b001)? {VLP} : //  LPF waveform
                   (waveform_sel == 3'b010)? {combf_out} : // comb waveform
 						(waveform_sel == 3'b011)? {VBL_BF} :  //  Box filter waveform
-						(waveform_sel == 3'b100)? {VSA} :      // SA averaged waveform 
+						(waveform_sel == 3'b100)? {VSA_comp} :      // SA averaged waveform 
 						(waveform_sel == 3'b101)? {VBL_DC} :      // Raw / DC waveform
 						 32'b0;											 
 assign fifo_din_valid = (waveform_sel == 3'b100)? avg_valid : Data_Valid;

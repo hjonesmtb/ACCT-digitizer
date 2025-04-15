@@ -7,6 +7,7 @@
 
 // Oct 10 2024 : modified overflow to detect when pulse length exceeds 16384
 // Nov 8 2024  : modified so addr will not overflow, and peak current calc will be correct for all frequencies
+// Apr 7 2025: modified so avg_signal is not droop compensated, but the INT output is. 
 
 
 `timescale 1ns / 1ps
@@ -25,6 +26,7 @@ module syn_averaging(
 	output reg [15:0] N_sample,
 	output avg_valid,
    output signed [15:0] avg_signal,
+	output signed [15:0] avg_signal_comp,
 	output reg [13:0] pulse_len, // added sept 3 - HJ
 	output overflow,
 	output [31:0] debug
@@ -60,9 +62,8 @@ module syn_averaging(
 	wire signed [LONG_WIDTH-1:0] ram_data_out, ram_dout_latched/*synthesis keep*/; 
 	
 	reg acc_rd_en, acc_wr_en;	
-	reg signed [LONG_WIDTH-1:0] acc_data_in, avg_signal_24/*synthesis keep*/;	
+	reg signed [LONG_WIDTH-1:0] acc_data_in, avg_signal_24, avg_signal_24_comp/*synthesis keep*/;	
 	wire signed [LONG_WIDTH-1:0] acc_data_out/*synthesis keep*/;
-	
 	
 	reg [13:0] acc_cnt; //max = 1023
 	reg [13:0] addr,acc_waddr,acc_raddr; 
@@ -72,6 +73,7 @@ module syn_averaging(
 	reg new_pulse;
 	reg signed[36:0] integral; // integrate pulse (scaled by alpha) bits = 20+14+3 (max alpha = 2^3 - 1 = 9)	
 	
+	assign debug = avg_signal_comp;
 	reg ovf; // oveflow flag that is updated during each pulse
 	
 always @ (posedge clk )
@@ -89,7 +91,7 @@ begin
 					
 					addr <= 0;
 					new_pulse <= 0;
-					integral <= 0;
+					//integral <= 0;
 					if (acc_cnt < AVG_TIMES-1)
 						begin
 							acc_cnt <= acc_cnt + 1;
@@ -137,9 +139,10 @@ begin
 					if (acc_cnt == 1) //acc_cnt == 1, this is the first pulse. 
 						begin
 							ram_data_in <= signal;
-							integral <= integral + (ram_data_out - BL)*alpha;
+							//integral <= integral + (ram_data_out - BL)*alpha;
 							ram_dout_latched <= ram_data_out;
-							acc_data_in <= ram_dout_latched + (integral>>>22); // changed from ram_data_out
+							//acc_data_in <= ram_dout_latched + (integral>>>22); // changed from ram_data_out
+							acc_data_in <= ram_dout_latched;
 							acc_waddr <= addr;
 							acc_wr_en <= 1; 
 						end
@@ -218,6 +221,7 @@ reg avg_valid_reg/*synthesis keep*/;
 
 assign avg_valid = avg_valid_reg;
 assign avg_signal = avg_signal_24[DATA_WIDTH-1:0];
+assign avg_signal_comp = avg_signal_24_comp[DATA_WIDTH-1:0];
 
 
 always @ (posedge clk )
@@ -226,9 +230,20 @@ begin
 		0: if (start_proc)  begin acc_rd_en <= 1; acc_raddr <= 0; pro_state <= 1; end
 		1: pro_state <= 2; 
 		2: begin 
-			  if (acc_raddr == pulse_len) begin acc_rd_en <= 0; avg_valid_reg <= 0; pro_state <= 3; end //only keep 1016 samples
-			  else begin acc_raddr <= acc_raddr + 1;  avg_valid_reg <= 1;  end
+			  if (acc_raddr == pulse_len) begin 
+				acc_rd_en <= 0; avg_valid_reg <= 0;
+				pro_state <= 3; 
+				integral <= 0;
+			  end //restart on each pulse
+			  else begin 
+				acc_raddr <= acc_raddr + 1;  	
+				avg_valid_reg <= 1; 
+				integral <= integral + (acc_data_out - BL)*alpha; 
+			  end
+			  
 			  avg_signal_24 <= acc_data_out >>> SHIFT_BITS; //keep sign, devided the AVG_TIMES
+			  avg_signal_24_comp <= (acc_data_out + (integral >>> 22)) >>> SHIFT_BITS;
+			  
 			  //avg_signal_24 <= acc_data_out; //keep sign, devided the AVG_TIMES
 		   end
 		3: begin  pro_state <= 0; end
@@ -251,11 +266,11 @@ reg [1:0] min_state;
 always @ (posedge clk )	
 begin
    case(min_state)
-		0: if (avg_valid) begin INT_Valid <= 0; Acc <= Acc + avg_signal; N <= N + 1; min_state <= 1; end 
+		0: if (avg_valid) begin INT_Valid <= 0; Acc <= Acc + avg_signal_comp; N <= N + 1; min_state <= 1; end 
 		   else begin INT_Valid <= 0; Acc <= 0; N <= 0; end
 		1: if (~avg_valid) min_state <= 2; 
 			else begin 
-					 Acc <= Acc + avg_signal; N <= N + 1; 
+					 Acc <= Acc + avg_signal_comp; N <= N + 1; 
 				  end 
 		2: begin Sum <= Acc; N_sample <= N; min_state <= 3; end 
 		3: begin N <= 0; INT_Valid <= 1; INT <= s_data_sum; min_state <= 0; end 
