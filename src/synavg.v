@@ -249,7 +249,6 @@ begin
 		3: begin  pro_state <= 0; end
 	   default: pro_state <= 0;
 	endcase
-	
 end 	
 
 //for each averaged pulse, calculate the Integration: substract base line (BL) and integrating. 

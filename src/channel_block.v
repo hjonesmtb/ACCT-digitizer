@@ -260,12 +260,24 @@ syn_averaging syn_avg_inst(
     );
 */
 
+wire signed [15:0] hist_in;
+wire hist_valid_in;
+
+synavg_fixed avg_4x (
+    .clk(SCLK),
+	 .in_valid(Data_Valid),
+    .signal_in(sa_in),
+    .trigger(pulse_start),  // 1-cycle pulse, marks start of new period
+
+    .avg_signal(hist_in),
+    .avg_valid(hist_valid_in)
+);
 
 Hist hist_inst(
 	.clk(SCLK), // SCLK 35 MHz
-	.signal(VSA), // VSA
-	.in_valid(avg_valid), //signal valid,
-	.pulse_start(pulse_start),  //one clock pulse, i.e.   ISIS pulse
+	.signal(hist_in), // VSA
+	.in_valid(hist_valid_in), //signal valid,
+	.pulse_start(),  //not used
 	.AVG_TIMES(HIST_AVG), //8 byte unsigned, histogram averaging times: 4,8,16,32,... pulses * 1024
    .DC_Index(DC_Index), //input
 	.pulse_len(pulse_len), // input
@@ -382,8 +394,8 @@ assign fpBEAM = fpBEAM0;
 assign fifo_din = (waveform_sel == 3'b000)? {din} : // Raw input signal
 						(waveform_sel == 3'b001)? {VLP} : //  LPF waveform
                   (waveform_sel == 3'b010)? {combf_out} : // comb waveform
-						(waveform_sel == 3'b011)? {VBL_BF} :  //  Box filter waveform
-						(waveform_sel == 3'b100)? {VSA_comp} :      // SA averaged waveform 
+						(waveform_sel == 3'b011)? {hist_in} :  //  Box filter waveform (VLB_BF)
+						(waveform_sel == 3'b100)? {BL_SA,VSA_comp} :      // SA averaged waveform 
 						(waveform_sel == 3'b101)? {VBL_DC} :      // Raw / DC waveform
 						 32'b0;											 
 assign fifo_din_valid = (waveform_sel == 3'b100)? avg_valid : Data_Valid;

@@ -24,7 +24,7 @@ module AD4001
 		  input 									 start_read, //pulse, system command from initialize code
         output reg [7:0] conf_reg, //ADC config reg
 		  output reg [15:0]    DOUT,       // Data output
-        output reg           DRDY        // Data ready signal
+        output reg           DRDY=0        // Data ready signal
     );
 
     parameter   state_idle = 0, 

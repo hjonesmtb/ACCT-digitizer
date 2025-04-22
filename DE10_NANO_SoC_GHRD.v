@@ -24,7 +24,7 @@
  * oct 2024  : changed fast fifo to 16k. Removed unused commands.
  */
  
-parameter FPGA_VERSION_NO = 32'd20250408; //yyyy_mm_dd_hh:
+parameter FPGA_VERSION_NO = 32'd20250417; //yyyy_mm_dd_hh:
 // taken from may 2023
 
 module DE10_NANO_SoC_GHRD(
