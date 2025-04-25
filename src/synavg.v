@@ -28,7 +28,7 @@ module syn_averaging(
    output signed [15:0] avg_signal,
 	output signed [15:0] avg_signal_comp,
 	output reg [13:0] pulse_len, // added sept 3 - HJ
-	output overflow,
+	output reg overflow,
 	output [31:0] debug
 );
 
@@ -59,7 +59,8 @@ module syn_averaging(
 	
    reg rd_en, wr_en/*synthesis keep*/;
 	reg signed [LONG_WIDTH-1:0] ram_data_in/*synthesis keep*/; 
-	wire signed [LONG_WIDTH-1:0] ram_data_out, ram_dout_latched/*synthesis keep*/; 
+	wire signed [LONG_WIDTH-1:0] ram_data_out/*synthesis keep*/; 
+	reg signed [LONG_WIDTH-1:0] ram_dout_latched/*synthesis keep*/; 
 	
 	reg acc_rd_en, acc_wr_en;	
 	reg signed [LONG_WIDTH-1:0] acc_data_in, avg_signal_24, avg_signal_24_comp/*synthesis keep*/;	

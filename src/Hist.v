@@ -110,11 +110,14 @@ module Hist(
 always @ (posedge clk )
 begin
 	case(state)
+		
 		state_idle:	if (in_valid) begin buf_addr <= buf_addr + 1; state <= state_buf; end
+		// write buffer of samples while in_valid is high
 		state_buf: begin 
 						 	if (in_valid)  buf_addr <= buf_addr + 1;
 					      else 	begin buf_addr <= 0; state <= state_acc0; end
 					  end		
+		// start reading from buffer, until buf_addr == pulse_len
 		state_acc0:	begin
 						  wr_en <= 0;
 						  if (buf_addr < pulse_len) //~buf_addr[BUFF_ADDR_WIDTH] - HJ sept 3
@@ -222,6 +225,7 @@ begin
 					     if (hist_signal > peak) begin peak <= hist_signal; peaking_bin <= ycnt; end
 						end
 					else begin 
+							 // above 95% DC, just use the minimum value. not enough samples
 							 if ( DC_Index > 8) peak_bin <= Min;
 							 else peak_bin <= peaking_bin; 
 							 Pstate <= 2;
