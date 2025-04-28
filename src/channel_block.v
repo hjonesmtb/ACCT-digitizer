@@ -273,30 +273,30 @@ syn_averaging syn_avg_inst(
 //);
 
  //-------------------------------------
-wire [15:0] avg_signal_fixed;
-wire [13:0] pulse_len_fixed;
-wire avg_valid_fixed;
-
- // Instantiate the DUT
- synavg_fixed uut (
-	  .clk(SCLK),
-	  .in_valid(Data_Valid),
-	  .signal_in(sa_in),
-	  .trigger(pulse_start),
-	  .avg_signal(avg_signal_fixed),
-	  .pulse_len(pulse_len_fixed),
-	  .avg_valid(avg_valid_fixed)
- );
+//wire [15:0] avg_signal_fixed;
+//wire [13:0] pulse_len_fixed;
+//wire avg_valid_fixed;
+//
+// // Instantiate the DUT
+// synavg_fixed uut (
+//	  .clk(SCLK),
+//	  .in_valid(Data_Valid),
+//	  .signal_in(sa_in),
+//	  .trigger(pulse_start),
+//	  .avg_signal(avg_signal_fixed),
+//	  .pulse_len(pulse_len_fixed),
+//	  .avg_valid(avg_valid_fixed)
+// );
 // -------------------------------------
 
-//wire [15:0] hist_signal_in;
+//wire [15:0] avg_16x, hist_signal_in;
 //wire beam_off;
 //findRMS u_beam_det (
 //	 .clk       (Data_Valid),     // 1.152 MHz sample clock
 //	 .rst       (),      // synchronous, active‑high reset
 //	 .sig_in    (sa_in),    // signed 16‑bit signal from BPM / toroid
 //	 .threshold (100),      // e.g. 16'd100  → beam‑present threshold
-//	 .sig_out   (hist_signal_in),     // 16‑sample moving‑average output
+//	 .sig_out   (avg_16x),     // 16‑sample moving‑average output
 //	 .beamOff   (beam_off)    // 1 = beam below threshold
 //);	
 
@@ -311,11 +311,11 @@ always@(posedge pulse_start) begin
 		trig_cnt <= trig_cnt + 1;
 	end
 end
-	
+
 Hist hist_inst(
-	.clk(SCLK), // SCLK 35 MHz
-	.signal(VSA), // VSA
-	.in_valid(avg_valid), //avg_valid,
+	.clk(Data_Valid), // SCLK 35 MHz
+	.signal(sa_in), // VSA
+	.in_valid(trigger_hist), //avg_valid,
 	.pulse_start(),  //one clock pulse, i.e.   ISIS pulse
 	.AVG_TIMES(HIST_AVG), //8 byte unsigned, histogram averaging times: 4,8,16,32,... pulses * 1024
    .DC_Index(DC_Index), //input
