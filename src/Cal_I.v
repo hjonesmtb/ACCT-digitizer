@@ -15,6 +15,8 @@ wire TC_METHOD = (METHOD == 2'b00);
 wire BF_METHOD = (METHOD == 2'b01);
 wire TH_METHOD = (METHOD == 2'b10);
 wire CB_METHOD = (METHOD == 2'b11); 
+
+Changed May22 for reverse polarity
 */
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -87,6 +89,8 @@ wire signed [SF_WIDTH-1:0] GC_FACTOR = (PCA_gain == 2'b00)?  GC0_FACTOR :
 										  (PCA_gain == 2'b10)?  GC2_FACTOR : 
 										  (PCA_gain == 2'b11)?  GC3_FACTOR : GC0_FACTOR;
 */
+wire [31:0] avg32_flipped;
+reg [31:0] I_val32_tmp;
 
 wire [SF_WIDTH-1:0] G_FACTOR = (PCA_gain == 2'b00)?  G0 : 
 							          (PCA_gain == 2'b01)?  G1 : 
@@ -168,9 +172,17 @@ altfp_add add_inst3 (.dataa(fpPeak_uA_G), .datab(FP_Z), .clock(clk), .result(fpP
 
 altfp_mul mul_inst7 (.dataa(fpPeak_uA), .datab(FP1000), .clock(clk), .result(fpNanoA_peak) ); //Latency = 5  
 altfp_fp2int32 conv_inst5 (.dataa(fpNanoA_peak), .clock(clk), .result(NanoA_peak32)); 
- 
+
+//lpm_addsub lpm_sub1 ( .add_sub(1'b0), .dataa(peak32), .datab(I_val32_tmp), .result(avg32_flipped));
 always@ (posedge clk) begin
-		if(Data_In_Valid) begin RDY <= 1; I_val32 <= NanoA32; peak32 <= NanoA_peak32; DAC_code <= {~DAC[15],DAC[14:0]}; end
+		if(Data_In_Valid) begin 
+			RDY <= 1;
+			//I_val32_tmp <= NanoA32;
+			peak32 <= NanoA_peak32;
+			DAC_code <= {~DAC[15],DAC[14:0]}; 
+			
+			I_val32 <= NanoA32;
+		end
 		else RDY <= 0;	
 end  //always
 

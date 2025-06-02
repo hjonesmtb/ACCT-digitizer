@@ -141,9 +141,9 @@ begin
 						begin
 							ram_data_in <= signal;
 							//integral <= integral + (ram_data_out - BL)*alpha;
-							ram_dout_latched <= ram_data_out;
+							//ram_dout_latched <= ram_data_out;
 							//acc_data_in <= ram_dout_latched + (integral>>>22); // changed from ram_data_out
-							acc_data_in <= ram_dout_latched;
+							acc_data_in <= ram_data_out;
 							acc_waddr <= addr;
 							acc_wr_en <= 1; 
 						end
@@ -239,11 +239,11 @@ begin
 			  else begin 
 				acc_raddr <= acc_raddr + 1;  	
 				avg_valid_reg <= 1; 
-				integral <= integral + (acc_data_out - BL)*alpha; 
+				//integral <= integral + (acc_data_out - BL)*alpha; // removed apr 28
 			  end
 			  
 			  avg_signal_24 <= acc_data_out >>> SHIFT_BITS; //keep sign, devided the AVG_TIMES
-			  avg_signal_24_comp <= (acc_data_out + (integral >>> 22)) >>> SHIFT_BITS;
+			  avg_signal_24_comp <= (acc_data_out) >>> SHIFT_BITS; // removed + (integral >>> 22) apr 28
 			  
 			  //avg_signal_24 <= acc_data_out; //keep sign, devided the AVG_TIMES
 		   end

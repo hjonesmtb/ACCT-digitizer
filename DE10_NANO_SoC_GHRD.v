@@ -24,7 +24,7 @@
  * oct 2024  : changed fast fifo to 16k. Removed unused commands.
  */
  
-parameter FPGA_VERSION_NO = 32'd20250424; //yyyy_mm_dd_hh:
+parameter FPGA_VERSION_NO = 32'd20250528; //yyyy_mm_dd_hh:
 // taken from may 2023
 
 module DE10_NANO_SoC_GHRD(
@@ -219,13 +219,6 @@ wire                fpga_clk_50;
 assign LED[7: 1] = fpga_led_internal;
 assign fpga_clk_50 = FPGA_CLK1_50;
 assign stm_hw_events = {{15{1'b0}}, SW, fpga_led_internal, fpga_debounced_buttons};
-
-/************************************************************************/
-/************************* Target Protect Logic *************************/
-/************************************************************************/
-
-
-
 
 //Wires from ADC modules
 

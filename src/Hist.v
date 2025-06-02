@@ -226,7 +226,7 @@ begin
 						end
 					else begin 
 							 // above 95% DC, just use the minimum value. not enough samples
-							 if ( DC_Index > 8) peak_bin <= Min;
+							 if ( DC_Index > 8) peak_bin <= Min; // was Min
 							 else peak_bin <= peaking_bin; 
 							 Pstate <= 2;
 							end

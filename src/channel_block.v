@@ -71,7 +71,7 @@ module Channel_Block(
  
  output [ADC_DATA_WIDTH-1:0] N_sample,
  output [7:0] DC_Index,
- output [ADC_DATA_WIDTH-1:0] BL_SA,
+ output signed [ADC_DATA_WIDTH-1:0] BL_SA, // added sign
  output signed [ADC_DATA_WIDTH-1:0] peak,
  output signed [SF_WIDTH-1:0] peaknA,
  output signed [SF_WIDTH-1:0] fpDC,
@@ -126,8 +126,8 @@ LPF5_IIR LPF_input_inst1(
 `endif
 
 //input filter default:
-parameter IIR_IN_K2 = 32'd1677722;  //0.1 = 1677722/2^24
-parameter IIR_IN_K1 = 32'd15099494; //0.9 = 15099494/2^24
+parameter IIR_IN_K2 = 32'd335544;  //0.1 = 1677722/2^24   32'd1677722
+parameter IIR_IN_K1 = 32'd16441672; //0.9 = 15099494/2^24 32'd15099494
 
 LPF_IIR LPF_input_inst2(
     .FCLK(SCLK),
@@ -142,8 +142,12 @@ LPF_IIR LPF_input_inst2(
 	 
 //assign fpVLP = CON_REG[0]? fpVLP1 : fpVLP0; //uncomment if using 5th order input filter
 assign fpVLP = fpVLP0;	 
-altfp_fp2int fp2intconv_inst1 (.dataa(fpVLP), .clock(SCLK), .result(VLP));  		 
 
+wire [15:0] VLP_tmp;
+altfp_fp2int fp2intconv_inst1 (.dataa(fpVLP), .clock(SCLK), .result(VLP_tmp));  		 
+
+
+avg_4 smooth_inst(.signal(VLP_tmp), .pulser(), .clk(Data_Valid), .avg(VLP), .pulser_out()); // smooth 2x
 
 //input filter ends /////////////////////////////////////////
 
@@ -253,41 +257,29 @@ syn_averaging syn_avg_inst(
 	.debug(debug)
 );
 
+wire signed [15:0] avg_8x;
+
+ synavg_fixed avg_fixed_inst (
+	  .clk(SCLK),
+	  .in_valid(Data_Valid),
+	  .signal_in(sa_in),
+	  .trigger(pulse_start),
+	  .avg_signal(avg_8x),
+	  .pulse_len(),
+	  .avg_valid()
+ );
+	 
 //added on January05,2023 to replace Hist which needs too much RAM resources failed to fit 2 channel.
-/*bottom syn_BL_inst(
-	.clk(SCLK), // SCLK 35 MHz
-	.signal(VSA),
-	.in_valid(avg_valid), // valid for the one period of the input signal
-	.min(BL_SA) //BL for syn_averaging method
+bottom syn_BL_inst(
+	.clk(Data_Valid), // SCLK 35 MHz
+	.signal(avg_8x),
+	.in_valid(1 ), // valid for the one period of the input signal
+	.BL(BL_SA), //BL for syn_averaging method
+	.peak(peak)
     );
-*/
 
-//avg_half_period u_avg_half_period (
-//    .clk       (SCLK),       // ← 35 MHz system clock
-//    .rst       (),      // ← synchronous, active‑high reset
-//    .in_valid  (avg_valid),    // ← “sample_in is valid” strobe
-//    .sample_in (VSA),    // ← signed 16‑bit sample from ADC/logic
-//    .pulse_len (pulse_len),   // ← 16‑bit count of samples per full pulse
-//    .avg_fp    (fpINT_halfper), // → 32‑bit averaged value (fixed‑/float‑pt)
-//    .avg_val   ()      // → 1‑clk pulse: avg_fp just updated
-//);
 
- //-------------------------------------
-//wire [15:0] avg_signal_fixed;
-//wire [13:0] pulse_len_fixed;
-//wire avg_valid_fixed;
-//
-// // Instantiate the DUT
-// synavg_fixed uut (
-//	  .clk(SCLK),
-//	  .in_valid(Data_Valid),
-//	  .signal_in(sa_in),
-//	  .trigger(pulse_start),
-//	  .avg_signal(avg_signal_fixed),
-//	  .pulse_len(pulse_len_fixed),
-//	  .avg_valid(avg_valid_fixed)
-// );
-// -------------------------------------
+
 
 //wire [15:0] avg_16x, hist_signal_in;
 //wire beam_off;
@@ -301,10 +293,10 @@ syn_averaging syn_avg_inst(
 //);	
 
 reg [5:0] trig_cnt = 0;
-wire trigger_hist = (trig_cnt == 3)? 1 : 0;
+wire trigger_hist = (trig_cnt == 1)? 1 : 0;
  
 always@(posedge pulse_start) begin
-	if(trig_cnt == 3) begin
+	if(trig_cnt == 1) begin
 		trig_cnt <= 0;
 	end
 	else begin
@@ -312,23 +304,23 @@ always@(posedge pulse_start) begin
 	end
 end
 
-Hist hist_inst(
-	.clk(Data_Valid), // SCLK 35 MHz
-	.signal(sa_in), // VSA
-	.in_valid(trigger_hist), //avg_valid,
-	.pulse_start(),  //one clock pulse, i.e.   ISIS pulse
-	.AVG_TIMES(HIST_AVG), //8 byte unsigned, histogram averaging times: 4,8,16,32,... pulses * 1024
-   .DC_Index(DC_Index), //input
-	.pulse_len(pulse_len), // input
-	
-	.BL(BL_SA), 
-	.pulse_height(peak),
-	.fpDC100(fpDC), //duty cycle = ( 0 , 100)
-	
-	.hist_valid(hist_valid),
-   .hist_signal(hist_data),
-	.overflow(hist_overflow)
-);
+//Hist hist_inst(
+//	.clk(SCLK), // SCLK 35 MHz. Or
+//	.signal(VSA), // VSA
+//	.in_valid(avg_valid), //avg_valid,
+//	.pulse_start(),  //one clock pulse, i.e.   ISIS pulse
+//	.AVG_TIMES(HIST_AVG), //8 byte unsigned, histogram averaging times: 4,8,16,32,... pulses * 1024
+//   .DC_Index(DC_Index), //input
+//	.pulse_len(pulse_len), // input
+//	
+//	.BL(BL_SA), 
+//	.pulse_height(peak),
+//	.fpDC100(fpDC), //duty cycle = ( 0 , 100)
+//	
+//	.hist_valid(hist_valid),
+//   .hist_signal(hist_data),
+//	.overflow(hist_overflow)
+//);
 
 
 //altfp_int2fp int2fpconv_inst3 (.dataa(INT), .clock(SCLK), .result(fpINT)); 

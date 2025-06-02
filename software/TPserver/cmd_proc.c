@@ -175,10 +175,16 @@ char cmd[50],*sdp,*chp;
 					peak1_err = get_stddev(peak1_samples);
 					//peak1_err = 420;
 					dataArray[cntr] = peak1_samples[0];
+					
+					// NEW
+					//dataArray[AVG1_IDX] = peak1_samples[0] - avg1_samples[0];
 				}
 				else if(cntr == PEAK2_IDX) { 
 					peak2_err = get_stddev(peak2_samples);
 					dataArray[cntr] = peak2_samples[0];
+					
+					// NEW
+					//dataArray[AVG2_IDX] = peak2_samples[0] - avg2_samples[0];
 				}
 			
 				else if(cntr == AVG1_ERR_IDX){
