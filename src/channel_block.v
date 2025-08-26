@@ -90,11 +90,7 @@ module Channel_Block(
 //`define BOX_FILTER_METHOD 1  //comment if don't need BOX filter \
 `define SYN_AVG_METHOD 1  //comment if don't this method
 
-// The fllowing two 5th IIR consumes 50% FPGA Logic Blocks
-//`define INPUT_5TH_FILTER 1 
-//`define OUTPUT_5TH_FILTER 1 
-
-wire [SF_WIDTH-1:0] fpDIN,fpVBL_BF,fpVBL_DC,fpVBL_TC,fpVLP,fpBL,fpAVG,fpINT, fpBEAM, fpBEAM0, fpBEAM1,fpBEAM2;//*synthesis keep*/;
+wire [SF_WIDTH-1:0] fpDIN,fpVBL_BF,fpVBL_DC,fpVLP,fpBL,fpINT, fpBEAM, fpBEAM0;//*synthesis keep*/;
 wire [ADC_DATA_WIDTH-1:0] BEAM0,VLP,VBL_BF,VBL_DC,VBL,VSA,hist_data,VSA_comp/*synthesis keep*/;	
 wire [ADC_DATA_WIDTH-1:0] BL,BL_BF,BL_TC/*synthesis keep*/;
 
@@ -114,16 +110,8 @@ altfp_16int2fp int2fpconv_inst1 (.dataa(din), .clock(SCLK), .result(fpDIN)); //n
 ///////////////////////////////////////////////////////////// 
 //Input filter starts 
 
-wire [SF_WIDTH-1:0] fpVLP0,fpVLP1;
-`ifdef INPUT_5TH_FILTER
-LPF5_IIR LPF_input_inst1(
-    .FCLK(SCLK),
-    .in_valid(Data_Valid),   
-	 .data_in(fpDIN),
-	 
-	 .data_out(fpVLP1) 
-    );
-`endif
+wire [SF_WIDTH-1:0] fpVLP0;
+
 
 //input filter default:
 parameter IIR_IN_K2 = 32'd335544;  //0.1 = 1677722/2^24   32'd1677722
@@ -140,7 +128,6 @@ LPF_IIR LPF_input_inst2(
     .data_out(fpVLP0) 
     );
 	 
-//assign fpVLP = CON_REG[0]? fpVLP1 : fpVLP0; //uncomment if using 5th order input filter
 assign fpVLP = fpVLP0;	 
 
 wire [15:0] VLP_tmp;
@@ -172,7 +159,6 @@ combfilter combfilter_inst(
 `endif
 
 // comb filter ends ////////////////////////////	 
-
 
 //Box filter starts //////////////////////////////////////////
 `ifdef BOX_FILTER_METHOD
@@ -233,9 +219,7 @@ wire pulse_start = ch_cal_on? cal_pulse_syn : ISIS_pulse;
 wire INT_tag;
 
 wire [13:0] pulse_len;
-
-wire [31:0] fpINT_halfper;
-
+// this block computes the average value of the input waveform, relative to the input baseline.
 syn_averaging syn_avg_inst(
 	.clk(SCLK), // SCLK 35 MHz
 	.signal(sa_in), 
@@ -258,7 +242,7 @@ syn_averaging syn_avg_inst(
 );
 
 wire signed [15:0] avg_8x;
-
+// this block computes a rolling 8-period average of the input waveform.
  synavg_fixed avg_fixed_inst (
 	  .clk(SCLK),
 	  .in_valid(Data_Valid),
@@ -269,7 +253,7 @@ wire signed [15:0] avg_8x;
 	  .avg_valid()
  );
 	 
-//added on January05,2023 to replace Hist which needs too much RAM resources failed to fit 2 channel.
+//This block computes the minimum value of the input waveform, in a 1024 sample window.
 bottom syn_BL_inst(
 	.clk(Data_Valid), // SCLK 35 MHz
 	.signal(avg_8x),
@@ -277,32 +261,6 @@ bottom syn_BL_inst(
 	.BL(BL_SA), //BL for syn_averaging method
 	.peak(peak)
     );
-
-
-
-
-//wire [15:0] avg_16x, hist_signal_in;
-//wire beam_off;
-//findRMS u_beam_det (
-//	 .clk       (Data_Valid),     // 1.152 MHz sample clock
-//	 .rst       (),      // synchronous, active‑high reset
-//	 .sig_in    (sa_in),    // signed 16‑bit signal from BPM / toroid
-//	 .threshold (100),      // e.g. 16'd100  → beam‑present threshold
-//	 .sig_out   (avg_16x),     // 16‑sample moving‑average output
-//	 .beamOff   (beam_off)    // 1 = beam below threshold
-//);	
-
-reg [5:0] trig_cnt = 0;
-wire trigger_hist = (trig_cnt == 1)? 1 : 0;
- 
-always@(posedge pulse_start) begin
-	if(trig_cnt == 1) begin
-		trig_cnt <= 0;
-	end
-	else begin
-		trig_cnt <= trig_cnt + 1;
-	end
-end
 
 //Hist hist_inst(
 //	.clk(SCLK), // SCLK 35 MHz. Or
@@ -331,9 +289,7 @@ end
 
 wire [LONG_WIDTH-1:0] pulse_AVG/*synthesis keep*/;
 wire [LONG_WIDTH-1:0] pulse_width,pulse_period/*synthesis keep*/; 
-wire [ADC_DATA_WIDTH-1:0] pulse_BL;
-	 
-	 
+wire [ADC_DATA_WIDTH-1:0] pulse_BL; 
 
 //if ISIS_pulse missing, the DAC output is switched to BF_Method results. SL, 2022-04-13
 wire SA_Valid = (~ISIS_pulse_lost) | ch_cal_on; 
@@ -341,7 +297,7 @@ wire SA_Valid = (~ISIS_pulse_lost) | ch_cal_on;
 assign overflow = sa_overflow; // frequency too low
 //CHANGED BY HJ ON APR23 2025	
 assign fpVBL = DC_METHOD? fpVBL_DC : 
-               BF_METHOD? fpINT_halfper : 
+               BF_METHOD? fpVBL_BF : 
 					(SA_METHOD & SA_Valid)? fpINT :
 					CB_METHOD? fpVBL_BF : fpVBL_BF;
 
@@ -360,34 +316,10 @@ wire fpVBL_Valid = Data_Valid;
                    
 //output filter default:
 
-//parameter LPF_OUT_K1 = 32'd64; //K1 = 2^24 - K2
-//parameter LPF_OUT_K2 = 32'd16777152; //time constant = 0.262 seconds
-
-//parameter LPF_OUT_K1 = 32'd168; //K1 = 2^24 - K2
-//parameter LPF_OUT_K2 = 32'd16777048; //time constant = 0.1 seconds
-
-//parameter LPF_OUT_K1 = 32'd16777; //K1 = 2^24 - K2
-//parameter LPF_OUT_K2 = 32'd16760439; //time constant = 0.01 seconds
-
 //for SA mode, the filter input signal is almost DC signal, and TC = 0.262 will make the  
 //output signal looks like "dead", so it needs to use TC = 0.01 seconds.
 //and for all other Algorithm, the TC = 0.262 is good.
 
-`ifdef OUTPUT_5TH_FILTER						
-//LPF_5th_IIR LPF_output_inst1(
-LPF2_IIR LPF_output_inst1(
-    .FCLK(SCLK),
-    .in_valid(fpVBL_Valid),   
-	 .data_in(fpVBL),
-    .data_out(fpBEAM1) //a.u. = DC beam current in arbitary unit
-    );
-
-`endif
-
-//parameter IIR_OUT_BF_K1 = 32'd67; // default Time const = 0.25 s
-//parameter IIR_OUT_BF_K2 = 32'd16777149; //
-//parameter IIR_OUT_SA_K1 = 32'd5872026; //default Time const = 0.25 s
-//parameter IIR_OUT_SA_K2 = 32'd10905190; //
 
 
 wire [31:0] IIR_OUT_K1 = BF_METHOD? IIR_OUT_BF_K1 :
@@ -402,25 +334,11 @@ LPF_IIR LPF_output_inst2(
 	 
 	 .K1(IIR_OUT_K1),
 	 .K2(IIR_OUT_K2),
-	
-	// .K1(32'd419430),  //K1=0.025
-	// .K2(32'd16357786), //K2=0.975, 1Hz BW for 4 ms Tsampling.
 	 
     .data_out(fpBEAM0) //a.u. = DC beam current in arbitary unit
     );
 
-//wire [SF_WIDTH-1:0] fpBEAM = CON_REG[1]? fpBEAM1 : fpBEAM0; //uncomment if using 5th order outptu filter
 assign fpBEAM = fpBEAM0;
- 	
-////////////////////////////////////////////////////////////////////////////
-
-//assign fifo_din = (waveform_sel == 3'b000)? {BL,din} : // Raw input signal
-//						(waveform_sel == 3'b001)? {BL,VLP} : //  LPF waveform
-//                  (waveform_sel == 3'b010)? {BL,combf_out} : // comb waveform
-//						(waveform_sel == 3'b011)? {BL,VBL_BF} :  //  Box filter waveform
-//						(waveform_sel == 3'b100)? {BL_SA,VSA} :      // SA averaged waveform 
-//						(waveform_sel == 3'b101)? {VLP,VBL_DC} :      // Raw / DC waveform
-//						 32'b0;
 
 assign fifo_din = (waveform_sel == 3'b000)? {din} : // Raw input signal
 						(waveform_sel == 3'b001)? {VLP} : //  LPF waveform
@@ -430,9 +348,7 @@ assign fifo_din = (waveform_sel == 3'b000)? {din} : // Raw input signal
 						(waveform_sel == 3'b101)? {VBL_DC} :      // Raw / DC waveform
 						 32'b0;											 
 assign fifo_din_valid = (waveform_sel == 3'b100)? avg_valid : Data_Valid;
-								  
-
-
+								
 //00: DC method, 01: box filter method, 10: threshold method, 11: comb filter + box filter
 
 wire DC_METHOD = (METHOD == 2'b00);
@@ -496,23 +412,5 @@ DAC_control DAC_control_inst
         .rst(SYS_RST)     
 		  
     );	
-	 	 
-
-///============== Trip generating ===============		 
-`ifdef TRIP_ENABLE		 
-
-wire signed [31:0] trip_trip_na; 
-lpm_mul mul_inst (
-		.dataa(TRIP_TH), //16 bit, in unit of 100nA
-		.datab(100),  //16 bit
-		.result(trip_trip_na)  //32 bit
-		);	
-wire trip_OK = BEAMnA[31]? 1'b1 : BEAMnA < trip_trip_na;
-always@ (posedge SCLK) if(~trip_OK) trip <= 1; else trip <= 0;	
-
-`else
-wire trip_OK = 1;
-
-`endif
 
 endmodule

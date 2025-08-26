@@ -24,7 +24,7 @@
  * oct 2024  : changed fast fifo to 16k. Removed unused commands.
  */
  
-parameter FPGA_VERSION_NO = 32'd20250528; //yyyy_mm_dd_hh:
+parameter FPGA_VERSION_NO = 32'd20250602; //yyyy_mm_dd_hh:
 // taken from may 2023
 
 module DE10_NANO_SoC_GHRD(
@@ -418,7 +418,6 @@ wire [SFIFO_WIDTH-1:0] ch1_slow_fifo_dout,ch2_slow_fifo_dout;
 wire [7:0] ch1_sfifo_rd_wd,ch2_sfifo_rd_wd;
 
 wire ch1_overflow,ch2_overflow;
-wire ch1_trip,ch2_trip; //channel trip to turn off relay-- relay SW open.
 
 wire syn_pulse = ISIS_pulse_trimed ; //Apr24_2020
 
